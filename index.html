@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunny Town — A Voice-Guided Life Game</title>
+<style>
+  :root{
+    --ink:#1c1a17;
+    --paper:#fbf6ee;
+    --line:#2b2620;
+    --accent:#e0762f;
+    --accent-2:#3a6b5c;
+    --soft:#efe6d4;
+    --focus:#1954c9;
+    --danger:#a4373a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Georgia','Iowan Old Style',serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  a.skip-link{
+    position:absolute; left:-999px; top:0; background:var(--ink); color:var(--paper);
+    padding:.6em 1em; z-index:100; border-radius:0 0 6px 0;
+  }
+  a.skip-link:focus{left:0;}
+
+  header{
+    padding:1em 1.2em .6em;
+    border-bottom:3px solid var(--line);
+    display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:.4em;
+  }
+  header h1{
+    margin:0; font-size:1.5em; letter-spacing:.02em;
+  }
+  header h1 .dot{color:var(--accent);}
+  header p.tag{margin:0; font-size:.85em; font-family:'Courier New',monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--accent-2);}
+
+  nav.scenes{
+    display:flex; gap:.5em; flex-wrap:wrap; padding:.8em 1.2em; border-bottom:1px solid var(--line);
+    background:var(--soft);
+  }
+  nav.scenes button{
+    font-family:'Courier New',monospace; font-size:.95em; padding:.5em .9em;
+    border:2px solid var(--line); background:var(--paper); cursor:pointer; border-radius:3px;
+  }
+  nav.scenes button[aria-current="true"]{
+    background:var(--accent); color:var(--paper); border-color:var(--accent);
+  }
+  nav.scenes button:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--focus); outline-offset:2px;
+  }
+
+  main{
+    flex:1; display:flex; gap:0; flex-wrap:wrap;
+  }
+  .stage{
+    flex:2; min-width:320px; padding:1.2em;
+  }
+  .scene-title{margin:0 0 .1em; font-size:1.6em;}
+  .scene-desc{margin:0 0 1em; font-style:italic; color:#463f36;}
+
+  .hotspot-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.9em;
+    list-style:none; margin:0; padding:0;
+  }
+  .hotspot-grid li{margin:0;}
+  .hotspot{
+    width:100%; height:100%; min-height:120px;
+    border:2px solid var(--line); background:#fff; border-radius:8px;
+    padding:.8em .6em; cursor:pointer; text-align:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4em;
+    font-family:inherit; font-size:1em;
+  }
+  .hotspot .icon{font-size:2.1em; line-height:1;}
+  .hotspot .label{font-weight:bold;}
+  .hotspot:hover{border-color:var(--accent);}
+  .hotspot[aria-pressed="true"]{border-color:var(--accent-2); background:var(--soft);}
+
+  .shop-panel{
+    margin-top:1em; border:2px solid var(--accent); border-radius:8px; padding:1em; background:#fff;
+  }
+  .shop-panel h3{margin:0 0 .6em;}
+  .shop-choice-list{list-style:none; margin:0 0 .8em; padding:0; display:flex; flex-wrap:wrap; gap:.6em;}
+  .shop-choice-list li{margin:0;}
+  .shop-choice-list label{
+    display:flex; align-items:center; gap:.5em; font-family:inherit; font-size:1em;
+    border:2px solid var(--line); background:var(--soft); padding:.6em .9em; border-radius:6px; cursor:pointer;
+  }
+  .shop-choice-list label.chosen{border-color:var(--accent); background:#fdf0e6;}
+  .shop-choice-list label:hover{border-color:var(--accent);}
+  #shopCancelBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.4em .8em; border-radius:4px; cursor:pointer;
+  }
+
+  aside.panel{
+    flex:1; min-width:280px; border-left:3px solid var(--line);
+    padding:1.2em; background:var(--soft);
+  }
+  aside.panel h2{margin-top:0; font-size:1.1em; font-family:'Courier New',monospace; text-transform:uppercase; letter-spacing:.06em;}
+
+  #storyLog{
+    list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto;
+    border:1px solid var(--line); background:var(--paper); border-radius:6px;
+  }
+  #storyLog li{padding:.5em .7em; border-bottom:1px solid #ddd2b8; font-size:.95em;}
+  #storyLog li:last-child{border-bottom:none;}
+
+  #inventoryList, #fridgeList{
+    list-style:none; margin:0; padding:0; border:1px solid var(--line); background:var(--paper);
+    border-radius:6px; max-height:220px; overflow-y:auto;
+  }
+  #inventoryList li, #fridgeList li{
+    display:flex; align-items:center; justify-content:space-between; gap:.5em;
+    padding:.5em .7em; border-bottom:1px solid #ddd2b8; font-size:.95em; flex-wrap:wrap;
+  }
+  #inventoryList li:last-child, #fridgeList li:last-child{border-bottom:none;}
+  #inventoryList li.empty-msg, #fridgeList li.empty-msg{font-style:italic; color:#665f52; justify-content:flex-start;}
+  #inventoryList button, #fridgeList button{
+    font-family:'Courier New',monospace; font-size:.8em; border:2px solid var(--accent-2);
+    background:var(--accent-2); color:#fff; padding:.3em .7em; border-radius:4px; cursor:pointer; flex-shrink:0;
+  }
+  #inventoryList .item-actions, #fridgeList .item-actions{display:flex; gap:.4em; flex-wrap:wrap;}
+  .fridge-hint{font-size:.8em; font-style:italic; color:#665f52; margin:.2em 0 .5em;}
+
+  .posture-buttons{display:flex; gap:.5em; flex-wrap:wrap;}
+  .posture-buttons button{
+    font-family:'Courier New',monospace; font-size:.85em; border:2px solid var(--line); background:var(--paper);
+    padding:.4em .7em; border-radius:4px; cursor:pointer;
+  }
+  .posture-buttons button[aria-pressed="true"]{background:var(--accent-2); color:#fff; border-color:var(--accent-2);}
+
+  .meter-row{display:flex; align-items:center; gap:.5em; margin:.3em 0;}
+  .meter-row label{width:70px; font-size:.85em;}
+  .meter-track{flex:1; height:10px; background:#ddd2b8; border-radius:6px; overflow:hidden; border:1px solid var(--line);}
+  .meter-fill{height:100%; background:var(--accent-2);}
+
+  .voice-controls{margin-top:1.2em; border-top:1px solid var(--line); padding-top:1em;}
+  .voice-controls label{display:block; font-size:.85em; margin:.5em 0 .15em;}
+  .voice-controls input[type=range]{width:100%;}
+  .voice-controls .row{display:flex; align-items:center; justify-content:space-between; gap:.5em;}
+
+  button.toggle{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.4em .8em; cursor:pointer; border-radius:4px;
+  }
+  button.toggle[aria-pressed="true"]{background:var(--accent-2); color:var(--paper); border-color:var(--accent-2);}
+
+  footer{
+    padding:.8em 1.2em; border-top:1px solid var(--line); font-size:.85em; font-family:'Courier New',monospace;
+    color:#463f36; background:var(--soft);
+  }
+  kbd{background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:.05em .4em; font-family:inherit;}
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .hidden{display:none !important;}
+
+  #storageWarning{
+    margin:0; padding:.7em 1.2em; background:#fdecea; border-bottom:2px solid var(--danger);
+    color:var(--danger); font-size:.9em; font-family:'Courier New',monospace;
+  }
+
+  #playerTag{margin:0; font-size:.85em; color:var(--accent-2); font-family:'Courier New',monospace;}
+  #editCharBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.35em .7em; cursor:pointer; border-radius:4px; font-size:.85em;
+  }
+  #switchCharBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.35em .7em; cursor:pointer; border-radius:4px; font-size:.85em; margin-left:.4em;
+  }
+  .header-actions{display:flex; align-items:flex-start;}
+
+  .char-select{padding:1.4em 1.2em; max-width:900px;}
+  .char-select h2{margin-top:0; font-size:1.5em;}
+  .char-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1em; margin:1em 0;
+  }
+  .char-card{
+    border:2px solid var(--line); border-radius:8px; padding:1em; background:#fff;
+    display:flex; flex-direction:column; gap:.5em;
+  }
+  .char-card h3{margin:0; font-size:1.1em;}
+  .char-card p{margin:0; font-size:.9em; font-style:italic; color:#463f36;}
+  .char-card .card-actions{display:flex; gap:.5em; flex-wrap:wrap; margin-top:.4em;}
+  .char-card button{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.4em .7em; cursor:pointer; border-radius:4px; font-size:.85em;
+  }
+  .char-card button.play-btn{background:var(--accent-2); color:#fff; border-color:var(--accent-2);}
+  .char-card button.delete-btn{border-color:var(--danger); color:var(--danger);}
+  .char-card button.delete-btn[data-confirming="true"]{background:var(--danger); color:#fff;}
+  #newCharBtn, #backToGameBtn{
+    font-family:'Courier New',monospace; font-size:1em; padding:.6em 1.2em; border:2px solid var(--accent);
+    background:var(--accent); color:#fff; border-radius:6px; cursor:pointer; margin-top:.6em; margin-right:.6em;
+  }
+  #backToGameBtn{background:var(--paper); color:var(--ink); border-color:var(--line);}
+
+  .creator{padding:1.4em 1.2em; max-width:900px;}
+  .creator h2{margin-top:0; font-size:1.5em;}
+  .creator-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.1em;
+    margin:1em 0;
+  }
+  .creator .field{display:flex; flex-direction:column; gap:.3em;}
+  .creator fieldset.field{border:1px solid var(--line); border-radius:6px; padding:.6em .8em;}
+  .creator fieldset.field legend{font-weight:bold; padding:0 .3em;}
+  .creator fieldset.field label{font-weight:normal; display:flex; align-items:center; gap:.4em; margin:.2em 0;}
+  .creator fieldset.checkbox-grid-field{
+    grid-column: 1 / -1;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.2em .8em;
+  }
+  .creator fieldset.checkbox-grid-field label{margin:.15em 0;}
+  .creator label{font-weight:bold;}
+  .creator input[type=text], .creator select{
+    font-family:inherit; font-size:1em; padding:.4em .5em; border:2px solid var(--line); border-radius:4px;
+    background:#fff;
+  }
+  .char-preview{
+    font-style:italic; background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:.8em 1em; margin-top:.6em;
+  }
+  #charDone{
+    font-family:'Courier New',monospace; font-size:1em; padding:.6em 1.2em; border:2px solid var(--accent);
+    background:var(--accent); color:#fff; border-radius:6px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<a href="#stage" class="skip-link">Skip to scene</a>
+
+<header>
+  <div>
+    <h1>Sunny Town<span class="dot">.</span></h1>
+    <p class="tag">A voice-guided life game — every scene, spoken aloud</p>
+    <p id="playerTag"></p>
+  </div>
+  <div class="header-actions">
+    <button id="editCharBtn" class="hidden">🧑 Edit character</button>
+    <button id="switchCharBtn" class="hidden">👥 Switch character</button>
+  </div>
+</header>
+
+<p id="storageWarning" class="hidden" role="status">
+  ⚠️ Character saving isn't working in this session — your character may not be here next time you play. This is a limitation of where the game is running right now, not something you did.
+</p>
+
+<section class="char-select hidden" id="characterSelect" aria-label="Choose or manage your characters">
+  <h2>Your characters</h2>
+  <p class="scene-desc">Saved characters stay here between visits. Play as one, delete one, or create a new one.</p>
+  <div class="char-grid" id="characterList"></div>
+  <button id="newCharBtn">➕ Create new character</button>
+  <button id="backToGameBtn" class="hidden">⬅ Back to game</button>
+</section>
+
+<section class="creator hidden" id="creator" aria-label="Create your character">
+  <h2>Create your character</h2>
+  <p class="scene-desc">Choose how your character looks and what they're called. You can change this anytime with the "Edit character" button.</p>
+
+  <div class="creator-grid">
+    <div class="field">
+      <label for="charName">Name</label>
+      <input type="text" id="charName" placeholder="e.g. Riley" maxlength="20" aria-describedby="nameHint">
+      <span id="nameHint" class="sr-only">Type what your character is called.</span>
+    </div>
+
+    <fieldset class="field">
+      <legend>Pronouns</legend>
+      <label><input type="radio" name="pronouns" value="she/her"> She / her</label>
+      <label><input type="radio" name="pronouns" value="he/him"> He / him</label>
+      <label><input type="radio" name="pronouns" value="they/them" checked> They / them</label>
+      <label><input type="radio" name="pronouns" value="ze/zir"> Ze / zir</label>
+      <label><input type="radio" name="pronouns" value="custom"> Custom</label>
+      <label for="customPronoun" style="margin-left:1.6em; font-weight:normal;">Type your own:</label>
+      <input type="text" id="customPronoun" placeholder="e.g. xe/xem" maxlength="20" style="width:8em; margin-left:1.6em;" disabled>
+    </fieldset>
+
+    <div class="field">
+      <label for="skinSelect">Skin tone</label>
+      <select id="skinSelect">
+        <option value="veryfair">Very fair</option>
+        <option value="fair">Fair</option>
+        <option value="lighttan">Light tan</option>
+        <option value="tan">Tan</option>
+        <option value="olive">Olive</option>
+        <option value="medium" selected>Medium brown</option>
+        <option value="deep">Deep brown</option>
+        <option value="verydeep">Very deep brown</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="hairSelect">Hair style</label>
+      <select id="hairSelect">
+        <option value="short">Short</option>
+        <option value="long">Long</option>
+        <option value="straight">Straight</option>
+        <option value="wavy">Wavy</option>
+        <option value="curly" selected>Curly</option>
+        <option value="afro">Afro</option>
+        <option value="locs">Locs</option>
+        <option value="braids">Braids</option>
+        <option value="cornrows">Cornrows</option>
+        <option value="pigtails">Pigtails</option>
+        <option value="ponytail">Ponytail</option>
+        <option value="bun">Bun</option>
+        <option value="pixie">Pixie cut</option>
+        <option value="undercut">Undercut</option>
+        <option value="fauxhawk">Fauxhawk</option>
+        <option value="mohawk">Mohawk</option>
+        <option value="buzzed">Buzzed</option>
+        <option value="bald">Bald / shaved head</option>
+        <option value="headscarf">Headscarf</option>
+        <option value="turban">Turban</option>
+      </select>
+    </div>
+
+    <div class="field" id="hairColorField">
+      <label for="hairColorSelect">Hair color</label>
+      <select id="hairColorSelect">
+        <option value="black" selected>Black</option>
+        <option value="brown">Brown</option>
+        <option value="red">Red</option>
+        <option value="blonde">Blonde</option>
+        <option value="gray">Gray</option>
+        <option value="silver">Silver</option>
+        <option value="blue">Blue, dyed</option>
+        <option value="green">Green, dyed</option>
+        <option value="pink">Pink, dyed</option>
+        <option value="rainbow">Rainbow, dyed</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="eyeColorSelect">Eye color</label>
+      <select id="eyeColorSelect">
+        <option value="brown" selected>Brown</option>
+        <option value="darkbrown">Dark brown</option>
+        <option value="amber">Amber</option>
+        <option value="hazel">Hazel</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="lightblue">Light blue</option>
+        <option value="gray">Gray</option>
+        <option value="heterochromia">Two different colors</option>
+      </select>
+    </div>
+
+    <fieldset class="field">
+      <legend>Outfit style</legend>
+      <label><input type="radio" name="outfit" value="casual" checked> Casual</label>
+      <label><input type="radio" name="outfit" value="sporty"> Sporty</label>
+      <label><input type="radio" name="outfit" value="cozy"> Cozy</label>
+      <label><input type="radio" name="outfit" value="fancy"> Fancy</label>
+      <label><input type="radio" name="outfit" value="traditional"> Traditional dress</label>
+      <label><input type="radio" name="outfit" value="modest"> Modest wear</label>
+      <label><input type="radio" name="outfit" value="adaptive"> Adaptive clothing</label>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>Gets around with</legend>
+      <label><input type="radio" name="mobility" value="none" checked> Walking, no aid</label>
+      <label><input type="radio" name="mobility" value="wheelchair"> Wheelchair</label>
+      <label><input type="radio" name="mobility" value="cane"> Walking cane</label>
+      <label><input type="radio" name="mobility" value="whitecane"> White cane (blind or low vision)</label>
+      <label><input type="radio" name="mobility" value="prosthetic"> Prosthetic leg</label>
+      <label><input type="radio" name="mobility" value="guidedog"> Guide dog</label>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>Also wears</legend>
+      <label><input type="checkbox" id="glassesCheck"> Glasses</label>
+      <label><input type="checkbox" id="hearingAidCheck"> Hearing aid</label>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>Age group</legend>
+      <label><input type="radio" name="age" value="kid"> Kid</label>
+      <label><input type="radio" name="age" value="teen"> Teen</label>
+      <label><input type="radio" name="age" value="adult" checked> Adult</label>
+      <label><input type="radio" name="age" value="elder"> Elder</label>
+    </fieldset>
+
+    <div class="field">
+      <label for="bodyTypeSelect">Body type</label>
+      <select id="bodyTypeSelect">
+        <option value="slim">Slim</option>
+        <option value="average" selected>Average</option>
+        <option value="athletic">Athletic</option>
+        <option value="plussize">Plus-size</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="facialHairSelect">Facial hair</label>
+      <select id="facialHairSelect">
+        <option value="none" selected>None</option>
+        <option value="stubble">Stubble</option>
+        <option value="mustache">Mustache</option>
+        <option value="beard">Beard</option>
+        <option value="fullbeard">Full beard</option>
+      </select>
+    </div>
+
+    <fieldset class="field">
+      <legend>Skin details</legend>
+      <label><input type="checkbox" id="frecklesCheck"> Freckles</label>
+      <label><input type="checkbox" id="vitiligoCheck"> Vitiligo</label>
+      <label><input type="checkbox" id="tattoosCheck"> Tattoos</label>
+    </fieldset>
+
+    <fieldset class="field checkbox-grid-field">
+      <legend>Accessories (pick any number)</legend>
+      <label><input type="checkbox" name="accessory" value="cap"> Baseball cap</label>
+      <label><input type="checkbox" name="accessory" value="sunhat"> Sun hat</label>
+      <label><input type="checkbox" name="accessory" value="beanie"> Beanie</label>
+      <label><input type="checkbox" name="accessory" value="headphones"> Headphones</label>
+      <label><input type="checkbox" name="accessory" value="necklace"> Necklace</label>
+      <label><input type="checkbox" name="accessory" value="earrings"> Earrings</label>
+      <label><input type="checkbox" name="accessory" value="ring"> Ring</label>
+      <label><input type="checkbox" name="accessory" value="scarf"> Scarf</label>
+      <label><input type="checkbox" name="accessory" value="backpack"> Backpack</label>
+      <label><input type="checkbox" name="accessory" value="totebag"> Tote bag</label>
+      <label><input type="checkbox" name="accessory" value="watch"> Wristwatch</label>
+      <label><input type="checkbox" name="accessory" value="bandana"> Bandana</label>
+      <label><input type="checkbox" name="accessory" value="bowtie"> Bow tie</label>
+      <label><input type="checkbox" name="accessory" value="tie"> Necktie</label>
+      <label><input type="checkbox" name="accessory" value="gloves"> Gloves</label>
+      <label><input type="checkbox" name="accessory" value="sunglasses"> Sunglasses</label>
+      <label><input type="checkbox" name="accessory" value="glassesframe"> Statement glasses</label>
+      <label><input type="checkbox" name="accessory" value="hairbow"> Hair bow</label>
+      <label><input type="checkbox" name="accessory" value="flowercrown"> Flower crown</label>
+      <label><input type="checkbox" name="accessory" value="hairclip"> Hair clip</label>
+      <label><input type="checkbox" name="accessory" value="cufflinks"> Cufflinks</label>
+      <label><input type="checkbox" name="accessory" value="anklet"> Anklet</label>
+      <label><input type="checkbox" name="accessory" value="locket"> Locket</label>
+      <label><input type="checkbox" name="accessory" value="suspenders"> Suspenders</label>
+      <label><input type="checkbox" name="accessory" value="brooch"> Brooch</label>
+      <label><input type="checkbox" name="accessory" value="armband"> Armband</label>
+      <label><input type="checkbox" name="accessory" value="nosering"> Nose ring</label>
+      <label><input type="checkbox" name="accessory" value="umbrella"> Umbrella</label>
+      <label><input type="checkbox" name="accessory" value="walkingstick"> Walking stick</label>
+      <label><input type="checkbox" name="accessory" value="fannypack"> Fanny pack</label>
+    </fieldset>
+
+    <fieldset class="field checkbox-grid-field">
+      <legend>Hobbies (pick any number)</legend>
+      <label><input type="checkbox" name="hobby" value="reading" checked> Reading</label>
+      <label><input type="checkbox" name="hobby" value="sports"> Sports</label>
+      <label><input type="checkbox" name="hobby" value="art"> Art</label>
+      <label><input type="checkbox" name="hobby" value="music"> Music</label>
+      <label><input type="checkbox" name="hobby" value="gaming"> Gaming</label>
+      <label><input type="checkbox" name="hobby" value="cooking"> Cooking</label>
+      <label><input type="checkbox" name="hobby" value="gardening"> Gardening</label>
+      <label><input type="checkbox" name="hobby" value="photography"> Photography</label>
+      <label><input type="checkbox" name="hobby" value="dancing"> Dancing</label>
+      <label><input type="checkbox" name="hobby" value="writing"> Writing</label>
+      <label><input type="checkbox" name="hobby" value="hiking"> Hiking</label>
+      <label><input type="checkbox" name="hobby" value="chess"> Chess</label>
+      <label><input type="checkbox" name="hobby" value="baking"> Baking</label>
+      <label><input type="checkbox" name="hobby" value="skateboarding"> Skateboarding</label>
+      <label><input type="checkbox" name="hobby" value="swimming"> Swimming</label>
+      <label><input type="checkbox" name="hobby" value="singing"> Singing</label>
+      <label><input type="checkbox" name="hobby" value="fishing"> Fishing</label>
+      <label><input type="checkbox" name="hobby" value="yoga"> Yoga</label>
+      <label><input type="checkbox" name="hobby" value="puzzles"> Puzzles</label>
+      <label><input type="checkbox" name="hobby" value="birdwatching"> Birdwatching</label>
+      <label><input type="checkbox" name="hobby" value="camping"> Camping</label>
+      <label><input type="checkbox" name="hobby" value="knitting"> Knitting</label>
+      <label><input type="checkbox" name="hobby" value="painting"> Painting</label>
+      <label><input type="checkbox" name="hobby" value="theater"> Theater</label>
+      <label><input type="checkbox" name="hobby" value="collecting"> Collecting things</label>
+      <label><input type="checkbox" name="hobby" value="volunteering"> Volunteering</label>
+    </fieldset>
+
+    <div class="field">
+      <label for="colorSelect">Favorite color</label>
+      <select id="colorSelect">
+        <option value="teal" selected>Teal</option>
+        <option value="orange">Orange</option>
+        <option value="purple">Purple</option>
+        <option value="crimson">Crimson</option>
+        <option value="gold">Gold</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="pink">Pink</option>
+        <option value="turquoise">Turquoise</option>
+        <option value="magenta">Magenta</option>
+        <option value="indigo">Indigo</option>
+        <option value="black">Black</option>
+        <option value="white">White</option>
+        <option value="silver">Silver</option>
+        <option value="rainbow">Rainbow</option>
+      </select>
+    </div>
+  </div>
+
+  <p id="charPreview" class="char-preview" aria-live="polite"></p>
+  <div style="display:flex; gap:.8em; align-items:center; flex-wrap:wrap;">
+    <button id="charDone">Start playing</button>
+    <button id="cancelCharBtn" class="toggle hidden">Cancel and go back</button>
+  </div>
+</section>
+
+<nav class="scenes hidden" aria-label="Choose a scene" id="sceneNav"></nav>
+
+<main class="hidden">
+  <section class="stage" id="stage" aria-label="Current scene">
+    <h2 class="scene-title" id="sceneTitle"></h2>
+    <p class="scene-desc" id="sceneDesc"></p>
+    <ul class="hotspot-grid" id="hotspotGrid" aria-label="Things to interact with in this scene"></ul>
+
+    <div class="shop-panel hidden" id="shopPanel" role="region" aria-label="Choose items">
+      <h3 id="shopPanelTitle"></h3>
+      <ul id="shopChoiceList" class="shop-choice-list"></ul>
+      <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+        <button id="shopConfirmBtn">Add to backpack</button>
+        <button id="shopCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel" aria-label="Game log and voice settings">
+    <h2>Posture</h2>
+    <div class="posture-buttons" role="group" aria-label="Change your character's posture">
+      <button id="postureStand" aria-pressed="true">🧍 Stand</button>
+      <button id="postureSit" aria-pressed="false">🪑 Sit</button>
+      <button id="postureLie" aria-pressed="false">🛌 Lie down</button>
+    </div>
+
+    <h2 style="margin-top:1em;">Backpack</h2>
+    <ul id="inventoryList" aria-label="Items in your backpack"></ul>
+
+    <h2 style="margin-top:1em;">Fridge (at home)</h2>
+    <p class="fridge-hint">Storing and taking things out only works while you're in the Home scene.</p>
+    <ul id="fridgeList" aria-label="Items stored in your fridge at home"></ul>
+
+    <h2 style="margin-top:1em;">Story so far</h2>
+    <ul id="storyLog" aria-live="off"></ul>
+
+    <div style="margin-top:1em;">
+      <div class="meter-row">
+        <label for="moodMeter">Mood</label>
+        <div class="meter-track"><div class="meter-fill" id="moodMeter" style="width:60%"></div></div>
+      </div>
+      <div class="meter-row">
+        <label for="energyMeter">Energy</label>
+        <div class="meter-track"><div class="meter-fill" id="energyMeter" style="width:60%"></div></div>
+      </div>
+    </div>
+
+    <div class="voice-controls">
+      <div class="row">
+        <strong>Voice narration</strong>
+        <button class="toggle" id="voiceToggle" aria-pressed="true">On</button>
+      </div>
+      <label for="rateRange">Speech rate</label>
+      <input type="range" id="rateRange" min="0.6" max="1.6" step="0.1" value="1">
+      <label for="pitchRange">Speech pitch</label>
+      <input type="range" id="pitchRange" min="0.6" max="1.6" step="0.1" value="1">
+      <label for="voiceSelect">Voice</label>
+      <select id="voiceSelect"></select>
+      <p style="font-size:.8em; margin-top:.8em;">
+        Press <kbd>R</kbd> anytime to repeat the last thing spoken.
+      </p>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  Move with <kbd>Tab</kbd> or <kbd>Arrow keys</kbd> · Interact with <kbd>Enter</kbd> or <kbd>Space</kbd> ·
+  Switch scene with <kbd>1</kbd>–<kbd>9</kbd> and <kbd>0</kbd> for the 10th (use the scene buttons above for the rest) · Repeat speech with <kbd>R</kbd> ·
+  Open the character editor anytime with the "Edit character" button, and press <kbd>Escape</kbd> or "Cancel" to leave it without changing anything.
+  This game also works with your device's own screen reader turned on — everything here is a labeled button.
+</footer>
+
+<div id="liveRegion" class="sr-only" aria-live="polite" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- content ---------- */
+  const scenes = [
+    {
+      id: "home", name: "Home", icon: "🏠",
+      desc: "A cozy kitchen with morning light. Your cat is waiting by the fridge.",
+      hotspots: [
+        { icon:"🐈", label:"Cat", desc:"A gray tabby cat, blinking slowly at you.",
+          act:"You crouch down and scratch the cat's ears. It purrs loudly.", mood:8, energy:0 },
+        { icon:"🧊", label:"Fridge", desc:"The fridge hums. Inside there's milk, eggs, and leftover pie.",
+          act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
+        { icon:"📺", label:"TV", desc:"An old television sits on a wooden stand.",
+          act:"You turn on the TV. A cooking show is on. You watch for a while.", mood:4, energy:-3 },
+        { icon:"🛏️", label:"Bed", desc:"A neatly made bed with a striped blanket.",
+          act:"You lie down for a short nap and feel your energy return.", mood:1, energy:20, setsPosture:"lying" },
+        { icon:"🚪", label:"Front door", desc:"The front door, painted a cheerful blue.",
+          act:"You step outside and take a deep breath of morning air.", mood:5, energy:2 }
+      ]
+    },
+    {
+      id: "park", name: "Park", icon: "🌳",
+      desc: "Sunlight through the trees. Kids on the swings, a dog chasing a ball nearby.",
+      hotspots: [
+        { icon:"🪑", label:"Bench", desc:"A weathered park bench under an oak tree.",
+          act:"You sit and watch clouds drift by. Very peaceful.", mood:6, energy:5 },
+        { icon:"🐕", label:"Dog", desc:"A golden retriever with a stick in its mouth, tail wagging.",
+          act:"You throw the stick. The dog bounds after it, thrilled.", mood:9, energy:-5 },
+        { icon:"🍦", label:"Ice cream cart", desc:"A cart selling scoops of mint, vanilla, and mango.",
+          act:"You look over the ice cream flavors.", mood:7, energy:2,
+          shopItems:[
+            { icon:"🍧", label:"Mango ice cream", useAct:"You finish the mango ice cream. Cold and refreshing.", mood:6, energy:5 },
+            { icon:"🍦", label:"Vanilla ice cream", useAct:"You enjoy a classic scoop of vanilla.", mood:5, energy:5 },
+            { icon:"🌿", label:"Mint choc chip", useAct:"You eat the cool, minty ice cream.", mood:6, energy:5 }
+          ] },
+        { icon:"🛝", label:"Swings", desc:"Two empty swings creak gently in the breeze.",
+          act:"You swing higher and higher, laughing.", mood:8, energy:-8 },
+        { icon:"🦆", label:"Pond", desc:"Ducks paddle across a still pond.",
+          act:"You toss a few crumbs. The ducks paddle over eagerly.", mood:5, energy:0 }
+      ]
+    },
+    {
+      id: "school", name: "School", icon: "🏫",
+      desc: "A classroom smelling of chalk and fresh paper. Your friends are already at their desks.",
+      hotspots: [
+        { icon:"📚", label:"Bookshelf", desc:"Shelves stacked with story books and encyclopedias.",
+          act:"You find a book about deep sea creatures and read a few pages.", mood:6, energy:-2 },
+        { icon:"🧑‍🏫", label:"Teacher", desc:"Your teacher is writing today's lesson on the board.",
+          act:"You ask a question. The teacher smiles and explains it clearly.", mood:4, energy:-3 },
+        { icon:"🖊️", label:"Desk", desc:"Your desk, with a notebook open to today's date.",
+          act:"You finish a worksheet and feel a little proud.", mood:3, energy:-4 },
+        { icon:"⚽", label:"Playground ball", desc:"A well-worn playground ball near the door.",
+          act:"You kick the ball around at recess with a friend.", mood:8, energy:-10 },
+        { icon:"🗄️", label:"Locker", desc:"Your locker, covered in small stickers.",
+          act:"You trade a sticker with a classmate. A good trade.", mood:5, energy:0 }
+      ]
+    },
+    {
+      id: "cafe", name: "Café", icon: "☕",
+      desc: "A warm little café on the corner. Jazz plays softly from a corner speaker.",
+      hotspots: [
+        { icon:"🧑‍🍳", label:"Barista", desc:"The barista is steaming milk behind the counter.",
+          act:"You look over the drink menu.", mood:4, energy:2,
+          shopItems:[
+            { icon:"☕", label:"Hot chocolate", useAct:"You sip the hot chocolate. Warm and comforting.", mood:5, energy:6 },
+            { icon:"🧋", label:"Latte", useAct:"You sip a smooth, milky latte.", mood:4, energy:6 },
+            { icon:"🧊", label:"Iced tea", useAct:"You drink the cold, refreshing iced tea.", mood:4, energy:5 }
+          ] },
+        { icon:"🥐", label:"Pastry case", desc:"A glass case full of croissants and berry tarts.",
+          act:"You browse the pastry case.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🥧", label:"Berry tart", useAct:"You eat the berry tart. Tart and sweet at once.", mood:5, energy:5 },
+            { icon:"🥐", label:"Croissant", useAct:"You eat a warm, flaky croissant.", mood:5, energy:5 },
+            { icon:"🧁", label:"Chocolate muffin", useAct:"You eat a rich chocolate muffin.", mood:6, energy:6 }
+          ] },
+        { icon:"🪟", label:"Window seat", desc:"A quiet seat looking out over the street.",
+          act:"You sit and watch the town go by. Calm settles over you.", mood:7, energy:3, setsPosture:"sitting"},
+        { icon:"🎸", label:"Musician", desc:"A musician tunes a guitar in the corner.",
+          act:"You request a song. They play something warm and slow.", mood:9, energy:-2 },
+        { icon:"📰", label:"Newspaper rack", desc:"A rack of the day's newspaper.",
+          act:"You skim the headlines. Nothing too surprising today.", mood:1, energy:-1 }
+      ]
+    },
+    {
+      id: "beach", name: "Beach", icon: "🏖️",
+      desc: "Warm sand between your toes and the sound of waves rolling in.",
+      hotspots: [
+        { icon:"🏰", label:"Sandcastle", desc:"A half-built sandcastle with a mote around it.",
+          act:"You build up the towers and add a shell for a flag. It looks great.", mood:7, energy:-6 },
+        { icon:"🌊", label:"Waves", desc:"Waves roll in and fizzle out along the shore.",
+          act:"You wade in up to your knees. The cold water is refreshing.", mood:8, energy:-4 },
+        { icon:"🐚", label:"Seashells", desc:"A scatter of shells left by the tide.",
+          act:"You look over what's washed up along the shore.", mood:3, energy:-1,
+          shopItems:[
+            { icon:"🐚", label:"Seashell keepsake", useAct:"You admire your seashell collection. It reminds you of the beach.", mood:3, energy:0, consumable:false },
+            { icon:"⭐", label:"Starfish keepsake", useAct:"You look at your starfish. Its texture still amazes you.", mood:3, energy:0, consumable:false },
+            { icon:"🪙", label:"Sand dollar keepsake", useAct:"You turn the sand dollar over in your hand.", mood:3, energy:0, consumable:false }
+          ] },
+        { icon:"🏐", label:"Beach ball", desc:"A striped ball rolling loose near the water.",
+          act:"You play catch until you're both out of breath, laughing.", mood:9, energy:-8 },
+        { icon:"🛟", label:"Lifeguard tower", desc:"A tall wooden tower where a lifeguard keeps watch.",
+          act:"You wave hello and get a friendly wave back.", mood:3, energy:0 }
+      ]
+    },
+    {
+      id: "grocery", name: "Grocery Store", icon: "🛒",
+      desc: "Bright aisles humming with quiet music and the smell of fresh bread.",
+      hotspots: [
+        { icon:"🍎", label:"Fruit stand", desc:"A stand piled with apples, oranges, and bananas.",
+          act:"You look over the fresh fruit on display.", mood:3, energy:2,
+          shopItems:[
+            { icon:"🍎", label:"Apples", useAct:"You bite into a crisp apple. Sweet and crunchy.", mood:3, energy:5 },
+            { icon:"🍊", label:"Oranges", useAct:"You peel an orange and eat a juicy slice.", mood:3, energy:5 },
+            { icon:"🍌", label:"Bananas", useAct:"You eat a banana. Soft and sweet.", mood:2, energy:6 },
+            { icon:"🍇", label:"Grapes", useAct:"You pop a few grapes in your mouth. Cool and sweet.", mood:3, energy:4 }
+          ] },
+        { icon:"🧑‍💼", label:"Cashier", desc:"The cashier is scanning items at the register.",
+          act:"You pay for your groceries and chat for a moment.", mood:2, energy:-1 },
+        { icon:"🍞", label:"Bakery aisle", desc:"Shelves of warm bread, still steaming slightly.",
+          act:"You browse the warm baked goods.", mood:6, energy:3,
+          shopItems:[
+            { icon:"🍞", label:"Fresh bread", useAct:"You tear off a piece of warm bread and eat it.", mood:4, energy:6 },
+            { icon:"🥐", label:"Croissant", useAct:"You eat a flaky, buttery croissant.", mood:5, energy:5 },
+            { icon:"🥯", label:"Bagel", useAct:"You eat a chewy bagel. Filling and satisfying.", mood:3, energy:6 }
+          ] },
+        { icon:"🛍️", label:"Shopping cart", desc:"An empty cart with a slightly squeaky wheel.",
+          act:"You push the cart down the aisle, wheel squeaking along.", mood:2, energy:-3 },
+        { icon:"🧊", label:"Freezer aisle", desc:"A long freezer case full of ice cream and frozen meals.",
+          act:"You browse the freezer case.", mood:5, energy:4,
+          shopItems:[
+            { icon:"🍨", label:"Vanilla ice cream", useAct:"You scoop out a bowl of vanilla ice cream and enjoy every bite.", mood:6, energy:5 },
+            { icon:"🍫", label:"Chocolate ice cream", useAct:"You dig into rich chocolate ice cream.", mood:7, energy:5 },
+            { icon:"🍕", label:"Frozen pizza", useAct:"You heat up and eat a slice of frozen pizza.", mood:5, energy:8 },
+            { icon:"🍦", label:"Frozen yogurt", useAct:"You eat a cup of tangy frozen yogurt.", mood:5, energy:4 }
+          ] },
+        { icon:"🍫", label:"Snack aisle", desc:"Shelves stocked with chips, cookies, and candy bars.",
+          act:"You browse the snack aisle.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🥔", label:"Chips", useAct:"You crunch through a bag of chips.", mood:4, energy:5 },
+            { icon:"🍪", label:"Cookies", useAct:"You eat a soft, chewy cookie.", mood:5, energy:5 },
+            { icon:"🥜", label:"Trail mix", useAct:"You munch on a handful of trail mix.", mood:3, energy:6 },
+            { icon:"🍫", label:"Chocolate bar", useAct:"You break off a square of chocolate and eat it.", mood:6, energy:5 }
+          ] },
+        { icon:"🥛", label:"Dairy aisle", desc:"A cold case with milk, cheese, and yogurt.",
+          act:"You browse the dairy case.", mood:2, energy:1,
+          shopItems:[
+            { icon:"🥛", label:"Milk", useAct:"You pour and drink a cold glass of milk.", mood:2, energy:5 },
+            { icon:"🧀", label:"Cheese", useAct:"You eat a few slices of cheese.", mood:3, energy:5 },
+            { icon:"🥣", label:"Yogurt cup", useAct:"You eat a cup of creamy yogurt.", mood:3, energy:5 }
+          ] }
+      ]
+    },
+    {
+      id: "library", name: "Library", icon: "📖",
+      desc: "Tall shelves and soft light. Somewhere a page turns.",
+      hotspots: [
+        { icon:"🛋️", label:"Reading nook", desc:"A squashy armchair tucked beside a tall window.",
+          act:"You curl up and read a whole chapter without looking up.", mood:7, energy:-2, setsPosture:"sitting" },
+        { icon:"👩‍💼", label:"Librarian", desc:"The librarian is stamping due dates at the front desk.",
+          act:"You ask for a recommendation.", mood:3, energy:0,
+          shopItems:[
+            { icon:"📗", label:"Borrowed novel", useAct:"You read a chapter of your borrowed novel.", mood:4, energy:-2, consumable:false },
+            { icon:"📘", label:"Borrowed comic", useAct:"You flip through your borrowed comic, grinning.", mood:5, energy:-1, consumable:false },
+            { icon:"📙", label:"Borrowed cookbook", useAct:"You page through the cookbook, planning what to make.", mood:3, energy:-1, consumable:false }
+          ] },
+        { icon:"🗺️", label:"Old maps", desc:"A case of old maps from places far away.",
+          act:"You trace a route across an old map with your finger.", mood:5, energy:-2 },
+        { icon:"🪑", label:"Study desk", desc:"A wooden desk with a lamp and a stack of paper.",
+          act:"You finish your homework and feel a weight lift.", mood:2, energy:-6 },
+        { icon:"🤫", label:"Quiet corner", desc:"A hushed corner with a soft couch, perfect for resting.",
+          act:"You close your eyes for a short, peaceful nap.", mood:1, energy:15, setsPosture:"lying" }
+      ]
+    },
+    {
+      id: "farm", name: "Farm", icon: "🚜",
+      desc: "Open fields, a red barn, and the smell of hay in the morning air.",
+      hotspots: [
+        { icon:"🐔", label:"Chicken coop", desc:"A small coop with hens clucking softly inside.",
+          act:"You check the coop for anything ready to collect.", mood:4, energy:-2,
+          shopItems:[
+            { icon:"🥚", label:"Fresh eggs", useAct:"You cook up the fresh eggs for a snack.", mood:3, energy:5 },
+            { icon:"🥛", label:"Goat milk", useAct:"You pour and drink a glass of fresh goat milk.", mood:3, energy:6 }
+          ] },
+        { icon:"🚜", label:"Tractor", desc:"An old green tractor parked by the field.",
+          act:"You climb up and take it for a slow ride around the field.", mood:8, energy:-5 },
+        { icon:"🥕", label:"Vegetable patch", desc:"Rows of carrots, potatoes, and corn ready to be pulled.",
+          act:"You look over the rows of vegetables.", mood:3, energy:-3,
+          shopItems:[
+            { icon:"🥕", label:"Carrots", useAct:"You munch on a crisp carrot.", mood:3, energy:5 },
+            { icon:"🥔", label:"Potatoes", useAct:"You bake and eat a warm potato.", mood:3, energy:6 },
+            { icon:"🌽", label:"Corn", useAct:"You eat a fresh ear of corn.", mood:3, energy:5 }
+          ] },
+        { icon:"🏚️", label:"Barn", desc:"A red barn that smells of hay and old wood.",
+          act:"You pet the horse's nose. It nickers softly.", mood:9, energy:-2 },
+        { icon:"🎣", label:"Pond dock", desc:"A small wooden dock over a still farm pond.",
+          act:"You cast a line and wait quietly for a bite.", mood:6, energy:-3 }
+      ]
+    },
+    {
+      id: "zoo", name: "Zoo", icon: "🦁",
+      desc: "Wide paths wind between enclosures, and distant calls drift on the breeze.",
+      hotspots: [
+        { icon:"🦁", label:"Lion enclosure", desc:"A pride of lions dozes on a big flat rock.",
+          act:"You watch the lions lazily stretch in the sun.", mood:8, energy:-2 },
+        { icon:"🎁", label:"Gift shop", desc:"A small shop packed with plush animals and souvenirs.",
+          act:"You browse the shelves of zoo souvenirs.", mood:4, energy:-1,
+          shopItems:[
+            { icon:"🧸", label:"Stuffed lion", useAct:"You give your stuffed lion a squeeze. It's soft and comforting.", mood:5, energy:0, consumable:false },
+            { icon:"🔑", label:"Zoo keychain", useAct:"You admire your little zoo keychain.", mood:3, energy:0, consumable:false },
+            { icon:"🧢", label:"Zoo cap", useAct:"You put on your zoo cap. Stylish and sun-safe.", mood:4, energy:0, consumable:false }
+          ] },
+        { icon:"🐐", label:"Petting zoo", desc:"A fenced area where friendly goats wander freely.",
+          act:"You pet a goat. It nudges your hand for more.", mood:7, energy:-3 },
+        { icon:"🐧", label:"Penguin pool", desc:"A cool pool where penguins dive and glide.",
+          act:"You watch the penguins zoom through the water.", mood:6, energy:0 },
+        { icon:"🍿", label:"Snack stand", desc:"A cart selling popcorn, cotton candy, and pretzels.",
+          act:"You browse the snack stand menu.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🍿", label:"Popcorn", useAct:"You munch on warm, salty popcorn.", mood:4, energy:4 },
+            { icon:"🍭", label:"Cotton candy", useAct:"You pull off a fluffy bite of cotton candy. It melts on your tongue.", mood:6, energy:3 },
+            { icon:"🥨", label:"Pretzel", useAct:"You eat a warm, salty pretzel.", mood:4, energy:5 }
+          ] }
+      ]
+    },
+    {
+      id: "movies", name: "Movie Theater", icon: "🎬",
+      desc: "Dim lights, plush carpet, and the smell of fresh popcorn in the air.",
+      hotspots: [
+        { icon:"🎟️", label:"Ticket booth", desc:"A booth selling tickets for today's showings.",
+          act:"You buy a ticket for the next showing.", mood:2, energy:-1 },
+        { icon:"🍬", label:"Concession stand", desc:"A counter stocked with popcorn, candy, and soda.",
+          act:"You look over the concession stand menu.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🍿", label:"Popcorn", useAct:"You munch on warm, buttery popcorn.", mood:4, energy:4 },
+            { icon:"🍬", label:"Movie candy", useAct:"You eat a handful of sweet movie candy.", mood:5, energy:5 },
+            { icon:"🥤", label:"Soda", useAct:"You take a long sip of fizzy soda.", mood:3, energy:6 }
+          ] },
+        { icon:"🎥", label:"Theater seat", desc:"A plush reclining seat facing the big screen.",
+          act:"You sink into your seat and watch the film.", mood:9, energy:-4, setsPosture:"sitting" },
+        { icon:"🕹️", label:"Arcade corner", desc:"A couple of arcade machines blink in the lobby.",
+          act:"You play a round on the arcade machine.", mood:7, energy:-5 },
+        { icon:"🖼️", label:"Lobby posters", desc:"Posters for upcoming movies line the lobby wall.",
+          act:"You check out posters for movies coming soon.", mood:2, energy:0 }
+      ]
+    },
+    {
+      id: "aquarium", name: "Aquarium", icon: "🐠",
+      desc: "Cool, dim halls lined with glowing tanks full of drifting shapes.",
+      hotspots: [
+        { icon:"🦈", label:"Shark tank", desc:"A huge tank where sharks glide silently overhead.",
+          act:"You watch a shark glide by just above your head.", mood:8, energy:-2 },
+        { icon:"🐟", label:"Touch pool", desc:"A shallow pool where you can touch starfish and rays.",
+          act:"You gently touch a starfish in the touch pool.", mood:6, energy:-3 },
+        { icon:"🎐", label:"Jellyfish exhibit", desc:"A glowing tank of jellyfish drifting slowly.",
+          act:"You watch the jellyfish glow and drift in the dark water.", mood:7, energy:0 },
+        { icon:"🐙", label:"Gift shop", desc:"A small shop full of ocean-themed toys and souvenirs.",
+          act:"You browse the ocean-themed souvenirs.", mood:3, energy:-1,
+          shopItems:[
+            { icon:"🦈", label:"Plush shark", useAct:"You give your plush shark a squeeze.", mood:5, energy:0, consumable:false },
+            { icon:"🐙", label:"Plush octopus", useAct:"You hug your soft plush octopus.", mood:5, energy:0, consumable:false },
+            { icon:"🌊", label:"Ocean sticker sheet", useAct:"You look over your sheet of ocean stickers.", mood:3, energy:0, consumable:false }
+          ] },
+        { icon:"🍤", label:"Snack bar", desc:"A small snack bar near the exit.",
+          act:"You look over the snack bar menu.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🍟", label:"Fish and chips", useAct:"You eat a plate of fish and chips.", mood:5, energy:7 },
+            { icon:"🍋", label:"Lemonade", useAct:"You drink a cold, tart lemonade.", mood:4, energy:5 },
+            { icon:"🍤", label:"Popcorn shrimp", useAct:"You eat a cup of crispy popcorn shrimp.", mood:5, energy:6 }
+          ] }
+      ]
+    },
+    {
+      id: "bowling", name: "Bowling Alley", icon: "🎳",
+      desc: "Rows of lanes clatter and echo under low, colorful lights.",
+      hotspots: [
+        { icon:"🎳", label:"Lanes", desc:"A bowling lane with pins freshly reset.",
+          act:"You roll the ball and knock down a strike!", mood:9, energy:-6 },
+        { icon:"👟", label:"Shoe rental", desc:"A counter with rows of rental bowling shoes.",
+          act:"You trade your shoes in for a pair of rentals.", mood:1, energy:-1 },
+        { icon:"🕹️", label:"Arcade games", desc:"A row of arcade machines lines the back wall.",
+          act:"You play the claw machine and just barely win.", mood:6, energy:-4 },
+        { icon:"🍔", label:"Snack counter", desc:"A counter selling classic bowling alley food.",
+          act:"You look over the snack counter menu.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🧀", label:"Nachos", useAct:"You eat a plate of cheesy nachos.", mood:5, energy:6 },
+            { icon:"🍔", label:"Burger", useAct:"You eat a warm, juicy burger.", mood:5, energy:8 },
+            { icon:"🥤", label:"Milkshake", useAct:"You sip a thick, sweet milkshake.", mood:6, energy:6 }
+          ] },
+        { icon:"📊", label:"Scoreboard", desc:"An overhead screen tracking everyone's scores.",
+          act:"You check the scoreboard for the day's high score.", mood:3, energy:0 }
+      ]
+    }
+  ];
+
+  /* ---------- state ---------- */
+  const state = {
+    sceneIndex: 0,
+    focusIndex: 0,
+    mood: 60,
+    energy: 60,
+    voiceOn: true,
+    lastSpoken: "",
+    hasCreatedCharacter: false,
+    inventory: [],
+    fridge: [],
+    character: {
+      id: null,
+      createdAt: null,
+      name: "",
+      pronouns: "they/them",
+      customPronoun: "",
+      skin: "medium",
+      hair: "curly",
+      hairColor: "black",
+      eyeColor: "brown",
+      outfit: "casual",
+      mobility: "none",
+      glasses: false,
+      hearingAid: false,
+      age: "adult",
+      bodyType: "average",
+      facialHair: "none",
+      freckles: false,
+      vitiligo: false,
+      tattoos: false,
+      accessories: [],
+      hobbies: ["reading"],
+      color: "teal"
+    }
+  };
+
+  const skinLabels = {
+    veryfair:"very fair", fair:"fair", lighttan:"light tan", tan:"tan", olive:"olive",
+    medium:"medium brown", deep:"deep brown", verydeep:"very deep brown"
+  };
+  const hairLabels = {
+    short:"short", long:"long", straight:"straight", wavy:"wavy", curly:"curly",
+    afro:"an afro", locs:"locs", braids:"braided", cornrows:"cornrows", pigtails:"pigtails",
+    ponytail:"a ponytail", bun:"a bun", pixie:"a pixie cut", undercut:"an undercut",
+    fauxhawk:"a fauxhawk", mohawk:"a mohawk", buzzed:"buzzed",
+    bald:"a shaved head", headscarf:"a headscarf", turban:"a turban"
+  };
+  const hairColorLabels = {
+    black:"black", brown:"brown", red:"red", blonde:"blonde", gray:"gray", silver:"silver",
+    blue:"dyed blue", green:"dyed green", pink:"dyed pink", rainbow:"dyed rainbow"
+  };
+  const eyeColorLabels = {
+    brown:"brown", darkbrown:"dark brown", amber:"amber", hazel:"hazel", green:"green",
+    blue:"blue", lightblue:"light blue", gray:"gray", heterochromia:"two different colors"
+  };
+  const outfitLabels = {
+    casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes",
+    traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing"
+  };
+  const mobilityLabels = {
+    none: "", wheelchair:"gets around using a wheelchair", cane:"walks with a cane",
+    whitecane:"uses a white cane", prosthetic:"has a prosthetic leg", guidedog:"is accompanied by a guide dog"
+  };
+  const ageLabels = {kid:"a kid", teen:"a teen", adult:"an adult", elder:"an elder"};
+  const bodyTypeLabels = {slim:"slim", average:"average build", athletic:"athletic", plussize:"plus-size"};
+  const facialHairLabels = {none:"", stubble:"light stubble", mustache:"a mustache", beard:"a beard", fullbeard:"a full beard"};
+  const accessoryLabels = {
+    cap:"a baseball cap", sunhat:"a sun hat", beanie:"a beanie", headphones:"headphones",
+    necklace:"a necklace", earrings:"earrings", ring:"a ring", scarf:"a scarf", backpack:"a backpack",
+    totebag:"a tote bag", watch:"a wristwatch", bandana:"a bandana", bowtie:"a bow tie", tie:"a necktie",
+    gloves:"gloves", sunglasses:"sunglasses", glassesframe:"statement glasses", hairbow:"a hair bow",
+    flowercrown:"a flower crown", hairclip:"a hair clip", cufflinks:"cufflinks", anklet:"an anklet",
+    locket:"a locket", suspenders:"suspenders", brooch:"a brooch", armband:"an armband",
+    nosering:"a nose ring", umbrella:"an umbrella", walkingstick:"a walking stick", fannypack:"a fanny pack"
+  };
+  const hobbyLabels = {
+    reading:"reading", sports:"sports", art:"art", music:"music", gaming:"gaming", cooking:"cooking",
+    gardening:"gardening", photography:"photography", dancing:"dancing", writing:"writing", hiking:"hiking",
+    chess:"chess", baking:"baking", skateboarding:"skateboarding", swimming:"swimming", singing:"singing",
+    fishing:"fishing", yoga:"yoga", puzzles:"puzzles", birdwatching:"birdwatching", camping:"camping",
+    knitting:"knitting", painting:"painting", theater:"theater", collecting:"collecting things",
+    volunteering:"volunteering"
+  };
+  const noHairColorStyles = ["bald","headscarf","turban"];
+
+  /* ---------- speech ---------- */
+  let voices = [];
+  function loadVoices(){
+    voices = speechSynthesis.getVoices();
+    const sel = document.getElementById('voiceSelect');
+    const previousValue = sel.value;
+    sel.innerHTML = "";
+    voices.filter(v => v.lang.startsWith("en")).forEach((v) => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name + (v.default ? " (default)" : "");
+      sel.appendChild(opt);
+    });
+    if (!sel.children.length){
+      voices.forEach(v=>{
+        const opt = document.createElement('option');
+        opt.value = v.name; opt.textContent = v.name;
+        sel.appendChild(opt);
+      });
+    }
+    if (previousValue && [...sel.options].some(o => o.value === previousValue)){
+      sel.value = previousValue;
+    }
+  }
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+  setTimeout(loadVoices, 300);
+  setTimeout(loadVoices, 1200);
+
+  function speak(text, {interrupt=true}={}){
+    state.lastSpoken = text;
+    const liveRegion = document.getElementById('liveRegion');
+    liveRegion.textContent = text; // always announce to real screen readers
+    if (!state.voiceOn) return;
+    if (interrupt) speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    const rate = parseFloat(document.getElementById('rateRange').value);
+    const pitch = parseFloat(document.getElementById('pitchRange').value);
+    utt.rate = rate; utt.pitch = pitch;
+    const chosenName = document.getElementById('voiceSelect').value;
+    const chosen = voices.find(v => v.name === chosenName);
+    if (chosen) utt.voice = chosen;
+    speechSynthesis.speak(utt);
+  }
+
+  /* ---------- rendering ---------- */
+  function renderSceneNav(){
+    const nav = document.getElementById('sceneNav');
+    nav.innerHTML = "";
+    scenes.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = `${s.icon} ${s.name}`;
+      btn.setAttribute('aria-current', i === state.sceneIndex ? "true" : "false");
+      btn.addEventListener('click', () => goToScene(i));
+      nav.appendChild(btn);
+    });
+  }
+
+  function renderScene(announce){
+    const scene = scenes[state.sceneIndex];
+    document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name}`;
+    document.getElementById('sceneDesc').textContent = scene.desc;
+    const grid = document.getElementById('hotspotGrid');
+    grid.innerHTML = "";
+    scene.hotspots.forEach((h, i) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', `${h.label}. ${h.desc}`);
+      btn.tabIndex = i === state.focusIndex ? 0 : -1;
+      btn.innerHTML = `<span class="icon" aria-hidden="true">${h.icon}</span><span class="label">${h.label}</span>`;
+      btn.addEventListener('click', () => interact(i));
+      btn.addEventListener('focus', () => {
+        state.focusIndex = i;
+        speak(`${h.label}. ${h.desc}`);
+      });
+      li.appendChild(btn);
+      grid.appendChild(li);
+    });
+    renderSceneNav();
+    if (announce) speak(`${scene.name}. ${scene.desc}`);
+    updateMeters();
+  }
+
+  function updateMeters(){
+    state.mood = Math.max(0, Math.min(100, state.mood));
+    state.energy = Math.max(0, Math.min(100, state.energy));
+    document.getElementById('moodMeter').style.width = state.mood + "%";
+    document.getElementById('energyMeter').style.width = state.energy + "%";
+  }
+
+  function logEntry(text){
+    const log = document.getElementById('storyLog');
+    const li = document.createElement('li');
+    li.textContent = text;
+    log.insertBefore(li, log.firstChild);
+  }
+
+  function renderInventory(){
+    const list = document.getElementById('inventoryList');
+    list.innerHTML = "";
+    if (!state.inventory.length){
+      const li = document.createElement('li');
+      li.className = 'empty-msg';
+      li.textContent = "Your backpack is empty. Buy or collect things around town to fill it up.";
+      list.appendChild(li);
+      return;
+    }
+    state.inventory.forEach(item => {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.innerHTML = `<span aria-hidden="true">${item.icon}</span> ${item.label}`;
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      const useBtn = document.createElement('button');
+      useBtn.textContent = 'Use';
+      useBtn.setAttribute('aria-label', `Use ${item.label}: ${item.useAct}`);
+      useBtn.addEventListener('click', () => useItem(item.uid));
+      const fridgeBtn = document.createElement('button');
+      fridgeBtn.textContent = 'Put in fridge';
+      fridgeBtn.setAttribute('aria-label', `Put ${item.label} in the fridge at home`);
+      fridgeBtn.addEventListener('click', () => putInFridge(item.uid));
+      actions.appendChild(useBtn);
+      actions.appendChild(fridgeBtn);
+      li.appendChild(span);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  function renderFridge(){
+    const list = document.getElementById('fridgeList');
+    list.innerHTML = "";
+    if (!state.fridge.length){
+      const li = document.createElement('li');
+      li.className = 'empty-msg';
+      li.textContent = "The fridge is empty. Bring things home and put them in here to save for later.";
+      list.appendChild(li);
+      return;
+    }
+    state.fridge.forEach(item => {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.innerHTML = `<span aria-hidden="true">${item.icon}</span> ${item.label}`;
+      const takeBtn = document.createElement('button');
+      takeBtn.textContent = 'Take out';
+      takeBtn.setAttribute('aria-label', `Take ${item.label} out of the fridge, back into your backpack`);
+      takeBtn.addEventListener('click', () => takeOutOfFridge(item.uid));
+      li.appendChild(span);
+      li.appendChild(takeBtn);
+      list.appendChild(li);
+    });
+  }
+
+  function isHomeScene(){
+    return scenes[state.sceneIndex].id === "home";
+  }
+
+  function putInFridge(uid){
+    if (!isHomeScene()){
+      speak("You need to be home to put things in the fridge. Head to the Home scene first.");
+      return;
+    }
+    const idx = state.inventory.findIndex(x => x.uid === uid);
+    if (idx === -1) return;
+    const item = state.inventory.splice(idx, 1)[0];
+    state.fridge.push(item);
+    renderInventory();
+    renderFridge();
+    logEntry(`🧊 Put in fridge: ${item.icon} ${item.label}`);
+    speak(`You put ${item.label} in the fridge for later.`);
+  }
+
+  function takeOutOfFridge(uid){
+    if (!isHomeScene()){
+      speak("You need to be home to open the fridge. Head to the Home scene first.");
+      return;
+    }
+    const idx = state.fridge.findIndex(x => x.uid === uid);
+    if (idx === -1) return;
+    const item = state.fridge.splice(idx, 1)[0];
+    state.inventory.push(item);
+    renderInventory();
+    renderFridge();
+    logEntry(`🧊 Took out of fridge: ${item.icon} ${item.label}`);
+    speak(`You take ${item.label} out of the fridge and put it back in your backpack.`);
+  }
+
+  function useItem(uid){
+    const idx = state.inventory.findIndex(x => x.uid === uid);
+    if (idx === -1) return;
+    const item = state.inventory[idx];
+    state.mood += item.mood;
+    state.energy += item.energy;
+    updateMeters();
+    logEntry(`🎒 Used ${item.label}: ${item.useAct}`);
+    speak(item.useAct);
+    if (item.consumable !== false) state.inventory.splice(idx, 1);
+    renderInventory();
+  }
+
+  /* ---------- posture ---------- */
+  function setPosture(p, announce){
+    state.character.posture = p;
+    document.getElementById('postureStand').setAttribute('aria-pressed', p === 'standing' ? 'true' : 'false');
+    document.getElementById('postureSit').setAttribute('aria-pressed', p === 'sitting' ? 'true' : 'false');
+    document.getElementById('postureLie').setAttribute('aria-pressed', p === 'lying' ? 'true' : 'false');
+    if (announce === false) return;
+    const verbs = { standing: "You stand up.", sitting: "You sit down.", lying: "You lie down." };
+    logEntry(`🧍 ${verbs[p]}`);
+    speak(verbs[p]);
+  }
+
+  function sceneHasFurnitureFor(posture){
+    const scene = scenes[state.sceneIndex];
+    return scene.hotspots.some(h => h.setsPosture === posture);
+  }
+
+  document.getElementById('postureStand').addEventListener('click', () => setPosture('standing'));
+  document.getElementById('postureSit').addEventListener('click', () => setPosture('sitting'));
+  document.getElementById('postureLie').addEventListener('click', () => {
+    if (!sceneHasFurnitureFor('lying')){
+      speak("There's nowhere to lie down here. Try the bed at Home, or the couch in the Library's quiet corner.");
+      return;
+    }
+    setPosture('lying');
+  });
+
+  /* ---------- shop item choice ---------- */
+  let pendingShop = null;
+
+  function grantItem(item){
+    const newItem = { ...item, uid: 'i' + Date.now() + Math.random().toString(36).slice(2, 6) };
+    state.inventory.push(newItem);
+    renderInventory();
+    logEntry(`🎒 Added to backpack: ${newItem.icon} ${newItem.label}`);
+    return newItem;
+  }
+
+  function openShopPanel(scene, h){
+    pendingShop = { scene, h };
+    document.getElementById('shopPanelTitle').textContent = `${h.label}: choose any number of items`;
+    const list = document.getElementById('shopChoiceList');
+    list.innerHTML = "";
+    h.shopItems.forEach((choice, idx) => {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.dataset.idx = String(idx);
+      cb.setAttribute('aria-label', choice.label);
+      const span = document.createElement('span');
+      span.innerHTML = `<span aria-hidden="true">${choice.icon}</span> ${choice.label}`;
+      cb.addEventListener('focus', () => speak(`${choice.label}${cb.checked ? ": checked" : ": not checked"}`));
+      cb.addEventListener('change', () => {
+        label.classList.toggle('chosen', cb.checked);
+        speak(`${choice.label}: ${cb.checked ? "added to your picks" : "removed from your picks"}`);
+      });
+      label.appendChild(cb);
+      label.appendChild(span);
+      li.appendChild(label);
+      list.appendChild(li);
+    });
+    document.getElementById('shopPanel').classList.remove('hidden');
+    const names = h.shopItems.map(c => c.label).join(", ");
+    speak(`${h.label}. ${h.desc} Choose any number of items: ${names}. Then choose Add to backpack, or Cancel.`);
+    const firstCb = list.querySelector('input[type="checkbox"]');
+    if (firstCb) firstCb.focus();
+  }
+
+  function confirmShopChoices(){
+    if (!pendingShop) return;
+    const { scene, h } = pendingShop;
+    const checked = Array.from(document.querySelectorAll('#shopChoiceList input[type="checkbox"]:checked'));
+    if (!checked.length){
+      speak("You haven't chosen anything yet. Check one or more items, or choose Cancel.");
+      return;
+    }
+    state.mood += h.mood;
+    state.energy += h.energy;
+    updateMeters();
+    logEntry(`${scene.icon} ${h.label}: ${h.act}`);
+    const names = checked.map(cb => {
+      const choice = h.shopItems[parseInt(cb.dataset.idx, 10)];
+      return grantItem(choice).label;
+    });
+    speak(`${h.act} You picked up ${names.join(", ")} and added ${names.length > 1 ? "them" : "it"} to your backpack.`);
+    closeShopPanel();
+  }
+
+  function closeShopPanel(cancelled){
+    document.getElementById('shopPanel').classList.add('hidden');
+    pendingShop = null;
+    if (cancelled) speak("Never mind.");
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('shopConfirmBtn').addEventListener('click', confirmShopChoices);
+  document.getElementById('shopCancelBtn').addEventListener('click', () => closeShopPanel(true));
+
+  function interact(i){
+    const scene = scenes[state.sceneIndex];
+    const h = scene.hotspots[i];
+    if (h.shopItems){
+      openShopPanel(scene, h);
+      return;
+    }
+    state.mood += h.mood;
+    state.energy += h.energy;
+    updateMeters();
+    logEntry(`${scene.icon} ${h.label}: ${h.act}`);
+    let spoken = h.act;
+    if (h.item){
+      const newItem = grantItem(h.item);
+      spoken += ` You added ${newItem.label} to your backpack. Use it anytime from your backpack list.`;
+    }
+    if (h.setsPosture){
+      setPosture(h.setsPosture, false);
+    }
+    speak(spoken);
+    const buttons = document.querySelectorAll('.hotspot');
+    buttons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+    buttons[i].setAttribute('aria-pressed', 'true');
+  }
+
+  function goToScene(i){
+    state.sceneIndex = i;
+    state.focusIndex = 0;
+    renderScene(true);
+    if (state.character.posture === 'lying' && !sceneHasFurnitureFor('lying')){
+      setPosture('standing', false);
+    }
+    requestAnimationFrame(() => {
+      const first = document.querySelector('.hotspot');
+      if (first) first.focus();
+    });
+  }
+
+  /* ---------- keyboard navigation within grid ---------- */
+  document.getElementById('hotspotGrid').addEventListener('keydown', (e) => {
+    const scene = scenes[state.sceneIndex];
+    const count = scene.hotspots.length;
+    let next = null;
+    if (e.key === 'ArrowRight') next = (state.focusIndex + 1) % count;
+    if (e.key === 'ArrowLeft') next = (state.focusIndex - 1 + count) % count;
+    if (e.key === 'ArrowDown') next = (state.focusIndex + 1) % count;
+    if (e.key === 'ArrowUp') next = (state.focusIndex - 1 + count) % count;
+    if (next !== null){
+      e.preventDefault();
+      const buttons = document.querySelectorAll('.hotspot');
+      buttons.forEach((b, idx) => b.tabIndex = idx === next ? 0 : -1);
+      buttons[next].focus();
+    }
+  });
+
+  /* ---------- global keys ---------- */
+  document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'r' && !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)){
+      if (state.lastSpoken) speak(state.lastSpoken);
+    }
+    if (/^[0-9]$/.test(e.key) && !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)){
+      const idx = e.key === '0' ? 9 : parseInt(e.key, 10) - 1;
+      if (scenes[idx]) goToScene(idx);
+    }
+  });
+
+  /* ---------- voice controls ---------- */
+  document.getElementById('voiceToggle').addEventListener('click', function(){
+    state.voiceOn = !state.voiceOn;
+    this.textContent = state.voiceOn ? "On" : "Off";
+    this.setAttribute('aria-pressed', state.voiceOn ? "true" : "false");
+    if (!state.voiceOn) speechSynthesis.cancel();
+    document.getElementById('liveRegion').textContent = state.voiceOn ? "Voice narration turned on" : "Voice narration turned off";
+  });
+
+  /* ---------- character creation ---------- */
+  const creatorEl = document.getElementById('creator');
+  const mainEl = document.querySelector('main');
+  const sceneNavEl = document.getElementById('sceneNav');
+  const editCharBtn = document.getElementById('editCharBtn');
+  const playerTag = document.getElementById('playerTag');
+
+  const creatorFieldDescriptions = {
+    charName: "Name. Type what your character is called.",
+    customPronoun: "Custom pronoun. Type your own.",
+    skinSelect: "Skin tone. Choose the shade for your character.",
+    hairSelect: "Hair style.",
+    hairColorSelect: "Hair color.",
+    eyeColorSelect: "Eye color.",
+    glassesCheck: "Glasses, a checkbox.",
+    hearingAidCheck: "Hearing aid, a checkbox.",
+    bodyTypeSelect: "Body type.",
+    facialHairSelect: "Facial hair.",
+    frecklesCheck: "Freckles, a checkbox.",
+    vitiligoCheck: "Vitiligo, a checkbox.",
+    tattoosCheck: "Tattoos, a checkbox.",
+    colorSelect: "Favorite color. This is your character's signature color."
+  };
+
+  function labelForControl(el){
+    if (el.type === 'radio') return el.closest('fieldset').querySelector('legend').textContent;
+    if (el.type === 'checkbox' && (el.name === 'accessory' || el.name === 'hobby')){
+      return el.closest('label').textContent.trim();
+    }
+    return creatorFieldDescriptions[el.id] || el.id;
+  }
+
+  function characterSummary(c){
+    const name = c.name.trim() || "Your character";
+    const pronouns = c.pronouns === "custom" ? (c.customPronoun.trim() || "them/them") : c.pronouns;
+    const hairPart = noHairColorStyles.includes(c.hair)
+      ? `has ${hairLabels[c.hair]}`
+      : `has ${hairColorLabels[c.hairColor]} ${hairLabels[c.hair]} hair`;
+    const accessoryList = (c.accessories || []).map(a => accessoryLabels[a]).filter(Boolean);
+    let sentence = `${name} (${pronouns}) is ${ageLabels[c.age]} with a ${bodyTypeLabels[c.bodyType]}. `
+      + `${name} ${hairPart}, ${skinLabels[c.skin]} skin, and ${eyeColorLabels[c.eyeColor]} eyes`
+      + `${facialHairLabels[c.facialHair] ? `, with ${facialHairLabels[c.facialHair]}` : ""}. `
+      + `${name} wears ${outfitLabels[c.outfit]}`
+      + `${accessoryList.length ? ` with ${accessoryList.join(", ")}` : ""}.`;
+    if (mobilityLabels[c.mobility]) sentence += ` ${name} ${mobilityLabels[c.mobility]}.`;
+    const extras = [];
+    if (c.glasses) extras.push("glasses");
+    if (c.hearingAid) extras.push("a hearing aid");
+    if (extras.length) sentence += ` ${name} also wears ${extras.join(" and ")}.`;
+    const skinDetails = [];
+    if (c.freckles) skinDetails.push("freckles");
+    if (c.vitiligo) skinDetails.push("vitiligo");
+    if (c.tattoos) skinDetails.push("tattoos");
+    if (skinDetails.length) sentence += ` ${name} has ${skinDetails.join(" and ")}.`;
+    const hobbyList = (c.hobbies || []).map(h => hobbyLabels[h]).filter(Boolean);
+    sentence += ` ${name} loves ${hobbyList.length ? hobbyList.join(", ") : "trying new things"}. Favorite color: ${c.color}.`;
+    return sentence;
+  }
+
+  function buildCharacterSummary(){
+    return characterSummary(state.character);
+  }
+
+  function defaultCharacter(){
+    return {
+      id: null, createdAt: null,
+      name: "", pronouns: "they/them", customPronoun: "",
+      skin: "medium", hair: "curly", hairColor: "black", eyeColor: "brown",
+      outfit: "casual", mobility: "none", glasses: false, hearingAid: false,
+      age: "adult", bodyType: "average", facialHair: "none",
+      freckles: false, vitiligo: false, tattoos: false,
+      accessories: [], hobbies: ["reading"], color: "teal",
+      posture: "standing"
+    };
+  }
+
+  function updateCharacterFromForm(){
+    state.character.name = document.getElementById('charName').value;
+    const pronounEl = document.querySelector('input[name="pronouns"]:checked');
+    if (pronounEl) state.character.pronouns = pronounEl.value;
+    state.character.customPronoun = document.getElementById('customPronoun').value;
+    state.character.skin = document.getElementById('skinSelect').value;
+    state.character.hair = document.getElementById('hairSelect').value;
+    state.character.hairColor = document.getElementById('hairColorSelect').value;
+    state.character.eyeColor = document.getElementById('eyeColorSelect').value;
+    const outfitEl = document.querySelector('input[name="outfit"]:checked');
+    if (outfitEl) state.character.outfit = outfitEl.value;
+    const mobilityEl = document.querySelector('input[name="mobility"]:checked');
+    if (mobilityEl) state.character.mobility = mobilityEl.value;
+    state.character.glasses = document.getElementById('glassesCheck').checked;
+    state.character.hearingAid = document.getElementById('hearingAidCheck').checked;
+    const ageEl = document.querySelector('input[name="age"]:checked');
+    if (ageEl) state.character.age = ageEl.value;
+    state.character.bodyType = document.getElementById('bodyTypeSelect').value;
+    state.character.facialHair = document.getElementById('facialHairSelect').value;
+    state.character.freckles = document.getElementById('frecklesCheck').checked;
+    state.character.vitiligo = document.getElementById('vitiligoCheck').checked;
+    state.character.tattoos = document.getElementById('tattoosCheck').checked;
+    state.character.accessories = Array.from(document.querySelectorAll('input[name="accessory"]:checked')).map(el => el.value);
+    state.character.hobbies = Array.from(document.querySelectorAll('input[name="hobby"]:checked')).map(el => el.value);
+    state.character.color = document.getElementById('colorSelect').value;
+  }
+
+  function syncCustomPronounField(){
+    const isCustom = document.querySelector('input[name="pronouns"]:checked').value === "custom";
+    document.getElementById('customPronoun').disabled = !isCustom;
+  }
+
+  function syncHairColorField(){
+    const hairVal = document.getElementById('hairSelect').value;
+    const hide = noHairColorStyles.includes(hairVal);
+    document.getElementById('hairColorField').classList.toggle('hidden', hide);
+  }
+
+  function refreshPreview(){
+    document.getElementById('charPreview').textContent = buildCharacterSummary();
+  }
+
+  function populateFormFromCharacter(){
+    const c = state.character;
+    document.getElementById('charName').value = c.name;
+    const pronounEl = document.querySelector(`input[name="pronouns"][value="${c.pronouns}"]`);
+    if (pronounEl) pronounEl.checked = true;
+    document.getElementById('customPronoun').value = c.customPronoun;
+    document.getElementById('skinSelect').value = c.skin;
+    document.getElementById('hairSelect').value = c.hair;
+    document.getElementById('hairColorSelect').value = c.hairColor;
+    document.getElementById('eyeColorSelect').value = c.eyeColor;
+    const outfitEl = document.querySelector(`input[name="outfit"][value="${c.outfit}"]`);
+    if (outfitEl) outfitEl.checked = true;
+    const mobilityEl = document.querySelector(`input[name="mobility"][value="${c.mobility}"]`);
+    if (mobilityEl) mobilityEl.checked = true;
+    document.getElementById('glassesCheck').checked = c.glasses;
+    document.getElementById('hearingAidCheck').checked = c.hearingAid;
+    const ageEl = document.querySelector(`input[name="age"][value="${c.age}"]`);
+    if (ageEl) ageEl.checked = true;
+    document.getElementById('bodyTypeSelect').value = c.bodyType;
+    document.getElementById('facialHairSelect').value = c.facialHair;
+    document.getElementById('frecklesCheck').checked = c.freckles;
+    document.getElementById('vitiligoCheck').checked = c.vitiligo;
+    document.getElementById('tattoosCheck').checked = c.tattoos;
+    document.querySelectorAll('input[name="accessory"]').forEach(el => {
+      el.checked = (c.accessories || []).includes(el.value);
+    });
+    document.querySelectorAll('input[name="hobby"]').forEach(el => {
+      el.checked = (c.hobbies || []).includes(el.value);
+    });
+    document.getElementById('colorSelect').value = c.color;
+    syncCustomPronounField();
+    syncHairColorField();
+    refreshPreview();
+  }
+
+  document.querySelectorAll('#creator input, #creator select').forEach(el => {
+    el.addEventListener('focus', () => {
+      if (el.disabled) return;
+      let text = labelForControl(el);
+      if (el.type === 'radio') text += `: ${el.parentElement.textContent.trim()}`;
+      if (el.type === 'checkbox') text += el.checked ? ": checked" : ": not checked";
+      speak(text);
+    });
+    if (el.type !== 'text'){
+      el.addEventListener('change', () => {
+        updateCharacterFromForm();
+        if (el.name === 'pronouns') syncCustomPronounField();
+        if (el.id === 'hairSelect') syncHairColorField();
+        refreshPreview();
+        let spokenValue;
+        if (el.type === 'radio') spokenValue = el.parentElement.textContent.trim();
+        else if (el.type === 'checkbox') spokenValue = el.checked ? "on" : "off";
+        else spokenValue = el.options[el.selectedIndex].textContent;
+        speak(`${labelForControl(el)}: ${spokenValue}`);
+      });
+    }
+  });
+  document.getElementById('charName').addEventListener('blur', () => {
+    updateCharacterFromForm();
+    refreshPreview();
+  });
+  document.getElementById('customPronoun').addEventListener('blur', () => {
+    updateCharacterFromForm();
+    refreshPreview();
+  });
+
+  /* ---------- saved character roster (persists across sessions) ---------- */
+  const characterSelectEl = document.getElementById('characterSelect');
+  const characterListEl = document.getElementById('characterList');
+  const switchCharBtn = document.getElementById('switchCharBtn');
+  const backToGameBtn = document.getElementById('backToGameBtn');
+  let cachedRoster = [];
+  let creatorContext = 'new'; // 'new' or 'edit'
+
+  let storageAvailable = true;
+
+  async function checkStorageAvailable(){
+    try {
+      if (!window.storage || typeof window.storage.set !== 'function'){
+        storageAvailable = false;
+        return;
+      }
+      const testKey = '__sunnytown_storage_check__';
+      const setResult = await window.storage.set(testKey, '1', false);
+      if (!setResult) { storageAvailable = false; return; }
+      await window.storage.delete(testKey, false);
+      storageAvailable = true;
+    } catch (e){
+      console.error('Storage capability check failed', e);
+      storageAvailable = false;
+    }
+  }
+
+  async function fetchRoster(){
+    try {
+      const listResult = await window.storage.list('character:', false);
+      if (!listResult || !listResult.keys || !listResult.keys.length) return [];
+      const chars = [];
+      for (const key of listResult.keys){
+        try {
+          const res = await window.storage.get(key, false);
+          if (res && res.value){
+            const parsed = JSON.parse(res.value);
+            chars.push({ ...defaultCharacter(), ...parsed });
+          }
+        } catch (e) {
+          console.error('Could not load a saved character', key, e);
+        }
+      }
+      chars.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      return chars;
+    } catch (e){
+      console.error('Could not load saved characters', e);
+      return [];
+    }
+  }
+
+  async function saveCharacterToStorage(character){
+    try {
+      const result = await window.storage.set(`character:${character.id}`, JSON.stringify(character), false);
+      if (!result){
+        console.error('Character save returned no result');
+        return false;
+      }
+      return true;
+    } catch (e){
+      console.error('Could not save character', e);
+      return false;
+    }
+  }
+
+  async function deleteCharacterFromStorage(id){
+    try {
+      await window.storage.delete(`character:${id}`, false);
+      return true;
+    } catch (e){
+      console.error('Could not delete character', e);
+      return false;
+    }
+  }
+
+  function renderCharacterList(){
+    characterListEl.innerHTML = "";
+    if (!cachedRoster.length){
+      const p = document.createElement('p');
+      p.textContent = "No saved characters yet. Create your first one below.";
+      characterListEl.appendChild(p);
+      return;
+    }
+    cachedRoster.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'char-card';
+      const h3 = document.createElement('h3');
+      h3.textContent = c.name || "Unnamed";
+      const p = document.createElement('p');
+      p.textContent = characterSummary(c);
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+
+      const playBtn = document.createElement('button');
+      playBtn.className = 'play-btn';
+      playBtn.textContent = `Play as ${c.name || "this character"}`;
+      playBtn.addEventListener('click', () => selectCharacter(c.id));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = 'Delete';
+      delBtn.dataset.confirming = 'false';
+      delBtn.setAttribute('aria-pressed', 'false');
+      delBtn.addEventListener('click', () => {
+        if (delBtn.dataset.confirming === 'true'){
+          deleteCharacter(c.id);
+        } else {
+          delBtn.dataset.confirming = 'true';
+          delBtn.setAttribute('aria-pressed', 'true');
+          delBtn.textContent = 'Confirm delete?';
+          speak(`Press Confirm delete to permanently remove ${c.name || "this character"}, or focus elsewhere to cancel.`);
+        }
+      });
+      delBtn.addEventListener('blur', () => {
+        delBtn.dataset.confirming = 'false';
+        delBtn.setAttribute('aria-pressed', 'false');
+        delBtn.textContent = 'Delete';
+      });
+
+      actions.appendChild(playBtn);
+      actions.appendChild(delBtn);
+      card.appendChild(h3);
+      card.appendChild(p);
+      card.appendChild(actions);
+      characterListEl.appendChild(card);
+    });
+  }
+
+  async function deleteCharacter(id){
+    const c = cachedRoster.find(x => x.id === id);
+    await deleteCharacterFromStorage(id);
+    cachedRoster = cachedRoster.filter(x => x.id !== id);
+    if (state.character.id === id){
+      state.hasCreatedCharacter = false;
+      editCharBtn.classList.add('hidden');
+      switchCharBtn.classList.add('hidden');
+      playerTag.textContent = "";
+    }
+    renderCharacterList();
+    speak(`${c ? (c.name || "Character") : "Character"} deleted.`);
+  }
+
+  function showCharacterSelect(){
+    creatorEl.classList.add('hidden');
+    mainEl.classList.add('hidden');
+    sceneNavEl.classList.add('hidden');
+    characterSelectEl.classList.remove('hidden');
+    backToGameBtn.classList.toggle('hidden', !state.hasCreatedCharacter);
+    renderCharacterList();
+    speak("Your saved characters. Choose one to play, delete one, or create a new character.");
+    const firstBtn = characterListEl.querySelector('button') || document.getElementById('newCharBtn');
+    if (firstBtn) firstBtn.focus();
+  }
+
+  function selectCharacter(id){
+    const c = cachedRoster.find(x => x.id === id);
+    if (!c) return;
+    state.character = JSON.parse(JSON.stringify(c));
+    state.hasCreatedCharacter = true;
+    characterSelectEl.classList.add('hidden');
+    mainEl.classList.remove('hidden');
+    sceneNavEl.classList.remove('hidden');
+    editCharBtn.classList.remove('hidden');
+    switchCharBtn.classList.remove('hidden');
+    playerTag.textContent = `Playing as ${state.character.name} (${state.character.pronouns})`;
+    setPosture(state.character.posture || 'standing', false);
+    speak(`${characterSummary(state.character)} Welcome back to Sunny Town, ${state.character.name}!`);
+    requestAnimationFrame(() => {
+      const first = document.querySelector('.hotspot');
+      if (first) first.focus();
+    });
+  }
+
+  function startNewCharacter(){
+    state.character = defaultCharacter();
+    creatorContext = 'new';
+    populateFormFromCharacter();
+    openCreator();
+  }
+
+  function openCreator(){
+    populateFormFromCharacter();
+    creatorEl.classList.remove('hidden');
+    mainEl.classList.add('hidden');
+    sceneNavEl.classList.add('hidden');
+    characterSelectEl.classList.add('hidden');
+    const canCancel = creatorContext === 'edit' || cachedRoster.length > 0;
+    document.getElementById('cancelCharBtn').classList.toggle('hidden', !canCancel);
+    document.getElementById('charName').focus();
+    speak(creatorContext === 'edit'
+      ? "Edit your character. Change any field, then choose Start playing, or Cancel to go back."
+      : "Create your character. Fill in the fields, then choose Start playing.");
+  }
+
+  async function closeCreator(){
+    updateCharacterFromForm();
+    const name = state.character.name.trim() || "Explorer";
+    state.character.name = name;
+    if (!state.character.id){
+      state.character.id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
+      state.character.createdAt = Date.now();
+    }
+    const saved = await saveCharacterToStorage(state.character);
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    const snapshot = JSON.parse(JSON.stringify(state.character));
+    if (idx >= 0) cachedRoster[idx] = snapshot; else cachedRoster.push(snapshot);
+
+    state.hasCreatedCharacter = true;
+    playerTag.textContent = `Playing as ${name} (${state.character.pronouns})`;
+    setPosture(state.character.posture || 'standing', false);
+    editCharBtn.classList.remove('hidden');
+    switchCharBtn.classList.remove('hidden');
+    creatorEl.classList.add('hidden');
+    mainEl.classList.remove('hidden');
+    sceneNavEl.classList.remove('hidden');
+    if (saved){
+      logEntry(`💾 ${name} saved. They'll be here next time you play.`);
+      speak(`${buildCharacterSummary()} Welcome to Sunny Town, ${name}! Your character has been saved.`);
+    } else {
+      logEntry(`⚠️ Could not save ${name} to storage. They'll work for this visit, but may not be here next time.`);
+      speak(`${buildCharacterSummary()} Welcome to Sunny Town, ${name}! Heads up — I couldn't save your character this time, so you may need to recreate them next visit.`);
+    }
+    requestAnimationFrame(() => {
+      const first = document.querySelector('.hotspot');
+      if (first) first.focus();
+    });
+  }
+
+  function cancelCreator(){
+    creatorEl.classList.add('hidden');
+    if (creatorContext === 'edit'){
+      mainEl.classList.remove('hidden');
+      sceneNavEl.classList.remove('hidden');
+      speak("Changes discarded. Back to the game.");
+      requestAnimationFrame(() => {
+        const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+        if (active) active.focus();
+      });
+    } else {
+      speak("New character discarded.");
+      showCharacterSelect();
+    }
+  }
+
+  document.getElementById('charDone').addEventListener('click', closeCreator);
+  document.getElementById('cancelCharBtn').addEventListener('click', cancelCreator);
+  editCharBtn.addEventListener('click', () => { creatorContext = 'edit'; openCreator(); });
+  switchCharBtn.addEventListener('click', showCharacterSelect);
+  document.getElementById('newCharBtn').addEventListener('click', startNewCharacter);
+  backToGameBtn.addEventListener('click', () => {
+    characterSelectEl.classList.add('hidden');
+    mainEl.classList.remove('hidden');
+    sceneNavEl.classList.remove('hidden');
+    speak("Back to the game.");
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('shopPanel').classList.contains('hidden')){
+      closeShopPanel(true);
+      return;
+    }
+    if (e.key === 'Escape' && !creatorEl.classList.contains('hidden')
+        && (creatorContext === 'edit' || cachedRoster.length > 0)){
+      cancelCreator();
+    }
+  });
+
+  /* ---------- init ---------- */
+  async function init(){
+    renderScene(false);
+    renderInventory();
+    renderFridge();
+    await checkStorageAvailable();
+    document.getElementById('storageWarning').classList.toggle('hidden', storageAvailable);
+    cachedRoster = await fetchRoster();
+    if (cachedRoster.length === 1){
+      selectCharacter(cachedRoster[0].id);
+    } else if (cachedRoster.length > 1){
+      showCharacterSelect();
+    } else {
+      state.character = defaultCharacter();
+      creatorContext = 'new';
+      populateFormFromCharacter();
+      openCreator();
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>
