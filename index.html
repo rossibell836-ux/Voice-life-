@@ -61,6 +61,17 @@
     outline:3px solid var(--focus); outline-offset:2px;
   }
 
+  nav.rooms{
+    display:flex; gap:.4em; flex-wrap:wrap; margin:.4em 0 .8em;
+  }
+  nav.rooms button{
+    font-family:'Courier New',monospace; font-size:.85em; padding:.35em .7em;
+    border:2px solid var(--accent-2); background:var(--paper); cursor:pointer; border-radius:3px;
+  }
+  nav.rooms button[aria-current="true"]{
+    background:var(--accent-2); color:#fff; border-color:var(--accent-2);
+  }
+
   main{
     flex:1; display:flex; gap:0; flex-wrap:wrap;
   }
@@ -117,21 +128,21 @@
   #storyLog li{padding:.5em .7em; border-bottom:1px solid #ddd2b8; font-size:.95em;}
   #storyLog li:last-child{border-bottom:none;}
 
-  #inventoryList, #fridgeList{
+  #inventoryList, #fridgeList, #cabinetList{
     list-style:none; margin:0; padding:0; border:1px solid var(--line); background:var(--paper);
     border-radius:6px; max-height:220px; overflow-y:auto;
   }
-  #inventoryList li, #fridgeList li{
+  #inventoryList li, #fridgeList li, #cabinetList li{
     display:flex; align-items:center; justify-content:space-between; gap:.5em;
     padding:.5em .7em; border-bottom:1px solid #ddd2b8; font-size:.95em; flex-wrap:wrap;
   }
-  #inventoryList li:last-child, #fridgeList li:last-child{border-bottom:none;}
-  #inventoryList li.empty-msg, #fridgeList li.empty-msg{font-style:italic; color:#665f52; justify-content:flex-start;}
-  #inventoryList button, #fridgeList button{
+  #inventoryList li:last-child, #fridgeList li:last-child, #cabinetList li:last-child{border-bottom:none;}
+  #inventoryList li.empty-msg, #fridgeList li.empty-msg, #cabinetList li.empty-msg{font-style:italic; color:#665f52; justify-content:flex-start;}
+  #inventoryList button, #fridgeList button, #cabinetList button{
     font-family:'Courier New',monospace; font-size:.8em; border:2px solid var(--accent-2);
     background:var(--accent-2); color:#fff; padding:.3em .7em; border-radius:4px; cursor:pointer; flex-shrink:0;
   }
-  #inventoryList .item-actions, #fridgeList .item-actions{display:flex; gap:.4em; flex-wrap:wrap;}
+  #inventoryList .item-actions, #fridgeList .item-actions, #cabinetList .item-actions{display:flex; gap:.4em; flex-wrap:wrap;}
   .fridge-hint{font-size:.8em; font-style:italic; color:#665f52; margin:.2em 0 .5em;}
 
   .posture-buttons{display:flex; gap:.5em; flex-wrap:wrap;}
@@ -173,6 +184,10 @@
   #storageWarning{
     margin:0; padding:.7em 1.2em; background:#fdecea; border-bottom:2px solid var(--danger);
     color:var(--danger); font-size:.9em; font-family:'Courier New',monospace;
+  }
+  #storageLocalNote{
+    margin:0; padding:.7em 1.2em; background:var(--soft); border-bottom:2px solid var(--accent-2);
+    color:var(--accent-2); font-size:.9em; font-family:'Courier New',monospace;
   }
 
   #playerTag{margin:0; font-size:.85em; color:var(--accent-2); font-family:'Courier New',monospace;}
@@ -259,6 +274,9 @@
 
 <p id="storageWarning" class="hidden" role="status">
   ⚠️ Character saving isn't working in this session — your character may not be here next time you play. This is a limitation of where the game is running right now, not something you did.
+</p>
+<p id="storageLocalNote" class="hidden" role="status">
+  💾 Saving to this browser only. Your characters will be here next time you open this same file in this same browser, but won't follow you to a different browser or device.
 </p>
 
 <section class="char-select hidden" id="characterSelect" aria-label="Choose or manage your characters">
@@ -362,16 +380,42 @@
       </select>
     </div>
 
-    <fieldset class="field">
+    <fieldset class="field checkbox-grid-field">
       <legend>Outfit style</legend>
       <label><input type="radio" name="outfit" value="casual" checked> Casual</label>
       <label><input type="radio" name="outfit" value="sporty"> Sporty</label>
       <label><input type="radio" name="outfit" value="cozy"> Cozy</label>
       <label><input type="radio" name="outfit" value="fancy"> Fancy</label>
+      <label><input type="radio" name="outfit" value="formal"> Formal / suit</label>
       <label><input type="radio" name="outfit" value="traditional"> Traditional dress</label>
       <label><input type="radio" name="outfit" value="modest"> Modest wear</label>
       <label><input type="radio" name="outfit" value="adaptive"> Adaptive clothing</label>
+      <label><input type="radio" name="outfit" value="swimwear"> Swimwear</label>
+      <label><input type="radio" name="outfit" value="pajamas"> Pajamas</label>
+      <label><input type="radio" name="outfit" value="wintercoat"> Winter coat</label>
+      <label><input type="radio" name="outfit" value="raincoat"> Raincoat</label>
+      <label><input type="radio" name="outfit" value="uniform"> Uniform</label>
+      <label><input type="radio" name="outfit" value="vintage"> Vintage</label>
+      <label><input type="radio" name="outfit" value="punk"> Punk / alternative</label>
     </fieldset>
+
+    <div class="field">
+      <label for="shoesSelect">Shoes</label>
+      <select id="shoesSelect">
+        <option value="sneakers" selected>Sneakers</option>
+        <option value="boots">Boots</option>
+        <option value="sandals">Sandals</option>
+        <option value="flipflops">Flip-flops</option>
+        <option value="flats">Flats</option>
+        <option value="heels">Heels</option>
+        <option value="dressshoes">Dress shoes</option>
+        <option value="rainboots">Rain boots</option>
+        <option value="slippers">Slippers</option>
+        <option value="cleats">Cleats</option>
+        <option value="sandalsorthopedic">Orthopedic shoes</option>
+        <option value="barefoot">Barefoot</option>
+      </select>
+    </div>
 
     <fieldset class="field">
       <legend>Gets around with</legend>
@@ -487,6 +531,16 @@
       <label><input type="checkbox" name="hobby" value="theater"> Theater</label>
       <label><input type="checkbox" name="hobby" value="collecting"> Collecting things</label>
       <label><input type="checkbox" name="hobby" value="volunteering"> Volunteering</label>
+      <label><input type="checkbox" name="hobby" value="astronomy"> Astronomy</label>
+      <label><input type="checkbox" name="hobby" value="cycling"> Cycling</label>
+      <label><input type="checkbox" name="hobby" value="skating"> Skating</label>
+      <label><input type="checkbox" name="hobby" value="surfing"> Surfing</label>
+      <label><input type="checkbox" name="hobby" value="woodworking"> Woodworking</label>
+      <label><input type="checkbox" name="hobby" value="sewing"> Sewing</label>
+      <label><input type="checkbox" name="hobby" value="podcasting"> Podcasting</label>
+      <label><input type="checkbox" name="hobby" value="filmmaking"> Filmmaking</label>
+      <label><input type="checkbox" name="hobby" value="martialarts"> Martial arts</label>
+      <label><input type="checkbox" name="hobby" value="boardgames"> Board games</label>
     </fieldset>
 
     <div class="field">
@@ -525,6 +579,7 @@
 <main class="hidden">
   <section class="stage" id="stage" aria-label="Current scene">
     <h2 class="scene-title" id="sceneTitle"></h2>
+    <nav class="rooms hidden" aria-label="Choose a room in this house" id="roomNav"></nav>
     <p class="scene-desc" id="sceneDesc"></p>
     <ul class="hotspot-grid" id="hotspotGrid" aria-label="Things to interact with in this scene"></ul>
 
@@ -550,8 +605,12 @@
     <ul id="inventoryList" aria-label="Items in your backpack"></ul>
 
     <h2 style="margin-top:1em;">Fridge (at home)</h2>
-    <p class="fridge-hint">Storing and taking things out only works while you're in the Home scene.</p>
+    <p class="fridge-hint">Storing and taking things out only works while you're in the Kitchen at Home.</p>
     <ul id="fridgeList" aria-label="Items stored in your fridge at home"></ul>
+
+    <h2 style="margin-top:1em;">Cabinet (at home)</h2>
+    <p class="fridge-hint">For dishes and kitchenware. Also only works from the Kitchen at Home.</p>
+    <ul id="cabinetList" aria-label="Dishes stored in your cabinet at home"></ul>
 
     <h2 style="margin-top:1em;">Story so far</h2>
     <ul id="storyLog" aria-live="off"></ul>
@@ -587,7 +646,8 @@
 
 <footer>
   Move with <kbd>Tab</kbd> or <kbd>Arrow keys</kbd> · Interact with <kbd>Enter</kbd> or <kbd>Space</kbd> ·
-  Switch scene with <kbd>1</kbd>–<kbd>9</kbd> and <kbd>0</kbd> for the 10th (use the scene buttons above for the rest) · Repeat speech with <kbd>R</kbd> ·
+  Switch scene with <kbd>1</kbd>–<kbd>9</kbd> and <kbd>0</kbd> for the 10th (use the scene buttons above for the rest) ·
+  In houses with multiple rooms, switch rooms with <kbd>[</kbd> and <kbd>]</kbd> or the room buttons · Repeat speech with <kbd>R</kbd> ·
   Open the character editor anytime with the "Edit character" button, and press <kbd>Escape</kbd> or "Cancel" to leave it without changing anything.
   This game also works with your device's own screen reader turned on — everything here is a labeled button.
 </footer>
@@ -602,18 +662,82 @@
   const scenes = [
     {
       id: "home", name: "Home", icon: "🏠",
-      desc: "A cozy kitchen with morning light. Your cat is waiting by the fridge.",
-      hotspots: [
-        { icon:"🐈", label:"Cat", desc:"A gray tabby cat, blinking slowly at you.",
-          act:"You crouch down and scratch the cat's ears. It purrs loudly.", mood:8, energy:0 },
-        { icon:"🧊", label:"Fridge", desc:"The fridge hums. Inside there's milk, eggs, and leftover pie.",
-          act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
-        { icon:"📺", label:"TV", desc:"An old television sits on a wooden stand.",
-          act:"You turn on the TV. A cooking show is on. You watch for a while.", mood:4, energy:-3 },
-        { icon:"🛏️", label:"Bed", desc:"A neatly made bed with a striped blanket.",
-          act:"You lie down for a short nap and feel your energy return.", mood:1, energy:20, setsPosture:"lying" },
-        { icon:"🚪", label:"Front door", desc:"The front door, painted a cheerful blue.",
-          act:"You step outside and take a deep breath of morning air.", mood:5, energy:2 }
+      desc: "A cozy house with several rooms to explore.",
+      rooms: [
+        {
+          id: "entryway", name: "Entryway", icon: "🚪",
+          desc: "A small entryway with a coat hook and a mailbox by the door.",
+          hotspots: [
+            { icon:"🚪", label:"Front door", desc:"The front door, painted a cheerful blue.",
+              act:"You step outside and take a deep breath of morning air.", mood:5, energy:2 },
+            { icon:"📬", label:"Mailbox", desc:"A small mailbox mounted by the door.",
+              act:"You check the mailbox. Just a flyer today, but it's nice to check.", mood:2, energy:0 },
+            { icon:"🧥", label:"Coat hook", desc:"A row of hooks with a jacket hanging on one.",
+              act:"You hang up your jacket and get comfortable.", mood:1, energy:1 }
+          ]
+        },
+        {
+          id: "kitchen", name: "Kitchen", icon: "🍳",
+          desc: "A bright kitchen with morning light spilling across the counter.",
+          hotspots: [
+            { icon:"🧊", label:"Fridge", desc:"The fridge hums. Inside there's milk, eggs, and leftover pie.",
+              act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
+            { icon:"🍳", label:"Stove", desc:"A stove with a kettle sitting on one burner.",
+              act:"You cook up a quick, warm breakfast.", mood:5, energy:8 },
+            { icon:"🥫", label:"Pantry", desc:"A pantry stocked with cans, pasta, and snacks.",
+              act:"You grab a quick snack from the pantry.", mood:3, energy:5 },
+            { icon:"🗄️", label:"Cabinet", desc:"A cabinet stacked with plates, bowls, and cups.",
+              act:"You look over what dishes you have stocked.", mood:1, energy:0 }
+          ]
+        },
+        {
+          id: "livingroom", name: "Living Room", icon: "🛋️",
+          desc: "A comfortable living room with a couch facing the TV.",
+          hotspots: [
+            { icon:"📺", label:"TV", desc:"An old television sits on a wooden stand.",
+              act:"You turn on the TV. A cooking show is on. You watch for a while.", mood:4, energy:-3, setsPosture:"sitting" },
+            { icon:"🛋️", label:"Couch", desc:"A soft, well-worn couch by the window.",
+              act:"You sink into the couch and relax for a bit.", mood:5, energy:2, setsPosture:"sitting" },
+            { icon:"🐈", label:"Cat", desc:"A gray tabby cat, curled up on the armrest.",
+              act:"You crouch down and scratch the cat's ears. It purrs loudly.", mood:8, energy:0 }
+          ]
+        },
+        {
+          id: "bedroom", name: "Bedroom", icon: "🛏️",
+          desc: "A quiet bedroom with soft light through the curtains.",
+          hotspots: [
+            { icon:"🛏️", label:"Bed", desc:"A neatly made bed with a striped blanket.",
+              act:"You lie down for a short nap and feel your energy return.", mood:1, energy:20, setsPosture:"lying" },
+            { icon:"🚪", label:"Closet", desc:"A closet full of clothes, neatly hung up.",
+              act:"You pick out a fresh outfit for the day.", mood:3, energy:0 },
+            { icon:"💡", label:"Nightstand", desc:"A nightstand with a lamp and a stack of books.",
+              act:"You read a page or two before setting the book down.", mood:4, energy:-1 }
+          ]
+        },
+        {
+          id: "bathroom", name: "Bathroom", icon: "🛁",
+          desc: "A clean, tiled bathroom with a mirror over the sink.",
+          hotspots: [
+            { icon:"🪞", label:"Mirror", desc:"A mirror above the sink.",
+              act:"You glance in the mirror and fix your hair.", mood:2, energy:0 },
+            { icon:"🚿", label:"Shower", desc:"A shower with fresh towels folded nearby.",
+              act:"You take a warm shower. You feel refreshed.", mood:6, energy:10 },
+            { icon:"🚰", label:"Sink", desc:"A sink with a bar of soap beside it.",
+              act:"You wash your hands and splash some water on your face.", mood:1, energy:2 }
+          ]
+        },
+        {
+          id: "backyard", name: "Backyard", icon: "🌳",
+          desc: "A small backyard with a garden patch and a shady tree.",
+          hotspots: [
+            { icon:"🌱", label:"Garden patch", desc:"A small patch of soil with a few sprouts coming up.",
+              act:"You water the garden and pull a few weeds.", mood:5, energy:-3 },
+            { icon:"🪑", label:"Patio chair", desc:"A comfy chair out on the patio.",
+              act:"You sit outside and enjoy the fresh air for a while.", mood:6, energy:2, setsPosture:"sitting" },
+            { icon:"🌳", label:"Shade tree", desc:"A big tree that shades most of the yard.",
+              act:"You lean against the tree and watch the clouds drift by.", mood:5, energy:0 }
+          ]
+        }
       ]
     },
     {
@@ -624,12 +748,13 @@
           act:"You sit and watch clouds drift by. Very peaceful.", mood:6, energy:5 },
         { icon:"🐕", label:"Dog", desc:"A golden retriever with a stick in its mouth, tail wagging.",
           act:"You throw the stick. The dog bounds after it, thrilled.", mood:9, energy:-5 },
-        { icon:"🍦", label:"Ice cream cart", desc:"A cart selling scoops of mint, vanilla, and mango.",
+        { icon:"🍦", label:"Ice cream cart", desc:"A cart selling scoops, cones, and popsicles.",
           act:"You look over the ice cream flavors.", mood:7, energy:2,
           shopItems:[
-            { icon:"🍧", label:"Mango ice cream", useAct:"You finish the mango ice cream. Cold and refreshing.", mood:6, energy:5 },
-            { icon:"🍦", label:"Vanilla ice cream", useAct:"You enjoy a classic scoop of vanilla.", mood:5, energy:5 },
-            { icon:"🌿", label:"Mint choc chip", useAct:"You eat the cool, minty ice cream.", mood:6, energy:5 }
+            { icon:"🍧", label:"Mango ice cream cone", useAct:"You finish the mango ice cream. Cold and refreshing.", mood:6, energy:5 },
+            { icon:"🍦", label:"Vanilla ice cream cone", useAct:"You enjoy a classic scoop of vanilla.", mood:5, energy:5 },
+            { icon:"🌿", label:"Mint choc chip cone", useAct:"You eat the cool, minty ice cream.", mood:6, energy:5 },
+            { icon:"🍭", label:"Popsicle", useAct:"You enjoy a cold, fruity popsicle in the sun.", mood:5, energy:3 }
           ] },
         { icon:"🛝", label:"Swings", desc:"Two empty swings creak gently in the breeze.",
           act:"You swing higher and higher, laughing.", mood:8, energy:-8 },
@@ -729,7 +854,19 @@
             { icon:"🍨", label:"Vanilla ice cream", useAct:"You scoop out a bowl of vanilla ice cream and enjoy every bite.", mood:6, energy:5 },
             { icon:"🍫", label:"Chocolate ice cream", useAct:"You dig into rich chocolate ice cream.", mood:7, energy:5 },
             { icon:"🍕", label:"Frozen pizza", useAct:"You heat up and eat a slice of frozen pizza.", mood:5, energy:8 },
-            { icon:"🍦", label:"Frozen yogurt", useAct:"You eat a cup of tangy frozen yogurt.", mood:5, energy:4 }
+            { icon:"🍦", label:"Frozen yogurt", useAct:"You eat a cup of tangy frozen yogurt.", mood:5, energy:4 },
+            { icon:"🍭", label:"Popsicle pack", useAct:"You unwrap a popsicle and enjoy it in the sun.", mood:5, energy:3 },
+            { icon:"🍦", label:"Ice cream tub", useAct:"You scoop yourself a big bowl from the tub.", mood:6, energy:5 }
+          ] },
+        { icon:"🍽️", label:"Housewares aisle", desc:"Shelves of plates, bowls, cups, and cutlery.",
+          act:"You browse the housewares aisle.", mood:2, energy:0,
+          shopItems:[
+            { icon:"🍽️", label:"Plates", useAct:"You set the table with your new plates.", mood:3, energy:0, consumable:false, storageType:"cabinet" },
+            { icon:"🥣", label:"Bowls", useAct:"You serve up a meal in one of your bowls.", mood:3, energy:0, consumable:false, storageType:"cabinet" },
+            { icon:"☕", label:"Mugs", useAct:"You pour a warm drink into one of your mugs.", mood:3, energy:0, consumable:false, storageType:"cabinet" },
+            { icon:"🥤", label:"Glasses", useAct:"You pour a cold drink into one of your glasses.", mood:2, energy:0, consumable:false, storageType:"cabinet" },
+            { icon:"🍴", label:"Cutlery set", useAct:"You set out forks, spoons, and knives for the table.", mood:2, energy:0, consumable:false, storageType:"cabinet" },
+            { icon:"🥘", label:"Serving dish", useAct:"You bring out a big serving dish for the table.", mood:3, energy:0, consumable:false, storageType:"cabinet" }
           ] },
         { icon:"🍫", label:"Snack aisle", desc:"Shelves stocked with chips, cookies, and candy bars.",
           act:"You browse the snack aisle.", mood:3, energy:1,
@@ -887,6 +1024,48 @@
         { icon:"📊", label:"Scoreboard", desc:"An overhead screen tracking everyone's scores.",
           act:"You check the scoreboard for the day's high score.", mood:3, energy:0 }
       ]
+    },
+    {
+      id: "hospital", name: "Hospital", icon: "🏥",
+      desc: "Bright hallways and the quiet hum of a busy, caring place.",
+      hotspots: [
+        { icon:"🪑", label:"Waiting room", desc:"Rows of chairs and a stack of old magazines.",
+          act:"You sit and flip through a magazine while you wait.", mood:2, energy:-3, setsPosture:"sitting" },
+        { icon:"🩺", label:"Doctor's office", desc:"A small office with a doctor ready for a checkup.",
+          act:"You get a quick checkup. Everything looks good.", mood:3, energy:-2 },
+        { icon:"💊", label:"Pharmacy counter", desc:"A counter where prescriptions are filled.",
+          act:"You pick up a prescription from the pharmacist.", mood:2, energy:-1 },
+        { icon:"🥤", label:"Vending machine", desc:"A vending machine humming in the hallway.",
+          act:"You look over the vending machine options.", mood:2, energy:1,
+          shopItems:[
+            { icon:"🧃", label:"Juice box", useAct:"You drink a small juice box.", mood:3, energy:5 },
+            { icon:"🍫", label:"Granola bar", useAct:"You eat a chewy granola bar.", mood:3, energy:6 },
+            { icon:"💧", label:"Water bottle", useAct:"You drink a cold bottle of water.", mood:2, energy:4 }
+          ] },
+        { icon:"👶", label:"Nursery window", desc:"A window looking into the newborn nursery.",
+          act:"You peek through the window at the newborns. Your heart melts a little.", mood:8, energy:0 }
+      ]
+    },
+    {
+      id: "studio", name: "Music Studio", icon: "🎸",
+      desc: "Soundproofed walls, tangled cables, and instruments waiting to be played.",
+      hotspots: [
+        { icon:"🎤", label:"Recording booth", desc:"A soundproof booth with a microphone hanging ready.",
+          act:"You lay down a quick vocal take. It sounds pretty good!", mood:9, energy:-6 },
+        { icon:"🎹", label:"Piano", desc:"A well-used upright piano in the corner.",
+          act:"You play a slow, melodic tune on the piano.", mood:7, energy:-4 },
+        { icon:"🎸", label:"Guitar wall", desc:"A wall lined with guitars of every kind.",
+          act:"You pick a guitar off the wall and strum a few chords.", mood:7, energy:-3 },
+        { icon:"🎚️", label:"Mixing desk", desc:"A big mixing desk covered in sliders and knobs.",
+          act:"You mix a rough track, nudging levels until it sounds right.", mood:6, energy:-5 },
+        { icon:"🎽", label:"Merch table", desc:"A table with band merchandise for sale.",
+          act:"You look over the merch table.", mood:3, energy:-1,
+          shopItems:[
+            { icon:"👕", label:"Band T-shirt", useAct:"You put on your new band T-shirt.", mood:5, energy:0, consumable:false },
+            { icon:"💿", label:"Vinyl record", useAct:"You put the vinyl on and listen for a while.", mood:6, energy:0, consumable:false },
+            { icon:"🎸", label:"Guitar pick keychain", useAct:"You jingle your little guitar pick keychain.", mood:3, energy:0, consumable:false }
+          ] }
+      ]
     }
   ];
 
@@ -894,6 +1073,7 @@
   const state = {
     sceneIndex: 0,
     focusIndex: 0,
+    roomIndexByScene: {},
     mood: 60,
     energy: 60,
     voiceOn: true,
@@ -901,6 +1081,7 @@
     hasCreatedCharacter: false,
     inventory: [],
     fridge: [],
+    cabinet: [],
     character: {
       id: null,
       createdAt: null,
@@ -912,6 +1093,7 @@
       hairColor: "black",
       eyeColor: "brown",
       outfit: "casual",
+      shoes: "sneakers",
       mobility: "none",
       glasses: false,
       hearingAid: false,
@@ -948,7 +1130,14 @@
   };
   const outfitLabels = {
     casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes",
-    traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing"
+    formal:"a formal suit", traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing",
+    swimwear:"swimwear", pajamas:"pajamas", wintercoat:"a winter coat", raincoat:"a raincoat",
+    uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing"
+  };
+  const shoesLabels = {
+    sneakers:"sneakers", boots:"boots", sandals:"sandals", flipflops:"flip-flops", flats:"flats",
+    heels:"heels", dressshoes:"dress shoes", rainboots:"rain boots", slippers:"slippers", cleats:"cleats",
+    sandalsorthopedic:"orthopedic shoes", barefoot:"no shoes"
   };
   const mobilityLabels = {
     none: "", wheelchair:"gets around using a wheelchair", cane:"walks with a cane",
@@ -972,16 +1161,20 @@
     chess:"chess", baking:"baking", skateboarding:"skateboarding", swimming:"swimming", singing:"singing",
     fishing:"fishing", yoga:"yoga", puzzles:"puzzles", birdwatching:"birdwatching", camping:"camping",
     knitting:"knitting", painting:"painting", theater:"theater", collecting:"collecting things",
-    volunteering:"volunteering"
+    volunteering:"volunteering", astronomy:"astronomy", cycling:"cycling", skating:"skating",
+    surfing:"surfing", woodworking:"woodworking", sewing:"sewing", podcasting:"podcasting",
+    filmmaking:"filmmaking", martialarts:"martial arts", boardgames:"board games"
   };
   const noHairColorStyles = ["bald","headscarf","turban"];
 
   /* ---------- speech ---------- */
   let voices = [];
+  let preferredVoiceName = null;
+
   function loadVoices(){
     voices = speechSynthesis.getVoices();
     const sel = document.getElementById('voiceSelect');
-    const previousValue = sel.value;
+    const desired = preferredVoiceName || sel.value;
     sel.innerHTML = "";
     voices.filter(v => v.lang.startsWith("en")).forEach((v) => {
       const opt = document.createElement('option');
@@ -996,8 +1189,8 @@
         sel.appendChild(opt);
       });
     }
-    if (previousValue && [...sel.options].some(o => o.value === previousValue)){
-      sel.value = previousValue;
+    if (desired && [...sel.options].some(o => o.value === desired)){
+      sel.value = desired;
     }
   }
   speechSynthesis.onvoiceschanged = loadVoices;
@@ -1022,6 +1215,39 @@
   }
 
   /* ---------- rendering ---------- */
+  function currentLocation(){
+    const scene = scenes[state.sceneIndex];
+    if (!scene.rooms) return scene;
+    const idx = state.roomIndexByScene[state.sceneIndex] ?? 0;
+    return scene.rooms[idx] || scene.rooms[0];
+  }
+
+  function renderRoomNav(scene){
+    const nav = document.getElementById('roomNav');
+    nav.innerHTML = "";
+    const idx = state.roomIndexByScene[state.sceneIndex] ?? 0;
+    scene.rooms.forEach((room, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = `${room.icon} ${room.name}`;
+      btn.setAttribute('aria-current', i === idx ? "true" : "false");
+      btn.addEventListener('click', () => goToRoom(i));
+      nav.appendChild(btn);
+    });
+  }
+
+  function goToRoom(i){
+    state.roomIndexByScene[state.sceneIndex] = i;
+    state.focusIndex = 0;
+    renderScene(true);
+    if (state.character.posture === 'lying' && !sceneHasFurnitureFor('lying')){
+      setPosture('standing', false);
+    }
+    requestAnimationFrame(() => {
+      const first = document.querySelector('.hotspot');
+      if (first) first.focus();
+    });
+  }
+
   function renderSceneNav(){
     const nav = document.getElementById('sceneNav');
     nav.innerHTML = "";
@@ -1036,11 +1262,20 @@
 
   function renderScene(announce){
     const scene = scenes[state.sceneIndex];
-    document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name}`;
-    document.getElementById('sceneDesc').textContent = scene.desc;
+    const roomNavEl = document.getElementById('roomNav');
+    const loc = currentLocation();
+    if (scene.rooms){
+      roomNavEl.classList.remove('hidden');
+      renderRoomNav(scene);
+      document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name} — ${loc.icon} ${loc.name}`;
+    } else {
+      roomNavEl.classList.add('hidden');
+      document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name}`;
+    }
+    document.getElementById('sceneDesc').textContent = loc.desc;
     const grid = document.getElementById('hotspotGrid');
     grid.innerHTML = "";
-    scene.hotspots.forEach((h, i) => {
+    loc.hotspots.forEach((h, i) => {
       const li = document.createElement('li');
       const btn = document.createElement('button');
       btn.className = 'hotspot';
@@ -1057,7 +1292,10 @@
       grid.appendChild(li);
     });
     renderSceneNav();
-    if (announce) speak(`${scene.name}. ${scene.desc}`);
+    if (announce){
+      if (scene.rooms) speak(`${scene.name}. ${loc.icon} ${loc.name}. ${loc.desc}`);
+      else speak(`${scene.name}. ${loc.desc}`);
+    }
     updateMeters();
   }
 
@@ -1095,12 +1333,20 @@
       useBtn.textContent = 'Use';
       useBtn.setAttribute('aria-label', `Use ${item.label}: ${item.useAct}`);
       useBtn.addEventListener('click', () => useItem(item.uid));
-      const fridgeBtn = document.createElement('button');
-      fridgeBtn.textContent = 'Put in fridge';
-      fridgeBtn.setAttribute('aria-label', `Put ${item.label} in the fridge at home`);
-      fridgeBtn.addEventListener('click', () => putInFridge(item.uid));
       actions.appendChild(useBtn);
-      actions.appendChild(fridgeBtn);
+      if (item.storageType === 'cabinet'){
+        const cabinetBtn = document.createElement('button');
+        cabinetBtn.textContent = 'Put in cabinet';
+        cabinetBtn.setAttribute('aria-label', `Put ${item.label} in the cabinet at home`);
+        cabinetBtn.addEventListener('click', () => putInCabinet(item.uid));
+        actions.appendChild(cabinetBtn);
+      } else {
+        const fridgeBtn = document.createElement('button');
+        fridgeBtn.textContent = 'Put in fridge';
+        fridgeBtn.setAttribute('aria-label', `Put ${item.label} in the fridge at home`);
+        fridgeBtn.addEventListener('click', () => putInFridge(item.uid));
+        actions.appendChild(fridgeBtn);
+      }
       li.appendChild(span);
       li.appendChild(actions);
       list.appendChild(li);
@@ -1131,13 +1377,39 @@
     });
   }
 
+  function renderCabinet(){
+    const list = document.getElementById('cabinetList');
+    list.innerHTML = "";
+    if (!state.cabinet.length){
+      const li = document.createElement('li');
+      li.className = 'empty-msg';
+      li.textContent = "The cabinet is empty. Bring dishes home and put them away here.";
+      list.appendChild(li);
+      return;
+    }
+    state.cabinet.forEach(item => {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.innerHTML = `<span aria-hidden="true">${item.icon}</span> ${item.label}`;
+      const takeBtn = document.createElement('button');
+      takeBtn.textContent = 'Take out';
+      takeBtn.setAttribute('aria-label', `Take ${item.label} out of the cabinet, back into your backpack`);
+      takeBtn.addEventListener('click', () => takeOutOfCabinet(item.uid));
+      li.appendChild(span);
+      li.appendChild(takeBtn);
+      list.appendChild(li);
+    });
+  }
+
   function isHomeScene(){
-    return scenes[state.sceneIndex].id === "home";
+    const scene = scenes[state.sceneIndex];
+    if (scene.id !== "home") return false;
+    return currentLocation().id === "kitchen";
   }
 
   function putInFridge(uid){
     if (!isHomeScene()){
-      speak("You need to be home to put things in the fridge. Head to the Home scene first.");
+      speak("You need to be in the Kitchen at Home to use the fridge.");
       return;
     }
     const idx = state.inventory.findIndex(x => x.uid === uid);
@@ -1152,7 +1424,7 @@
 
   function takeOutOfFridge(uid){
     if (!isHomeScene()){
-      speak("You need to be home to open the fridge. Head to the Home scene first.");
+      speak("You need to be in the Kitchen at Home to use the fridge.");
       return;
     }
     const idx = state.fridge.findIndex(x => x.uid === uid);
@@ -1163,6 +1435,36 @@
     renderFridge();
     logEntry(`🧊 Took out of fridge: ${item.icon} ${item.label}`);
     speak(`You take ${item.label} out of the fridge and put it back in your backpack.`);
+  }
+
+  function putInCabinet(uid){
+    if (!isHomeScene()){
+      speak("You need to be in the Kitchen at Home to use the cabinet.");
+      return;
+    }
+    const idx = state.inventory.findIndex(x => x.uid === uid);
+    if (idx === -1) return;
+    const item = state.inventory.splice(idx, 1)[0];
+    state.cabinet.push(item);
+    renderInventory();
+    renderCabinet();
+    logEntry(`🗄️ Put in cabinet: ${item.icon} ${item.label}`);
+    speak(`You put ${item.label} away in the cabinet.`);
+  }
+
+  function takeOutOfCabinet(uid){
+    if (!isHomeScene()){
+      speak("You need to be in the Kitchen at Home to use the cabinet.");
+      return;
+    }
+    const idx = state.cabinet.findIndex(x => x.uid === uid);
+    if (idx === -1) return;
+    const item = state.cabinet.splice(idx, 1)[0];
+    state.inventory.push(item);
+    renderInventory();
+    renderCabinet();
+    logEntry(`🗄️ Took out of cabinet: ${item.icon} ${item.label}`);
+    speak(`You take ${item.label} out of the cabinet and put it back in your backpack.`);
   }
 
   function useItem(uid){
@@ -1191,8 +1493,7 @@
   }
 
   function sceneHasFurnitureFor(posture){
-    const scene = scenes[state.sceneIndex];
-    return scene.hotspots.some(h => h.setsPosture === posture);
+    return currentLocation().hotspots.some(h => h.setsPosture === posture);
   }
 
   document.getElementById('postureStand').addEventListener('click', () => setPosture('standing'));
@@ -1280,16 +1581,16 @@
   document.getElementById('shopCancelBtn').addEventListener('click', () => closeShopPanel(true));
 
   function interact(i){
-    const scene = scenes[state.sceneIndex];
-    const h = scene.hotspots[i];
+    const loc = currentLocation();
+    const h = loc.hotspots[i];
     if (h.shopItems){
-      openShopPanel(scene, h);
+      openShopPanel(loc, h);
       return;
     }
     state.mood += h.mood;
     state.energy += h.energy;
     updateMeters();
-    logEntry(`${scene.icon} ${h.label}: ${h.act}`);
+    logEntry(`${loc.icon} ${h.label}: ${h.act}`);
     let spoken = h.act;
     if (h.item){
       const newItem = grantItem(h.item);
@@ -1319,8 +1620,7 @@
 
   /* ---------- keyboard navigation within grid ---------- */
   document.getElementById('hotspotGrid').addEventListener('keydown', (e) => {
-    const scene = scenes[state.sceneIndex];
-    const count = scene.hotspots.length;
+    const count = currentLocation().hotspots.length;
     let next = null;
     if (e.key === 'ArrowRight') next = (state.focusIndex + 1) % count;
     if (e.key === 'ArrowLeft') next = (state.focusIndex - 1 + count) % count;
@@ -1343,6 +1643,15 @@
       const idx = e.key === '0' ? 9 : parseInt(e.key, 10) - 1;
       if (scenes[idx]) goToScene(idx);
     }
+    if ((e.key === '[' || e.key === ']') && !['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)){
+      const scene = scenes[state.sceneIndex];
+      if (scene.rooms){
+        const current = state.roomIndexByScene[state.sceneIndex] ?? 0;
+        const delta = e.key === ']' ? 1 : -1;
+        const next = (current + delta + scene.rooms.length) % scene.rooms.length;
+        goToRoom(next);
+      }
+    }
   });
 
   /* ---------- voice controls ---------- */
@@ -1352,7 +1661,11 @@
     this.setAttribute('aria-pressed', state.voiceOn ? "true" : "false");
     if (!state.voiceOn) speechSynthesis.cancel();
     document.getElementById('liveRegion').textContent = state.voiceOn ? "Voice narration turned on" : "Voice narration turned off";
+    saveSettings();
   });
+  document.getElementById('rateRange').addEventListener('change', saveSettings);
+  document.getElementById('pitchRange').addEventListener('change', saveSettings);
+  document.getElementById('voiceSelect').addEventListener('change', saveSettings);
 
   /* ---------- character creation ---------- */
   const creatorEl = document.getElementById('creator');
@@ -1375,6 +1688,7 @@
     frecklesCheck: "Freckles, a checkbox.",
     vitiligoCheck: "Vitiligo, a checkbox.",
     tattoosCheck: "Tattoos, a checkbox.",
+    shoesSelect: "Shoes.",
     colorSelect: "Favorite color. This is your character's signature color."
   };
 
@@ -1396,8 +1710,8 @@
     let sentence = `${name} (${pronouns}) is ${ageLabels[c.age]} with a ${bodyTypeLabels[c.bodyType]}. `
       + `${name} ${hairPart}, ${skinLabels[c.skin]} skin, and ${eyeColorLabels[c.eyeColor]} eyes`
       + `${facialHairLabels[c.facialHair] ? `, with ${facialHairLabels[c.facialHair]}` : ""}. `
-      + `${name} wears ${outfitLabels[c.outfit]}`
-      + `${accessoryList.length ? ` with ${accessoryList.join(", ")}` : ""}.`;
+      + `${name} wears ${outfitLabels[c.outfit]} and ${shoesLabels[c.shoes] || "sneakers"}`
+      + `${accessoryList.length ? `, with ${accessoryList.join(", ")}` : ""}.`;
     if (mobilityLabels[c.mobility]) sentence += ` ${name} ${mobilityLabels[c.mobility]}.`;
     const extras = [];
     if (c.glasses) extras.push("glasses");
@@ -1422,7 +1736,7 @@
       id: null, createdAt: null,
       name: "", pronouns: "they/them", customPronoun: "",
       skin: "medium", hair: "curly", hairColor: "black", eyeColor: "brown",
-      outfit: "casual", mobility: "none", glasses: false, hearingAid: false,
+      outfit: "casual", shoes: "sneakers", mobility: "none", glasses: false, hearingAid: false,
       age: "adult", bodyType: "average", facialHair: "none",
       freckles: false, vitiligo: false, tattoos: false,
       accessories: [], hobbies: ["reading"], color: "teal",
@@ -1441,6 +1755,7 @@
     state.character.eyeColor = document.getElementById('eyeColorSelect').value;
     const outfitEl = document.querySelector('input[name="outfit"]:checked');
     if (outfitEl) state.character.outfit = outfitEl.value;
+    state.character.shoes = document.getElementById('shoesSelect').value;
     const mobilityEl = document.querySelector('input[name="mobility"]:checked');
     if (mobilityEl) state.character.mobility = mobilityEl.value;
     state.character.glasses = document.getElementById('glassesCheck').checked;
@@ -1484,6 +1799,7 @@
     document.getElementById('eyeColorSelect').value = c.eyeColor;
     const outfitEl = document.querySelector(`input[name="outfit"][value="${c.outfit}"]`);
     if (outfitEl) outfitEl.checked = true;
+    document.getElementById('shoesSelect').value = c.shoes;
     const mobilityEl = document.querySelector(`input[name="mobility"][value="${c.mobility}"]`);
     if (mobilityEl) mobilityEl.checked = true;
     document.getElementById('glassesCheck').checked = c.glasses;
@@ -1547,34 +1863,107 @@
   let creatorContext = 'new'; // 'new' or 'edit'
 
   let storageAvailable = true;
+  let storageBackend = 'none'; // 'cloud' (Claude's storage) | 'local' (browser localStorage) | 'none'
+  const LOCAL_PREFIX = 'sunnytown_v1_';
 
   async function checkStorageAvailable(){
+    // Try Claude's built-in artifact storage first (only present inside Claude.ai / the Claude app)
     try {
-      if (!window.storage || typeof window.storage.set !== 'function'){
-        storageAvailable = false;
-        return;
+      if (window.storage && typeof window.storage.set === 'function'){
+        const testKey = '__sunnytown_storage_check__';
+        const setResult = await window.storage.set(testKey, '1', false);
+        if (setResult){
+          await window.storage.delete(testKey, false);
+          storageBackend = 'cloud';
+          storageAvailable = true;
+          return;
+        }
       }
-      const testKey = '__sunnytown_storage_check__';
-      const setResult = await window.storage.set(testKey, '1', false);
-      if (!setResult) { storageAvailable = false; return; }
-      await window.storage.delete(testKey, false);
-      storageAvailable = true;
     } catch (e){
-      console.error('Storage capability check failed', e);
-      storageAvailable = false;
+      console.error('Cloud storage check failed', e);
     }
+    // Fall back to the browser's own localStorage (works when this file is opened
+    // directly or hosted outside Claude.ai, where window.storage doesn't exist)
+    try {
+      const testKey = LOCAL_PREFIX + '__check__';
+      localStorage.setItem(testKey, '1');
+      localStorage.removeItem(testKey);
+      storageBackend = 'local';
+      storageAvailable = true;
+      return;
+    } catch (e){
+      console.error('Local storage check failed', e);
+    }
+    storageBackend = 'none';
+    storageAvailable = false;
+  }
+
+  async function storageSetKey(key, value){
+    if (storageBackend === 'cloud'){
+      try { return !!(await window.storage.set(key, value, false)); }
+      catch (e){ console.error('Cloud set failed', e); return false; }
+    }
+    if (storageBackend === 'local'){
+      try { localStorage.setItem(LOCAL_PREFIX + key, value); return true; }
+      catch (e){ console.error('Local set failed', e); return false; }
+    }
+    return false;
+  }
+
+  async function storageGetKey(key){
+    if (storageBackend === 'cloud'){
+      try { const res = await window.storage.get(key, false); return res ? res.value : null; }
+      catch (e){ return null; }
+    }
+    if (storageBackend === 'local'){
+      try { return localStorage.getItem(LOCAL_PREFIX + key); }
+      catch (e){ return null; }
+    }
+    return null;
+  }
+
+  async function storageDeleteKey(key){
+    if (storageBackend === 'cloud'){
+      try { await window.storage.delete(key, false); return true; }
+      catch (e){ return false; }
+    }
+    if (storageBackend === 'local'){
+      try { localStorage.removeItem(LOCAL_PREFIX + key); return true; }
+      catch (e){ return false; }
+    }
+    return false;
+  }
+
+  async function storageListKeys(prefix){
+    if (storageBackend === 'cloud'){
+      try {
+        const res = await window.storage.list(prefix, false);
+        return (res && res.keys) ? res.keys : [];
+      } catch (e){ return []; }
+    }
+    if (storageBackend === 'local'){
+      try {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++){
+          const k = localStorage.key(i);
+          if (k && k.indexOf(LOCAL_PREFIX + prefix) === 0) keys.push(k.slice(LOCAL_PREFIX.length));
+        }
+        return keys;
+      } catch (e){ return []; }
+    }
+    return [];
   }
 
   async function fetchRoster(){
     try {
-      const listResult = await window.storage.list('character:', false);
-      if (!listResult || !listResult.keys || !listResult.keys.length) return [];
+      const keys = await storageListKeys('character:');
+      if (!keys.length) return [];
       const chars = [];
-      for (const key of listResult.keys){
+      for (const key of keys){
         try {
-          const res = await window.storage.get(key, false);
-          if (res && res.value){
-            const parsed = JSON.parse(res.value);
+          const value = await storageGetKey(key);
+          if (value){
+            const parsed = JSON.parse(value);
             chars.push({ ...defaultCharacter(), ...parsed });
           }
         } catch (e) {
@@ -1590,26 +1979,43 @@
   }
 
   async function saveCharacterToStorage(character){
-    try {
-      const result = await window.storage.set(`character:${character.id}`, JSON.stringify(character), false);
-      if (!result){
-        console.error('Character save returned no result');
-        return false;
-      }
-      return true;
-    } catch (e){
-      console.error('Could not save character', e);
-      return false;
-    }
+    return storageSetKey(`character:${character.id}`, JSON.stringify(character));
   }
 
   async function deleteCharacterFromStorage(id){
+    return storageDeleteKey(`character:${id}`);
+  }
+
+  /* ---------- voice/settings persistence ---------- */
+  async function saveSettings(){
+    const settings = {
+      voiceOn: state.voiceOn,
+      rate: document.getElementById('rateRange').value,
+      pitch: document.getElementById('pitchRange').value,
+      voiceName: document.getElementById('voiceSelect').value
+    };
+    await storageSetKey('settings:voice', JSON.stringify(settings));
+  }
+
+  async function loadSettings(){
     try {
-      await window.storage.delete(`character:${id}`, false);
-      return true;
+      const value = await storageGetKey('settings:voice');
+      if (!value) return;
+      const settings = JSON.parse(value);
+      if (typeof settings.voiceOn === 'boolean'){
+        state.voiceOn = settings.voiceOn;
+        const toggle = document.getElementById('voiceToggle');
+        toggle.textContent = state.voiceOn ? "On" : "Off";
+        toggle.setAttribute('aria-pressed', state.voiceOn ? "true" : "false");
+      }
+      if (settings.rate) document.getElementById('rateRange').value = settings.rate;
+      if (settings.pitch) document.getElementById('pitchRange').value = settings.pitch;
+      if (settings.voiceName){
+        preferredVoiceName = settings.voiceName;
+        loadVoices();
+      }
     } catch (e){
-      console.error('Could not delete character', e);
-      return false;
+      console.error('Could not load saved settings', e);
     }
   }
 
@@ -1814,8 +2220,11 @@
     renderScene(false);
     renderInventory();
     renderFridge();
+    renderCabinet();
     await checkStorageAvailable();
-    document.getElementById('storageWarning').classList.toggle('hidden', storageAvailable);
+    document.getElementById('storageWarning').classList.toggle('hidden', storageBackend !== 'none');
+    document.getElementById('storageLocalNote').classList.toggle('hidden', storageBackend !== 'local');
+    await loadSettings();
     cachedRoster = await fetchRoster();
     if (cachedRoster.length === 1){
       selectCharacter(cachedRoster[0].id);
