@@ -115,6 +115,23 @@
     padding:.4em .8em; border-radius:4px; cursor:pointer;
   }
 
+  .farm-list{list-style:none; margin:0 0 1em; padding:0; display:flex; flex-direction:column; gap:.6em;}
+  .farm-list li{
+    border:2px solid var(--line); border-radius:6px; padding:.7em .9em; background:var(--soft);
+    display:flex; flex-wrap:wrap; align-items:center; gap:.6em; justify-content:space-between;
+  }
+  .farm-list .farm-item-info{display:flex; flex-direction:column; gap:.2em;}
+  .farm-list .farm-item-actions{display:flex; gap:.5em; flex-wrap:wrap;}
+  .farm-list button{
+    font-family:'Courier New',monospace; font-size:.85em; border:2px solid var(--accent-2);
+    background:var(--accent-2); color:#fff; padding:.4em .7em; border-radius:4px; cursor:pointer;
+  }
+  .farm-list button:disabled{background:#ccc; border-color:#ccc; cursor:not-allowed;}
+  #gardenCloseBtn, #barnCloseBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.4em .8em; border-radius:4px; cursor:pointer;
+  }
+
   aside.panel{
     flex:1; min-width:280px; border-left:3px solid var(--line);
     padding:1.2em; background:var(--soft);
@@ -146,6 +163,13 @@
   .fridge-hint{font-size:.8em; font-style:italic; color:#665f52; margin:.2em 0 .5em;}
 
   .posture-buttons{display:flex; gap:.5em; flex-wrap:wrap;}
+
+  .wallet{
+    display:flex; align-items:baseline; gap:.4em; font-size:1.3em; font-weight:bold;
+    color:var(--accent-2); border:2px solid var(--accent-2); border-radius:8px;
+    padding:.5em .8em; margin-bottom:1em; background:#fff;
+  }
+  .wallet-label{font-size:.5em; font-weight:normal; font-family:'Courier New',monospace; color:#665f52; margin-left:auto;}
   .posture-buttons button{
     font-family:'Courier New',monospace; font-size:.85em; border:2px solid var(--line); background:var(--paper);
     padding:.4em .7em; border-radius:4px; cursor:pointer;
@@ -544,6 +568,23 @@
     </fieldset>
 
     <div class="field">
+      <label for="jobSelect">Job</label>
+      <select id="jobSelect">
+        <option value="none" selected>None / unemployed</option>
+        <option value="barista">Barista — Café</option>
+        <option value="cashier">Cashier — Grocery Store</option>
+        <option value="librarian">Librarian — Library</option>
+        <option value="zookeeper">Zookeeper — Zoo</option>
+        <option value="moviestaff">Movie theater staff — Movie Theater</option>
+        <option value="aquariumguide">Aquarium guide — Aquarium</option>
+        <option value="farmhand">Farmhand — Farm</option>
+        <option value="bowlingattendant">Bowling alley attendant — Bowling Alley</option>
+        <option value="nurse">Nurse — Hospital</option>
+        <option value="musician">Musician — Music Studio</option>
+      </select>
+    </div>
+
+    <div class="field">
       <label for="colorSelect">Favorite color</label>
       <select id="colorSelect">
         <option value="teal" selected>Teal</option>
@@ -591,9 +632,30 @@
         <button id="shopCancelBtn">Cancel</button>
       </div>
     </div>
+
+    <div class="shop-panel hidden" id="gardenPanel" role="region" aria-label="Garden plots">
+      <h3>🌱 Garden plots</h3>
+      <p class="fridge-hint">Plant seeds, water them, and come back once they've grown to harvest.</p>
+      <ul id="gardenPlotList" class="farm-list"></ul>
+      <button id="gardenCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="barnPanel" role="region" aria-label="Barn animals">
+      <h3>🐴 Barn</h3>
+      <p class="fridge-hint">Feed and clean your animals to keep them happy. Buy new ones below.</p>
+      <ul id="barnAnimalList" class="farm-list"></ul>
+      <h4>Buy an animal</h4>
+      <ul id="barnBuyList" class="farm-list"></ul>
+      <button id="barnCloseBtn">Close</button>
+    </div>
   </section>
 
   <aside class="panel" aria-label="Game log and voice settings">
+    <div class="wallet" role="status">
+      <span aria-hidden="true">💰</span> <span id="walletAmount">$50</span>
+      <span class="wallet-label">Wallet</span>
+    </div>
+
     <h2>Posture</h2>
     <div class="posture-buttons" role="group" aria-label="Change your character's posture">
       <button id="postureStand" aria-pressed="true">🧍 Stand</button>
@@ -801,7 +863,9 @@
         { icon:"🎸", label:"Musician", desc:"A musician tunes a guitar in the corner.",
           act:"You request a song. They play something warm and slow.", mood:9, energy:-2 },
         { icon:"📰", label:"Newspaper rack", desc:"A rack of the day's newspaper.",
-          act:"You skim the headlines. Nothing too surprising today.", mood:1, energy:-1 }
+          act:"You skim the headlines. Nothing too surprising today.", mood:1, energy:-1 },
+        { icon:"💼", label:"Clock in", desc:"A time clock by the staff door behind the counter.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"barista" }
       ]
     },
     {
@@ -813,7 +877,7 @@
         { icon:"🌊", label:"Waves", desc:"Waves roll in and fizzle out along the shore.",
           act:"You wade in up to your knees. The cold water is refreshing.", mood:8, energy:-4 },
         { icon:"🐚", label:"Seashells", desc:"A scatter of shells left by the tide.",
-          act:"You look over what's washed up along the shore.", mood:3, energy:-1,
+          act:"You look over what's washed up along the shore.", mood:3, energy:-1, shopFree:true,
           shopItems:[
             { icon:"🐚", label:"Seashell keepsake", useAct:"You admire your seashell collection. It reminds you of the beach.", mood:3, energy:0, consumable:false },
             { icon:"⭐", label:"Starfish keepsake", useAct:"You look at your starfish. Its texture still amazes you.", mood:3, energy:0, consumable:false },
@@ -882,7 +946,9 @@
             { icon:"🥛", label:"Milk", useAct:"You pour and drink a cold glass of milk.", mood:2, energy:5 },
             { icon:"🧀", label:"Cheese", useAct:"You eat a few slices of cheese.", mood:3, energy:5 },
             { icon:"🥣", label:"Yogurt cup", useAct:"You eat a cup of creamy yogurt.", mood:3, energy:5 }
-          ] }
+          ] },
+        { icon:"💼", label:"Clock in", desc:"A time clock near the staff break room.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"cashier" }
       ]
     },
     {
@@ -892,7 +958,7 @@
         { icon:"🛋️", label:"Reading nook", desc:"A squashy armchair tucked beside a tall window.",
           act:"You curl up and read a whole chapter without looking up.", mood:7, energy:-2, setsPosture:"sitting" },
         { icon:"👩‍💼", label:"Librarian", desc:"The librarian is stamping due dates at the front desk.",
-          act:"You ask for a recommendation.", mood:3, energy:0,
+          act:"You ask for a recommendation.", mood:3, energy:0, shopFree:true,
           shopItems:[
             { icon:"📗", label:"Borrowed novel", useAct:"You read a chapter of your borrowed novel.", mood:4, energy:-2, consumable:false },
             { icon:"📘", label:"Borrowed comic", useAct:"You flip through your borrowed comic, grinning.", mood:5, energy:-1, consumable:false },
@@ -903,7 +969,9 @@
         { icon:"🪑", label:"Study desk", desc:"A wooden desk with a lamp and a stack of paper.",
           act:"You finish your homework and feel a weight lift.", mood:2, energy:-6 },
         { icon:"🤫", label:"Quiet corner", desc:"A hushed corner with a soft couch, perfect for resting.",
-          act:"You close your eyes for a short, peaceful nap.", mood:1, energy:15, setsPosture:"lying" }
+          act:"You close your eyes for a short, peaceful nap.", mood:1, energy:15, setsPosture:"lying" },
+        { icon:"💼", label:"Clock in", desc:"A time clock behind the front desk.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"librarian" }
       ]
     },
     {
@@ -911,24 +979,21 @@
       desc: "Open fields, a red barn, and the smell of hay in the morning air.",
       hotspots: [
         { icon:"🐔", label:"Chicken coop", desc:"A small coop with hens clucking softly inside.",
-          act:"You check the coop for anything ready to collect.", mood:4, energy:-2,
+          act:"You check the coop for anything ready to collect.", mood:4, energy:-2, shopFree:true,
           shopItems:[
             { icon:"🥚", label:"Fresh eggs", useAct:"You cook up the fresh eggs for a snack.", mood:3, energy:5 },
             { icon:"🥛", label:"Goat milk", useAct:"You pour and drink a glass of fresh goat milk.", mood:3, energy:6 }
           ] },
         { icon:"🚜", label:"Tractor", desc:"An old green tractor parked by the field.",
           act:"You climb up and take it for a slow ride around the field.", mood:8, energy:-5 },
-        { icon:"🥕", label:"Vegetable patch", desc:"Rows of carrots, potatoes, and corn ready to be pulled.",
-          act:"You look over the rows of vegetables.", mood:3, energy:-3,
-          shopItems:[
-            { icon:"🥕", label:"Carrots", useAct:"You munch on a crisp carrot.", mood:3, energy:5 },
-            { icon:"🥔", label:"Potatoes", useAct:"You bake and eat a warm potato.", mood:3, energy:6 },
-            { icon:"🌽", label:"Corn", useAct:"You eat a fresh ear of corn.", mood:3, energy:5 }
-          ] },
+        { icon:"🥕", label:"Vegetable patch", desc:"Four garden plots, some empty, some growing.",
+          act:"You crouch down by the garden plots.", mood:1, energy:-1, opensGarden:true },
         { icon:"🏚️", label:"Barn", desc:"A red barn that smells of hay and old wood.",
-          act:"You pet the horse's nose. It nickers softly.", mood:9, energy:-2 },
+          act:"You step into the barn.", mood:1, energy:-1, opensBarn:true },
         { icon:"🎣", label:"Pond dock", desc:"A small wooden dock over a still farm pond.",
-          act:"You cast a line and wait quietly for a bite.", mood:6, energy:-3 }
+          act:"You cast a line and wait quietly for a bite.", mood:6, energy:-3 },
+        { icon:"💼", label:"Clock in", desc:"A time clock mounted on the barn wall.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"farmhand" }
       ]
     },
     {
@@ -954,7 +1019,9 @@
             { icon:"🍿", label:"Popcorn", useAct:"You munch on warm, salty popcorn.", mood:4, energy:4 },
             { icon:"🍭", label:"Cotton candy", useAct:"You pull off a fluffy bite of cotton candy. It melts on your tongue.", mood:6, energy:3 },
             { icon:"🥨", label:"Pretzel", useAct:"You eat a warm, salty pretzel.", mood:4, energy:5 }
-          ] }
+          ] },
+        { icon:"💼", label:"Clock in", desc:"A time clock by the staff gate.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"zookeeper" }
       ]
     },
     {
@@ -975,7 +1042,9 @@
         { icon:"🕹️", label:"Arcade corner", desc:"A couple of arcade machines blink in the lobby.",
           act:"You play a round on the arcade machine.", mood:7, energy:-5 },
         { icon:"🖼️", label:"Lobby posters", desc:"Posters for upcoming movies line the lobby wall.",
-          act:"You check out posters for movies coming soon.", mood:2, energy:0 }
+          act:"You check out posters for movies coming soon.", mood:2, energy:0 },
+        { icon:"💼", label:"Clock in", desc:"A time clock behind the concession counter.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"moviestaff" }
       ]
     },
     {
@@ -1001,7 +1070,9 @@
             { icon:"🍟", label:"Fish and chips", useAct:"You eat a plate of fish and chips.", mood:5, energy:7 },
             { icon:"🍋", label:"Lemonade", useAct:"You drink a cold, tart lemonade.", mood:4, energy:5 },
             { icon:"🍤", label:"Popcorn shrimp", useAct:"You eat a cup of crispy popcorn shrimp.", mood:5, energy:6 }
-          ] }
+          ] },
+        { icon:"💼", label:"Clock in", desc:"A time clock near the staff office.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"aquariumguide" }
       ]
     },
     {
@@ -1022,7 +1093,9 @@
             { icon:"🥤", label:"Milkshake", useAct:"You sip a thick, sweet milkshake.", mood:6, energy:6 }
           ] },
         { icon:"📊", label:"Scoreboard", desc:"An overhead screen tracking everyone's scores.",
-          act:"You check the scoreboard for the day's high score.", mood:3, energy:0 }
+          act:"You check the scoreboard for the day's high score.", mood:3, energy:0 },
+        { icon:"💼", label:"Clock in", desc:"A time clock behind the shoe rental counter.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"bowlingattendant" }
       ]
     },
     {
@@ -1043,7 +1116,9 @@
             { icon:"💧", label:"Water bottle", useAct:"You drink a cold bottle of water.", mood:2, energy:4 }
           ] },
         { icon:"👶", label:"Nursery window", desc:"A window looking into the newborn nursery.",
-          act:"You peek through the window at the newborns. Your heart melts a little.", mood:8, energy:0 }
+          act:"You peek through the window at the newborns. Your heart melts a little.", mood:8, energy:0 },
+        { icon:"💼", label:"Clock in", desc:"A time clock near the nurses' station.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"nurse" }
       ]
     },
     {
@@ -1064,7 +1139,9 @@
             { icon:"👕", label:"Band T-shirt", useAct:"You put on your new band T-shirt.", mood:5, energy:0, consumable:false },
             { icon:"💿", label:"Vinyl record", useAct:"You put the vinyl on and listen for a while.", mood:6, energy:0, consumable:false },
             { icon:"🎸", label:"Guitar pick keychain", useAct:"You jingle your little guitar pick keychain.", mood:3, energy:0, consumable:false }
-          ] }
+          ] },
+        { icon:"💼", label:"Clock in", desc:"A time clock by the studio's back door.",
+          act:"You clock in for your shift.", mood:0, energy:0, jobId:"musician" }
       ]
     }
   ];
@@ -1076,6 +1153,7 @@
     roomIndexByScene: {},
     mood: 60,
     energy: 60,
+    money: 50,
     voiceOn: true,
     lastSpoken: "",
     hasCreatedCharacter: false,
@@ -1105,6 +1183,8 @@
       tattoos: false,
       accessories: [],
       hobbies: ["reading"],
+      job: "none",
+      money: 50,
       color: "teal"
     }
   };
@@ -1304,6 +1384,22 @@
     state.energy = Math.max(0, Math.min(100, state.energy));
     document.getElementById('moodMeter').style.width = state.mood + "%";
     document.getElementById('energyMeter').style.width = state.energy + "%";
+  }
+
+  function updateWallet(){
+    state.money = Math.max(0, state.money);
+    document.getElementById('walletAmount').textContent = `$${state.money}`;
+    if (state.hasCreatedCharacter && state.character.id){
+      state.character.money = state.money;
+      saveCharacterToStorage(state.character);
+      const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+      if (idx >= 0) cachedRoster[idx].money = state.money;
+    }
+  }
+
+  function itemPrice(choice){
+    if (typeof choice.price === 'number') return choice.price;
+    return Math.max(1, Math.round((choice.mood || 3) * 0.6));
   }
 
   function logEntry(text){
@@ -1530,8 +1626,9 @@
       cb.dataset.idx = String(idx);
       cb.setAttribute('aria-label', choice.label);
       const span = document.createElement('span');
-      span.innerHTML = `<span aria-hidden="true">${choice.icon}</span> ${choice.label}`;
-      cb.addEventListener('focus', () => speak(`${choice.label}${cb.checked ? ": checked" : ": not checked"}`));
+      const priceTag = h.shopFree ? "" : ` — $${itemPrice(choice)}`;
+      span.innerHTML = `<span aria-hidden="true">${choice.icon}</span> ${choice.label}${priceTag}`;
+      cb.addEventListener('focus', () => speak(`${choice.label}${h.shopFree ? "" : `, ${itemPrice(choice)} dollars`}${cb.checked ? ": checked" : ": not checked"}`));
       cb.addEventListener('change', () => {
         label.classList.toggle('chosen', cb.checked);
         speak(`${choice.label}: ${cb.checked ? "added to your picks" : "removed from your picks"}`);
@@ -1543,7 +1640,8 @@
     });
     document.getElementById('shopPanel').classList.remove('hidden');
     const names = h.shopItems.map(c => c.label).join(", ");
-    speak(`${h.label}. ${h.desc} Choose any number of items: ${names}. Then choose Add to backpack, or Cancel.`);
+    const moneyNote = h.shopFree ? "" : ` You have $${state.money}.`;
+    speak(`${h.label}. ${h.desc} Choose any number of items: ${names}.${moneyNote} Then choose Add to backpack, or Cancel.`);
     const firstCb = list.querySelector('input[type="checkbox"]');
     if (firstCb) firstCb.focus();
   }
@@ -1556,15 +1654,23 @@
       speak("You haven't chosen anything yet. Check one or more items, or choose Cancel.");
       return;
     }
+    const chosenItems = checked.map(cb => h.shopItems[parseInt(cb.dataset.idx, 10)]);
+    if (!h.shopFree){
+      const total = chosenItems.reduce((sum, c) => sum + itemPrice(c), 0);
+      if (total > state.money){
+        speak(`That comes to $${total}, but you only have $${state.money}. Uncheck something, or choose Cancel.`);
+        return;
+      }
+      state.money -= total;
+      updateWallet();
+    }
     state.mood += h.mood;
     state.energy += h.energy;
     updateMeters();
     logEntry(`${scene.icon} ${h.label}: ${h.act}`);
-    const names = checked.map(cb => {
-      const choice = h.shopItems[parseInt(cb.dataset.idx, 10)];
-      return grantItem(choice).label;
-    });
-    speak(`${h.act} You picked up ${names.join(", ")} and added ${names.length > 1 ? "them" : "it"} to your backpack.`);
+    const names = chosenItems.map(choice => grantItem(choice).label);
+    const costNote = h.shopFree ? "" : ` You now have $${state.money}.`;
+    speak(`${h.act} You picked up ${names.join(", ")} and added ${names.length > 1 ? "them" : "it"} to your backpack.${costNote}`);
     closeShopPanel();
   }
 
@@ -1580,9 +1686,349 @@
   document.getElementById('shopConfirmBtn').addEventListener('click', confirmShopChoices);
   document.getElementById('shopCancelBtn').addEventListener('click', () => closeShopPanel(true));
 
+  /* ---------- farm: garden plots ---------- */
+  const cropTypes = {
+    carrot: { label:"Carrot", icon:"🥕", seedCost:2, growMs:60000,
+      useAct:"You munch on a crisp, home-grown carrot.", mood:4, energy:5 },
+    potato: { label:"Potato", icon:"🥔", seedCost:3, growMs:90000,
+      useAct:"You bake and eat a warm, home-grown potato.", mood:4, energy:6 },
+    corn: { label:"Corn", icon:"🌽", seedCost:4, growMs:120000,
+      useAct:"You eat a fresh ear of home-grown corn.", mood:4, energy:5 }
+  };
+
+  function defaultFarm(){
+    return {
+      plots: [0, 1, 2, 3].map(id => ({ id, crop: null, plantedAt: null, wateredAt: null, readyAt: null })),
+      animals: []
+    };
+  }
+
+  state.farm = defaultFarm();
+
+  function persistFarm(){
+    if (!state.hasCreatedCharacter || !state.character.id) return;
+    state.character.farm = state.farm;
+    saveCharacterToStorage(state.character);
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    if (idx >= 0) cachedRoster[idx].farm = state.farm;
+  }
+
+  function plotStage(plot){
+    if (!plot.crop) return 'empty';
+    if (!plot.wateredAt) return 'planted';
+    if (Date.now() >= plot.readyAt) return 'ready';
+    return 'growing';
+  }
+
+  function plantSeed(plotId, cropId){
+    const crop = cropTypes[cropId];
+    const plot = state.farm.plots[plotId];
+    if (!crop || !plot || plot.crop) return;
+    if (state.money < crop.seedCost){
+      speak(`${crop.label} seeds cost $${crop.seedCost}, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= crop.seedCost;
+    updateWallet();
+    plot.crop = cropId;
+    plot.plantedAt = Date.now();
+    plot.wateredAt = null;
+    plot.readyAt = null;
+    logEntry(`🌱 Planted ${crop.label} seeds in plot ${plotId + 1}.`);
+    speak(`You plant ${crop.label} seeds in plot ${plotId + 1}. Water them to start them growing.`);
+    renderGarden();
+    persistFarm();
+  }
+
+  function waterPlot(plotId){
+    const plot = state.farm.plots[plotId];
+    if (!plot || !plot.crop || plot.wateredAt) return;
+    const crop = cropTypes[plot.crop];
+    plot.wateredAt = Date.now();
+    plot.readyAt = plot.wateredAt + crop.growMs;
+    logEntry(`💧 Watered plot ${plotId + 1} (${crop.label}).`);
+    speak(`You water the ${crop.label} plants. They'll be ready to harvest soon — check back in a bit.`);
+    renderGarden();
+    persistFarm();
+  }
+
+  function harvestPlot(plotId){
+    const plot = state.farm.plots[plotId];
+    if (!plot || plotStage(plot) !== 'ready') return;
+    const crop = cropTypes[plot.crop];
+    const newItem = grantItem({ icon:crop.icon, label:crop.label, useAct:crop.useAct, mood:crop.mood, energy:crop.energy });
+    logEntry(`🧺 Harvested ${crop.label} from plot ${plotId + 1}.`);
+    speak(`You harvest the ${crop.label} and add it to your backpack.`);
+    plot.crop = null;
+    plot.plantedAt = null;
+    plot.wateredAt = null;
+    plot.readyAt = null;
+    renderGarden();
+    persistFarm();
+  }
+
+  function renderGarden(){
+    const list = document.getElementById('gardenPlotList');
+    list.innerHTML = "";
+    state.farm.plots.forEach(plot => {
+      const stage = plotStage(plot);
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+
+      if (stage === 'empty'){
+        info.innerHTML = `<strong>Plot ${plot.id + 1}</strong><span>Empty — ready to plant</span>`;
+        Object.keys(cropTypes).forEach(cropId => {
+          const crop = cropTypes[cropId];
+          const btn = document.createElement('button');
+          btn.textContent = `Plant ${crop.label} ($${crop.seedCost})`;
+          btn.addEventListener('click', () => plantSeed(plot.id, cropId));
+          actions.appendChild(btn);
+        });
+      } else if (stage === 'planted'){
+        const crop = cropTypes[plot.crop];
+        info.innerHTML = `<strong>Plot ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} seeds — needs water</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Water';
+        btn.addEventListener('click', () => waterPlot(plot.id));
+        actions.appendChild(btn);
+      } else if (stage === 'growing'){
+        const crop = cropTypes[plot.crop];
+        const secsLeft = Math.max(1, Math.ceil((plot.readyAt - Date.now()) / 1000));
+        info.innerHTML = `<strong>Plot ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} growing — ready in about ${secsLeft}s</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Check back later';
+        btn.disabled = true;
+        actions.appendChild(btn);
+      } else {
+        const crop = cropTypes[plot.crop];
+        info.innerHTML = `<strong>Plot ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} ready to harvest!</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Harvest';
+        btn.addEventListener('click', () => harvestPlot(plot.id));
+        actions.appendChild(btn);
+      }
+
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  let gardenRefreshTimer = null;
+
+  function openGarden(){
+    document.getElementById('gardenPanel').classList.remove('hidden');
+    renderGarden();
+    speak("The garden plots. Plant seeds, water them, and harvest once they're ready.");
+    if (gardenRefreshTimer) clearInterval(gardenRefreshTimer);
+    gardenRefreshTimer = setInterval(renderGarden, 5000);
+    const firstBtn = document.querySelector('#gardenPlotList button:not([disabled])');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('gardenCloseBtn').focus();
+  }
+
+  function closeGarden(){
+    document.getElementById('gardenPanel').classList.add('hidden');
+    if (gardenRefreshTimer){ clearInterval(gardenRefreshTimer); gardenRefreshTimer = null; }
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('gardenCloseBtn').addEventListener('click', closeGarden);
+
+  /* ---------- farm: barn animals ---------- */
+  const animalTypes = {
+    chicken: { label:"Chicken", icon:"🐔", cost:8 },
+    goat: { label:"Goat", icon:"🐐", cost:12 },
+    pig: { label:"Pig", icon:"🐖", cost:15 },
+    cow: { label:"Cow", icon:"🐄", cost:20 },
+    horse: { label:"Horse", icon:"🐴", cost:25 }
+  };
+  const BARN_CAPACITY = 6;
+  const NEED_DECAY_PER_MIN = 4;
+
+  function animalNeed(lastAt){
+    const minutesSince = (Date.now() - lastAt) / 60000;
+    return Math.max(0, Math.min(100, Math.round(100 - minutesSince * NEED_DECAY_PER_MIN)));
+  }
+
+  function buyAnimal(typeId){
+    const type = animalTypes[typeId];
+    if (!type) return;
+    if (state.farm.animals.length >= BARN_CAPACITY){
+      speak(`Your barn is full — it holds up to ${BARN_CAPACITY} animals. You'll need more room before buying another.`);
+      return;
+    }
+    if (state.money < type.cost){
+      speak(`A ${type.label} costs $${type.cost}, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= type.cost;
+    updateWallet();
+    const now = Date.now();
+    state.farm.animals.push({
+      id: 'a' + now + Math.random().toString(36).slice(2, 6),
+      type: typeId, lastFedAt: now, lastCleanedAt: now
+    });
+    logEntry(`${type.icon} Bought a ${type.label} for the farm.`);
+    speak(`You bring home a new ${type.label}. It settles into the barn.`);
+    renderBarn();
+    persistFarm();
+  }
+
+  function feedAnimal(id){
+    const animal = state.farm.animals.find(a => a.id === id);
+    if (!animal) return;
+    animal.lastFedAt = Date.now();
+    const type = animalTypes[animal.type];
+    logEntry(`${type.icon} Fed your ${type.label}.`);
+    speak(`You feed the ${type.label}. It's happy and full.`);
+    renderBarn();
+    persistFarm();
+  }
+
+  function cleanAnimal(id){
+    const animal = state.farm.animals.find(a => a.id === id);
+    if (!animal) return;
+    animal.lastCleanedAt = Date.now();
+    const type = animalTypes[animal.type];
+    logEntry(`🧽 Cleaned your ${type.label}.`);
+    speak(`You clean up the ${type.label}'s space. Much nicer now.`);
+    renderBarn();
+    persistFarm();
+  }
+
+  function renderBarn(){
+    const list = document.getElementById('barnAnimalList');
+    list.innerHTML = "";
+    if (!state.farm.animals.length){
+      const li = document.createElement('li');
+      li.textContent = "You don't own any animals yet. Buy one below to get started.";
+      list.appendChild(li);
+    } else {
+      state.farm.animals.forEach(animal => {
+        const type = animalTypes[animal.type];
+        const hunger = animalNeed(animal.lastFedAt);
+        const clean = animalNeed(animal.lastCleanedAt);
+        const li = document.createElement('li');
+        const info = document.createElement('div');
+        info.className = 'farm-item-info';
+        info.innerHTML = `<strong>${type.icon} ${type.label}</strong><span>Fullness: ${hunger}% · Cleanliness: ${clean}%</span>`;
+        const actions = document.createElement('div');
+        actions.className = 'farm-item-actions';
+        const feedBtn = document.createElement('button');
+        feedBtn.textContent = 'Feed';
+        feedBtn.addEventListener('click', () => feedAnimal(animal.id));
+        const cleanBtn = document.createElement('button');
+        cleanBtn.textContent = 'Clean';
+        cleanBtn.addEventListener('click', () => cleanAnimal(animal.id));
+        actions.appendChild(feedBtn);
+        actions.appendChild(cleanBtn);
+        li.appendChild(info);
+        li.appendChild(actions);
+        list.appendChild(li);
+      });
+    }
+
+    const buyList = document.getElementById('barnBuyList');
+    buyList.innerHTML = "";
+    Object.keys(animalTypes).forEach(typeId => {
+      const type = animalTypes[typeId];
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${type.icon} ${type.label}</strong><span>$${type.cost}</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Buy';
+      btn.addEventListener('click', () => buyAnimal(typeId));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      buyList.appendChild(li);
+    });
+  }
+
+  let barnRefreshTimer = null;
+
+  function openBarn(){
+    document.getElementById('barnPanel').classList.remove('hidden');
+    renderBarn();
+    speak("The barn. Feed and clean your animals, or buy a new one.");
+    if (barnRefreshTimer) clearInterval(barnRefreshTimer);
+    barnRefreshTimer = setInterval(renderBarn, 5000);
+    const firstBtn = document.querySelector('#barnAnimalList button, #barnBuyList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('barnCloseBtn').focus();
+  }
+
+  function closeBarn(){
+    document.getElementById('barnPanel').classList.add('hidden');
+    if (barnRefreshTimer){ clearInterval(barnRefreshTimer); barnRefreshTimer = null; }
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('barnCloseBtn').addEventListener('click', closeBarn);
+
+  const jobRegistry = {
+    barista: { label:"Barista", icon:"☕", pay:12, flavor:"You steam milk and pull espresso shots through the morning rush." },
+    cashier: { label:"Cashier", icon:"🛒", pay:10, flavor:"You scan groceries and chat with regulars in line." },
+    librarian: { label:"Librarian", icon:"📖", pay:10, flavor:"You shelve books and help patrons track down what they need." },
+    zookeeper: { label:"Zookeeper", icon:"🦁", pay:14, flavor:"You feed the animals and clean out their enclosures." },
+    moviestaff: { label:"Movie theater staff", icon:"🎬", pay:11, flavor:"You sell tickets and sweep popcorn out of the aisles." },
+    aquariumguide: { label:"Aquarium guide", icon:"🐠", pay:13, flavor:"You lead a tour group past the tanks, pointing out favorites." },
+    farmhand: { label:"Farmhand", icon:"🚜", pay:12, flavor:"You feed the animals and tend to the fields." },
+    bowlingattendant: { label:"Bowling alley attendant", icon:"🎳", pay:11, flavor:"You reset pins and rent out shoes at the counter." },
+    nurse: { label:"Nurse", icon:"🏥", pay:15, flavor:"You check on patients and help wherever you're needed." },
+    musician: { label:"Musician", icon:"🎸", pay:16, flavor:"You play a paid gig in the studio for a small crowd." }
+  };
+  const jobLocationNames = {
+    barista:"the Café", cashier:"the Grocery Store", librarian:"the Library", zookeeper:"the Zoo",
+    moviestaff:"the Movie Theater", aquariumguide:"the Aquarium", farmhand:"the Farm",
+    bowlingattendant:"the Bowling Alley", nurse:"the Hospital", musician:"the Music Studio"
+  };
+
+  function handleWorkShift(h){
+    const job = jobRegistry[h.jobId];
+    if (!job) return;
+    if (state.character.job === h.jobId){
+      state.money += job.pay;
+      state.energy -= 8;
+      state.mood += 2;
+      updateMeters();
+      updateWallet();
+      logEntry(`${job.icon} Worked a shift as ${job.label}: earned $${job.pay}.`);
+      speak(`${job.flavor} You earned $${job.pay}. You now have $${state.money}.`);
+    } else {
+      const current = (state.character.job && state.character.job !== 'none') ? jobRegistry[state.character.job] : null;
+      if (current){
+        speak(`This isn't your job. You work as ${current.label}, over at a different spot in town.`);
+      } else {
+        speak("You don't have a job here. You can pick a job in the character editor.");
+      }
+    }
+  }
+
   function interact(i){
     const loc = currentLocation();
     const h = loc.hotspots[i];
+    if (h.jobId){
+      handleWorkShift(h);
+      return;
+    }
+    if (h.opensGarden){
+      openGarden();
+      return;
+    }
+    if (h.opensBarn){
+      openBarn();
+      return;
+    }
     if (h.shopItems){
       openShopPanel(loc, h);
       return;
@@ -1689,6 +2135,7 @@
     vitiligoCheck: "Vitiligo, a checkbox.",
     tattoosCheck: "Tattoos, a checkbox.",
     shoesSelect: "Shoes.",
+    jobSelect: "Job. This determines where you can clock in and earn money in town.",
     colorSelect: "Favorite color. This is your character's signature color."
   };
 
@@ -1724,6 +2171,9 @@
     if (skinDetails.length) sentence += ` ${name} has ${skinDetails.join(" and ")}.`;
     const hobbyList = (c.hobbies || []).map(h => hobbyLabels[h]).filter(Boolean);
     sentence += ` ${name} loves ${hobbyList.length ? hobbyList.join(", ") : "trying new things"}. Favorite color: ${c.color}.`;
+    if (c.job && c.job !== "none" && jobRegistry[c.job]){
+      sentence += ` ${name} works as a ${jobRegistry[c.job].label} at ${jobLocationNames[c.job] || "their workplace"}.`;
+    }
     return sentence;
   }
 
@@ -1739,8 +2189,8 @@
       outfit: "casual", shoes: "sneakers", mobility: "none", glasses: false, hearingAid: false,
       age: "adult", bodyType: "average", facialHair: "none",
       freckles: false, vitiligo: false, tattoos: false,
-      accessories: [], hobbies: ["reading"], color: "teal",
-      posture: "standing"
+      accessories: [], hobbies: ["reading"], job: "none", money: 50, color: "teal",
+      posture: "standing", farm: defaultFarm()
     };
   }
 
@@ -1769,6 +2219,7 @@
     state.character.tattoos = document.getElementById('tattoosCheck').checked;
     state.character.accessories = Array.from(document.querySelectorAll('input[name="accessory"]:checked')).map(el => el.value);
     state.character.hobbies = Array.from(document.querySelectorAll('input[name="hobby"]:checked')).map(el => el.value);
+    state.character.job = document.getElementById('jobSelect').value;
     state.character.color = document.getElementById('colorSelect').value;
   }
 
@@ -1817,6 +2268,7 @@
     document.querySelectorAll('input[name="hobby"]').forEach(el => {
       el.checked = (c.hobbies || []).includes(el.value);
     });
+    document.getElementById('jobSelect').value = c.job || 'none';
     document.getElementById('colorSelect').value = c.color;
     syncCustomPronounField();
     syncHairColorField();
@@ -2110,6 +2562,9 @@
     switchCharBtn.classList.remove('hidden');
     playerTag.textContent = `Playing as ${state.character.name} (${state.character.pronouns})`;
     setPosture(state.character.posture || 'standing', false);
+    state.money = typeof state.character.money === 'number' ? state.character.money : 50;
+    document.getElementById('walletAmount').textContent = `$${state.money}`;
+    state.farm = state.character.farm ? JSON.parse(JSON.stringify(state.character.farm)) : defaultFarm();
     speak(`${characterSummary(state.character)} Welcome back to Sunny Town, ${state.character.name}!`);
     requestAnimationFrame(() => {
       const first = document.querySelector('.hotspot');
@@ -2146,6 +2601,7 @@
       state.character.id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
       state.character.createdAt = Date.now();
     }
+    if (!state.character.farm) state.character.farm = defaultFarm();
     const saved = await saveCharacterToStorage(state.character);
     const idx = cachedRoster.findIndex(x => x.id === state.character.id);
     const snapshot = JSON.parse(JSON.stringify(state.character));
@@ -2154,6 +2610,9 @@
     state.hasCreatedCharacter = true;
     playerTag.textContent = `Playing as ${name} (${state.character.pronouns})`;
     setPosture(state.character.posture || 'standing', false);
+    state.money = typeof state.character.money === 'number' ? state.character.money : 50;
+    document.getElementById('walletAmount').textContent = `$${state.money}`;
+    state.farm = JSON.parse(JSON.stringify(state.character.farm));
     editCharBtn.classList.remove('hidden');
     switchCharBtn.classList.remove('hidden');
     creatorEl.classList.add('hidden');
@@ -2207,6 +2666,14 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !document.getElementById('shopPanel').classList.contains('hidden')){
       closeShopPanel(true);
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('gardenPanel').classList.contains('hidden')){
+      closeGarden();
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('barnPanel').classList.contains('hidden')){
+      closeBarn();
       return;
     }
     if (e.key === 'Escape' && !creatorEl.classList.contains('hidden')
