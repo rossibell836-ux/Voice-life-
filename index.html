@@ -223,6 +223,14 @@
     font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
     padding:.35em .7em; cursor:pointer; border-radius:4px; font-size:.85em; margin-left:.4em;
   }
+  #directoryBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.35em .7em; cursor:pointer; border-radius:4px; font-size:.85em; margin-left:.4em;
+  }
+  #babyBtn{
+    font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
+    padding:.35em .7em; cursor:pointer; border-radius:4px; font-size:.85em; margin-left:.4em;
+  }
   .header-actions{display:flex; align-items:flex-start;}
 
   .char-select{padding:1.4em 1.2em; max-width:900px;}
@@ -293,6 +301,8 @@
   <div class="header-actions">
     <button id="editCharBtn" class="hidden">🧑 Edit character</button>
     <button id="switchCharBtn" class="hidden">👥 Switch character</button>
+    <button id="directoryBtn" class="hidden">🏘️ Town</button>
+    <button id="babyBtn" class="hidden">👶 Nursery</button>
   </div>
 </header>
 
@@ -633,11 +643,18 @@
       </div>
     </div>
 
-    <div class="shop-panel hidden" id="gardenPanel" role="region" aria-label="Garden plots">
-      <h3>🌱 Garden plots</h3>
+    <div class="shop-panel hidden" id="gardenPanel" role="region" aria-label="Farm garden plots">
+      <h3>🌱 Farm vegetable patch</h3>
       <p class="fridge-hint">Plant seeds, water them, and come back once they've grown to harvest.</p>
       <ul id="gardenPlotList" class="farm-list"></ul>
       <button id="gardenCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="homeGardenPanel" role="region" aria-label="Home garden beds">
+      <h3>🌷 Home garden</h3>
+      <p class="fridge-hint">Plant seeds, water them, and come back once they've grown to harvest.</p>
+      <ul id="homeGardenPlotList" class="farm-list"></ul>
+      <button id="homeGardenCloseBtn">Close</button>
     </div>
 
     <div class="shop-panel hidden" id="barnPanel" role="region" aria-label="Barn animals">
@@ -647,6 +664,66 @@
       <h4>Buy an animal</h4>
       <ul id="barnBuyList" class="farm-list"></ul>
       <button id="barnCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="petsPanel" role="region" aria-label="Household pets">
+      <div id="petsMainView">
+        <h3>🐾 Pet corner</h3>
+        <p class="fridge-hint">Feed, play with, and clean your pets to keep them happy. Adopt more below.</p>
+        <ul id="petsOwnedList" class="farm-list"></ul>
+        <h4>Adopt a pet</h4>
+        <ul id="petsAdoptList" class="farm-list"></ul>
+        <button id="petsCloseBtn">Close</button>
+      </div>
+      <div id="petsGiveView" class="hidden">
+        <h3 id="petsGiveTitle">Give pet to...</h3>
+        <p class="fridge-hint">The pet will move into their home and belong to them from now on.</p>
+        <ul id="petsGiveRecipientList" class="farm-list"></ul>
+        <button id="petsGiveCancelBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div class="shop-panel hidden" id="babyPanel" role="region" aria-label="Nursery">
+      <div id="babyMainView">
+        <h3>👶 Nursery</h3>
+        <p class="fridge-hint">Feed, play with, and talk to your baby, or hand them to someone else.</p>
+        <ul id="babyList" class="farm-list"></ul>
+        <button id="babyCloseBtn">Close</button>
+      </div>
+      <div id="babyGiveView" class="hidden">
+        <h3 id="babyGiveTitle">Give baby to...</h3>
+        <p class="fridge-hint">The baby will be carried by them from now on.</p>
+        <ul id="babyGiveRecipientList" class="farm-list"></ul>
+        <button id="babyGiveCancelBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div class="shop-panel hidden" id="cookingPanel" role="region" aria-label="Cooking">
+      <h3>🍳 Cook something</h3>
+      <p class="fridge-hint">Recipes use ingredients from your backpack. Grey recipes are missing something — check your Fridge.</p>
+      <ul id="cookingRecipeList" class="farm-list"></ul>
+      <button id="cookingCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="directoryPanel" role="region" aria-label="Town directory">
+      <div id="directoryListView">
+        <h3>🏘️ Town Directory</h3>
+        <p class="fridge-hint">Everyone else you've created in Sunny Town.</p>
+        <ul id="directoryList" class="farm-list"></ul>
+        <button id="directoryCloseBtn">Close</button>
+      </div>
+      <div id="directoryVisitView" class="hidden">
+        <h3 id="visitTitle"></h3>
+        <p id="visitRelationshipLine" class="fridge-hint"></p>
+        <ul id="visitActionsList" class="farm-list"></ul>
+        <div id="visitHangoutChoices" class="hidden">
+          <h4>Where do you want to go together?</h4>
+          <ul id="hangoutLocationList" class="farm-list"></ul>
+        </div>
+        <h4 id="visitHistoryHeading" class="hidden">Shared history</h4>
+        <ul id="visitHistoryList" class="farm-list"></ul>
+        <button id="visitBackBtn">Back to Directory</button>
+      </div>
     </div>
   </section>
 
@@ -744,8 +821,8 @@
           hotspots: [
             { icon:"🧊", label:"Fridge", desc:"The fridge hums. Inside there's milk, eggs, and leftover pie.",
               act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
-            { icon:"🍳", label:"Stove", desc:"A stove with a kettle sitting on one burner.",
-              act:"You cook up a quick, warm breakfast.", mood:5, energy:8 },
+            { icon:"🍳", label:"Stove", desc:"A stove with a kettle sitting on one burner. Bring ingredients from your backpack to cook something real.",
+              act:"You step up to the stove.", mood:0, energy:0, opensCooking:true },
             { icon:"🥫", label:"Pantry", desc:"A pantry stocked with cans, pasta, and snacks.",
               act:"You grab a quick snack from the pantry.", mood:3, energy:5 },
             { icon:"🗄️", label:"Cabinet", desc:"A cabinet stacked with plates, bowls, and cups.",
@@ -760,8 +837,8 @@
               act:"You turn on the TV. A cooking show is on. You watch for a while.", mood:4, energy:-3, setsPosture:"sitting" },
             { icon:"🛋️", label:"Couch", desc:"A soft, well-worn couch by the window.",
               act:"You sink into the couch and relax for a bit.", mood:5, energy:2, setsPosture:"sitting" },
-            { icon:"🐈", label:"Cat", desc:"A gray tabby cat, curled up on the armrest.",
-              act:"You crouch down and scratch the cat's ears. It purrs loudly.", mood:8, energy:0 }
+            { icon:"🐾", label:"Pet corner", desc:"A cozy corner with a pet bed, food bowl, and toys.",
+              act:"You crouch down by the pet corner.", mood:1, energy:-1, opensPets:true }
           ]
         },
         {
@@ -790,14 +867,26 @@
         },
         {
           id: "backyard", name: "Backyard", icon: "🌳",
-          desc: "A small backyard with a garden patch and a shady tree.",
+          desc: "A small backyard with a patio, a shady tree, and a gate leading to the garden.",
           hotspots: [
-            { icon:"🌱", label:"Garden patch", desc:"A small patch of soil with a few sprouts coming up.",
-              act:"You water the garden and pull a few weeds.", mood:5, energy:-3 },
             { icon:"🪑", label:"Patio chair", desc:"A comfy chair out on the patio.",
               act:"You sit outside and enjoy the fresh air for a while.", mood:6, energy:2, setsPosture:"sitting" },
             { icon:"🌳", label:"Shade tree", desc:"A big tree that shades most of the yard.",
-              act:"You lean against the tree and watch the clouds drift by.", mood:5, energy:0 }
+              act:"You lean against the tree and watch the clouds drift by.", mood:5, energy:0 },
+            { icon:"🔥", label:"BBQ grill", desc:"An outdoor grill, cover folded back.",
+              act:"You fire up the grill and cook something simple outside.", mood:6, energy:-3 }
+          ]
+        },
+        {
+          id: "garden", name: "Garden", icon: "🌷",
+          desc: "A dedicated garden bed, separate from the backyard, with room for herbs, vegetables, and flowers.",
+          hotspots: [
+            { icon:"🌱", label:"Garden plot", desc:"Four garden beds, some empty, some growing.",
+              act:"You crouch down by the garden beds.", mood:1, energy:-1, opensHomeGarden:true },
+            { icon:"🌻", label:"Flower bed", desc:"A bright bed of sunflowers and other flowers along the fence.",
+              act:"You admire the flowers and pull a few weeds from around them.", mood:6, energy:-2 },
+            { icon:"🪑", label:"Garden bench", desc:"A small bench tucked among the plants.",
+              act:"You sit on the bench, surrounded by growing things.", mood:5, energy:1, setsPosture:"sitting" }
           ]
         }
       ]
@@ -816,7 +905,8 @@
             { icon:"🍧", label:"Mango ice cream cone", useAct:"You finish the mango ice cream. Cold and refreshing.", mood:6, energy:5 },
             { icon:"🍦", label:"Vanilla ice cream cone", useAct:"You enjoy a classic scoop of vanilla.", mood:5, energy:5 },
             { icon:"🌿", label:"Mint choc chip cone", useAct:"You eat the cool, minty ice cream.", mood:6, energy:5 },
-            { icon:"🍭", label:"Popsicle", useAct:"You enjoy a cold, fruity popsicle in the sun.", mood:5, energy:3 }
+            { icon:"🍓", label:"Strawberry popsicle", useAct:"You enjoy a cold strawberry popsicle in the sun.", mood:5, energy:3 },
+            { icon:"🍊", label:"Orange popsicle", useAct:"You enjoy a cold orange popsicle in the sun.", mood:5, energy:3 }
           ] },
         { icon:"🛝", label:"Swings", desc:"Two empty swings creak gently in the breeze.",
           act:"You swing higher and higher, laughing.", mood:8, energy:-8 },
@@ -826,18 +916,102 @@
     },
     {
       id: "school", name: "School", icon: "🏫",
-      desc: "A classroom smelling of chalk and fresh paper. Your friends are already at their desks.",
-      hotspots: [
-        { icon:"📚", label:"Bookshelf", desc:"Shelves stacked with story books and encyclopedias.",
-          act:"You find a book about deep sea creatures and read a few pages.", mood:6, energy:-2 },
-        { icon:"🧑‍🏫", label:"Teacher", desc:"Your teacher is writing today's lesson on the board.",
-          act:"You ask a question. The teacher smiles and explains it clearly.", mood:4, energy:-3 },
-        { icon:"🖊️", label:"Desk", desc:"Your desk, with a notebook open to today's date.",
-          act:"You finish a worksheet and feel a little proud.", mood:3, energy:-4 },
-        { icon:"⚽", label:"Playground ball", desc:"A well-worn playground ball near the door.",
-          act:"You kick the ball around at recess with a friend.", mood:8, energy:-10 },
-        { icon:"🗄️", label:"Locker", desc:"Your locker, covered in small stickers.",
-          act:"You trade a sticker with a classmate. A good trade.", mood:5, energy:0 }
+      desc: "A busy school with several rooms and a courtyard to explore.",
+      rooms: [
+        {
+          id: "classroom", name: "Classroom", icon: "📚",
+          desc: "A classroom smelling of chalk and fresh paper. Your friends are already at their desks.",
+          hotspots: [
+            { icon:"📚", label:"Bookshelf", desc:"Shelves stacked with story books and encyclopedias.",
+              act:"You find a book about deep sea creatures and read a few pages.", mood:6, energy:-2 },
+            { icon:"🧑‍🏫", label:"Teacher", desc:"Your teacher is writing today's lesson on the board.",
+              act:"You ask a question. The teacher smiles and explains it clearly.", mood:4, energy:-3 },
+            { icon:"🖊️", label:"Desk", desc:"Your desk, with a notebook open to today's date.",
+              act:"You finish a worksheet and feel a little proud.", mood:3, energy:-4, setsPosture:"sitting" }
+          ]
+        },
+        {
+          id: "cafeteria", name: "Cafeteria", icon: "🍽️",
+          desc: "A noisy cafeteria full of clattering trays and chatter.",
+          hotspots: [
+            { icon:"🍱", label:"Lunch line", desc:"A lunch line with today's hot options on display.",
+              act:"You look over today's lunch options.", mood:2, energy:1,
+              shopFree:true,
+              shopItems:[
+                { icon:"🍕", label:"Pepperoni pizza slice", useAct:"You eat a warm slice of cafeteria pepperoni pizza.", mood:5, energy:6 },
+                { icon:"🍕", label:"Cheese pizza slice", useAct:"You eat a warm slice of cafeteria cheese pizza.", mood:5, energy:6 },
+                { icon:"🥪", label:"Turkey sandwich", useAct:"You eat a simple, satisfying turkey sandwich.", mood:3, energy:5 },
+                { icon:"🥪", label:"Peanut butter and jelly sandwich", useAct:"You eat a classic peanut butter and jelly sandwich.", mood:4, energy:5 },
+                { icon:"🥗", label:"Garden salad bowl", useAct:"You eat a crisp, fresh garden salad.", mood:2, energy:4 }
+              ] },
+            { icon:"🪑", label:"Lunch table", desc:"A long table where your friends are already sitting.",
+              act:"You sit with friends and chat while you eat.", mood:8, energy:-1, setsPosture:"sitting" },
+            { icon:"🥤", label:"Vending machine", desc:"A vending machine humming by the wall.",
+              act:"You look over the vending machine.", mood:2, energy:1,
+              shopItems:[
+                { icon:"🧃", label:"Apple juice box", useAct:"You drink a small apple juice box.", mood:3, energy:5 },
+                { icon:"🧃", label:"Grape juice box", useAct:"You drink a small grape juice box.", mood:3, energy:5 },
+                { icon:"🍿", label:"Salted potato chips", useAct:"You crunch through a small bag of salted potato chips.", mood:4, energy:5 },
+                { icon:"🌶️", label:"Spicy chips", useAct:"You crunch through a small bag of spicy chips.", mood:4, energy:5 }
+              ] }
+          ]
+        },
+        {
+          id: "gym", name: "Gym", icon: "🏀",
+          desc: "A big echoey gym with a shiny wood floor.",
+          hotspots: [
+            { icon:"🏀", label:"Basketball hoop", desc:"A basketball hoop at one end of the gym.",
+              act:"You shoot some hoops. Nothing but net!", mood:8, energy:-8 },
+            { icon:"🧗", label:"Climbing rope", desc:"A thick rope hanging from the ceiling.",
+              act:"You climb partway up the rope, arms burning.", mood:6, energy:-9 },
+            { icon:"🪑", label:"Locker room bench", desc:"A bench in the locker room, perfect for tying your shoes.",
+              act:"You sit and retie your shoes before class.", mood:1, energy:1, setsPosture:"sitting" }
+          ]
+        },
+        {
+          id: "musicroom", name: "Music Room", icon: "🎵",
+          desc: "A room lined with instrument cases and sheet music stands.",
+          hotspots: [
+            { icon:"🎹", label:"Piano", desc:"An upright piano near the window.",
+              act:"You practice a slow, simple piano piece.", mood:7, energy:-4 },
+            { icon:"🎸", label:"Guitar", desc:"A classroom guitar propped in the corner.",
+              act:"You practice a few chords on the guitar.", mood:7, energy:-3 },
+            { icon:"🥁", label:"Drums", desc:"A drum kit set up on a small riser.",
+              act:"You practice a simple beat on the drums.", mood:8, energy:-6 },
+            { icon:"🎻", label:"Instrument closet", desc:"A closet with a violin, trumpet, saxophone, and clarinet.",
+              act:"You pick out an instrument to practice.", mood:5, energy:-3, shopFree:true,
+              shopItems:[
+                { icon:"🎻", label:"Violin practice", useAct:"You practice a slow scale on the violin.", mood:6, energy:-3 },
+                { icon:"🎺", label:"Trumpet practice", useAct:"You practice a few bright notes on the trumpet.", mood:6, energy:-4 },
+                { icon:"🎷", label:"Saxophone practice", useAct:"You practice a smooth run on the saxophone.", mood:6, energy:-4 },
+                { icon:"🎶", label:"Clarinet practice", useAct:"You practice a gentle melody on the clarinet.", mood:6, energy:-3 }
+              ] }
+          ]
+        },
+        {
+          id: "artroom", name: "Art Room", icon: "🎨",
+          desc: "A room splattered with paint, smelling faintly of clay and glue.",
+          hotspots: [
+            { icon:"🖼️", label:"Easel", desc:"An easel with a half-finished painting.",
+              act:"You add a few more brushstrokes to your painting.", mood:8, energy:-4 },
+            { icon:"🏺", label:"Pottery wheel", desc:"A pottery wheel splattered with dried clay.",
+              act:"You shape a lumpy but charming little bowl.", mood:7, energy:-5 },
+            { icon:"🖍️", label:"Supply shelf", desc:"A shelf stacked with paint, markers, and paper.",
+              act:"You grab supplies and doodle for a while.", mood:5, energy:-2 }
+          ]
+        },
+        {
+          id: "courtyard", name: "Courtyard", icon: "🌳",
+          desc: "An open courtyard with a few trees and picnic tables.",
+          hotspots: [
+            { icon:"⚽", label:"Playground ball", desc:"A well-worn playground ball near the door.",
+              act:"You kick the ball around at recess with a friend.", mood:8, energy:-10 },
+            { icon:"🍽️", label:"Picnic table", desc:"A picnic table under a shady tree.",
+              act:"You sit and enjoy some fresh air.", mood:4, energy:1, setsPosture:"sitting" },
+            { icon:"🗄️", label:"Locker", desc:"Your locker, covered in small stickers.",
+              act:"You trade a sticker with a classmate. A good trade.", mood:5, energy:0 }
+          ]
+        }
       ]
     },
     {
@@ -915,12 +1089,17 @@
         { icon:"🧊", label:"Freezer aisle", desc:"A long freezer case full of ice cream and frozen meals.",
           act:"You browse the freezer case.", mood:5, energy:4,
           shopItems:[
-            { icon:"🍨", label:"Vanilla ice cream", useAct:"You scoop out a bowl of vanilla ice cream and enjoy every bite.", mood:6, energy:5 },
-            { icon:"🍫", label:"Chocolate ice cream", useAct:"You dig into rich chocolate ice cream.", mood:7, energy:5 },
-            { icon:"🍕", label:"Frozen pizza", useAct:"You heat up and eat a slice of frozen pizza.", mood:5, energy:8 },
-            { icon:"🍦", label:"Frozen yogurt", useAct:"You eat a cup of tangy frozen yogurt.", mood:5, energy:4 },
-            { icon:"🍭", label:"Popsicle pack", useAct:"You unwrap a popsicle and enjoy it in the sun.", mood:5, energy:3 },
-            { icon:"🍦", label:"Ice cream tub", useAct:"You scoop yourself a big bowl from the tub.", mood:6, energy:5 }
+            { icon:"🍨", label:"Vanilla ice cream cup", useAct:"You scoop out a bowl of vanilla ice cream and enjoy every bite.", mood:6, energy:5 },
+            { icon:"🍫", label:"Chocolate ice cream cup", useAct:"You dig into rich chocolate ice cream.", mood:7, energy:5 },
+            { icon:"🍕", label:"Pepperoni frozen pizza", useAct:"You heat up and eat a slice of pepperoni frozen pizza.", mood:5, energy:8 },
+            { icon:"🍦", label:"Vanilla frozen yogurt", useAct:"You eat a cup of tangy vanilla frozen yogurt.", mood:5, energy:4 },
+            { icon:"🍓", label:"Strawberry popsicle pack", useAct:"You unwrap a strawberry popsicle and enjoy it in the sun.", mood:5, energy:3 },
+            { icon:"🍊", label:"Orange popsicle pack", useAct:"You unwrap an orange popsicle and enjoy it in the sun.", mood:5, energy:3 },
+            { icon:"🍉", label:"Watermelon popsicle pack", useAct:"You unwrap a watermelon popsicle and enjoy it in the sun.", mood:5, energy:3 },
+            { icon:"🍦", label:"Vanilla ice cream tub", useAct:"You scoop yourself a big bowl of vanilla from the tub.", mood:6, energy:5 },
+            { icon:"🍫", label:"Chocolate ice cream tub", useAct:"You scoop yourself a big bowl of chocolate from the tub.", mood:6, energy:5 },
+            { icon:"🍓", label:"Strawberry ice cream tub", useAct:"You scoop yourself a big bowl of strawberry from the tub.", mood:6, energy:5 },
+            { icon:"🍪", label:"Cookies & cream ice cream tub", useAct:"You scoop yourself a big bowl of cookies and cream from the tub.", mood:7, energy:5 }
           ] },
         { icon:"🍽️", label:"Housewares aisle", desc:"Shelves of plates, bowls, cups, and cutlery.",
           act:"You browse the housewares aisle.", mood:2, energy:0,
@@ -935,17 +1114,20 @@
         { icon:"🍫", label:"Snack aisle", desc:"Shelves stocked with chips, cookies, and candy bars.",
           act:"You browse the snack aisle.", mood:3, energy:1,
           shopItems:[
-            { icon:"🥔", label:"Chips", useAct:"You crunch through a bag of chips.", mood:4, energy:5 },
-            { icon:"🍪", label:"Cookies", useAct:"You eat a soft, chewy cookie.", mood:5, energy:5 },
+            { icon:"🥔", label:"Salted potato chips", useAct:"You crunch through a bag of salted potato chips.", mood:4, energy:5 },
+            { icon:"🥔", label:"BBQ potato chips", useAct:"You crunch through a bag of BBQ potato chips.", mood:4, energy:5 },
+            { icon:"🍪", label:"Chocolate chip cookies", useAct:"You eat a soft, chewy chocolate chip cookie.", mood:5, energy:5 },
+            { icon:"🍪", label:"Oatmeal raisin cookies", useAct:"You eat a soft, chewy oatmeal raisin cookie.", mood:5, energy:5 },
             { icon:"🥜", label:"Trail mix", useAct:"You munch on a handful of trail mix.", mood:3, energy:6 },
-            { icon:"🍫", label:"Chocolate bar", useAct:"You break off a square of chocolate and eat it.", mood:6, energy:5 }
+            { icon:"🍫", label:"Milk chocolate bar", useAct:"You break off a square of milk chocolate and eat it.", mood:6, energy:5 }
           ] },
         { icon:"🥛", label:"Dairy aisle", desc:"A cold case with milk, cheese, and yogurt.",
           act:"You browse the dairy case.", mood:2, energy:1,
           shopItems:[
             { icon:"🥛", label:"Milk", useAct:"You pour and drink a cold glass of milk.", mood:2, energy:5 },
             { icon:"🧀", label:"Cheese", useAct:"You eat a few slices of cheese.", mood:3, energy:5 },
-            { icon:"🥣", label:"Yogurt cup", useAct:"You eat a cup of creamy yogurt.", mood:3, energy:5 }
+            { icon:"🥣", label:"Strawberry yogurt cup", useAct:"You eat a cup of creamy strawberry yogurt.", mood:3, energy:5 },
+            { icon:"🥣", label:"Peach yogurt cup", useAct:"You eat a cup of creamy peach yogurt.", mood:3, energy:5 }
           ] },
         { icon:"💼", label:"Clock in", desc:"A time clock near the staff break room.",
           act:"You clock in for your shift.", mood:0, energy:0, jobId:"cashier" }
@@ -1034,8 +1216,10 @@
           act:"You look over the concession stand menu.", mood:3, energy:1,
           shopItems:[
             { icon:"🍿", label:"Popcorn", useAct:"You munch on warm, buttery popcorn.", mood:4, energy:4 },
-            { icon:"🍬", label:"Movie candy", useAct:"You eat a handful of sweet movie candy.", mood:5, energy:5 },
-            { icon:"🥤", label:"Soda", useAct:"You take a long sip of fizzy soda.", mood:3, energy:6 }
+            { icon:"🍬", label:"Gummy bears", useAct:"You eat a handful of sweet gummy bears.", mood:5, energy:5 },
+            { icon:"🍫", label:"Chocolate-covered raisins", useAct:"You eat a box of chocolate-covered raisins.", mood:5, energy:5 },
+            { icon:"🥤", label:"Cola", useAct:"You take a long sip of fizzy cola.", mood:3, energy:6 },
+            { icon:"🥤", label:"Root beer", useAct:"You take a long sip of root beer.", mood:3, energy:6 }
           ] },
         { icon:"🎥", label:"Theater seat", desc:"A plush reclining seat facing the big screen.",
           act:"You sink into your seat and watch the film.", mood:9, energy:-4, setsPosture:"sitting" },
@@ -1090,7 +1274,9 @@
           shopItems:[
             { icon:"🧀", label:"Nachos", useAct:"You eat a plate of cheesy nachos.", mood:5, energy:6 },
             { icon:"🍔", label:"Burger", useAct:"You eat a warm, juicy burger.", mood:5, energy:8 },
-            { icon:"🥤", label:"Milkshake", useAct:"You sip a thick, sweet milkshake.", mood:6, energy:6 }
+            { icon:"🥤", label:"Chocolate milkshake", useAct:"You sip a thick, sweet chocolate milkshake.", mood:6, energy:6 },
+            { icon:"🥤", label:"Vanilla milkshake", useAct:"You sip a thick, sweet vanilla milkshake.", mood:6, energy:6 },
+            { icon:"🥤", label:"Strawberry milkshake", useAct:"You sip a thick, sweet strawberry milkshake.", mood:6, energy:6 }
           ] },
         { icon:"📊", label:"Scoreboard", desc:"An overhead screen tracking everyone's scores.",
           act:"You check the scoreboard for the day's high score.", mood:3, energy:0 },
@@ -1111,12 +1297,14 @@
         { icon:"🥤", label:"Vending machine", desc:"A vending machine humming in the hallway.",
           act:"You look over the vending machine options.", mood:2, energy:1,
           shopItems:[
-            { icon:"🧃", label:"Juice box", useAct:"You drink a small juice box.", mood:3, energy:5 },
-            { icon:"🍫", label:"Granola bar", useAct:"You eat a chewy granola bar.", mood:3, energy:6 },
+            { icon:"🧃", label:"Orange juice box", useAct:"You drink a small orange juice box.", mood:3, energy:5 },
+            { icon:"🍫", label:"Chewy granola bar", useAct:"You eat a chewy oats-and-honey granola bar.", mood:3, energy:6 },
             { icon:"💧", label:"Water bottle", useAct:"You drink a cold bottle of water.", mood:2, energy:4 }
           ] },
         { icon:"👶", label:"Nursery window", desc:"A window looking into the newborn nursery.",
           act:"You peek through the window at the newborns. Your heart melts a little.", mood:8, energy:0 },
+        { icon:"📋", label:"Adoption desk", desc:"A quiet desk where adoption paperwork is handled.",
+          act:"You sit down at the adoption desk.", mood:0, energy:0, adoptsBaby:true, adoptionCost:30 },
         { icon:"💼", label:"Clock in", desc:"A time clock near the nurses' station.",
           act:"You clock in for your shift.", mood:0, energy:0, jobId:"nurse" }
       ]
@@ -1704,6 +1892,8 @@
   }
 
   state.farm = defaultFarm();
+  state.pets = [];
+  state.babies = [];
 
   function persistFarm(){
     if (!state.hasCreatedCharacter || !state.character.id) return;
@@ -1838,6 +2028,155 @@
     });
   }
   document.getElementById('gardenCloseBtn').addEventListener('click', closeGarden);
+
+  /* ---------- home garden (separate from the farm) ---------- */
+  const gardenCropTypes = {
+    tomato: { label:"Tomato", icon:"🍅", seedCost:2, growMs:60000,
+      useAct:"You eat a juicy, sun-ripened tomato.", mood:4, energy:5 },
+    cucumber: { label:"Cucumber", icon:"🥒", seedCost:2, growMs:60000,
+      useAct:"You eat a crisp, cool cucumber.", mood:3, energy:4 },
+    bellpepper: { label:"Bell pepper", icon:"🫑", seedCost:3, growMs:75000,
+      useAct:"You eat a crunchy, sweet bell pepper.", mood:4, energy:5 },
+    lettuce: { label:"Lettuce", icon:"🥬", seedCost:2, growMs:50000,
+      useAct:"You eat crisp, fresh lettuce leaves.", mood:3, energy:4 },
+    strawberry: { label:"Strawberry", icon:"🍓", seedCost:3, growMs:70000,
+      useAct:"You eat a sweet, juicy strawberry.", mood:5, energy:5 },
+    basil: { label:"Basil", icon:"🌿", seedCost:2, growMs:45000,
+      useAct:"You pinch off fresh basil leaves and breathe in the smell.", mood:4, energy:2 }
+  };
+
+  function defaultHomeGarden(){
+    return { plots: [0, 1, 2, 3].map(id => ({ id, crop: null, plantedAt: null, wateredAt: null, readyAt: null })) };
+  }
+
+  state.homeGarden = defaultHomeGarden();
+
+  function persistHomeGarden(){
+    if (!state.hasCreatedCharacter || !state.character.id) return;
+    state.character.homeGarden = state.homeGarden;
+    saveCharacterToStorage(state.character);
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    if (idx >= 0) cachedRoster[idx].homeGarden = state.homeGarden;
+  }
+
+  function plantHomeSeed(plotId, cropId){
+    const crop = gardenCropTypes[cropId];
+    const plot = state.homeGarden.plots[plotId];
+    if (!crop || !plot || plot.crop) return;
+    if (state.money < crop.seedCost){
+      speak(`${crop.label} seeds cost $${crop.seedCost}, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= crop.seedCost;
+    updateWallet();
+    plot.crop = cropId;
+    plot.plantedAt = Date.now();
+    plot.wateredAt = null;
+    plot.readyAt = null;
+    logEntry(`🌱 Planted ${crop.label} seeds in garden bed ${plotId + 1}.`);
+    speak(`You plant ${crop.label} seeds in garden bed ${plotId + 1}. Water them to start them growing.`);
+    renderHomeGarden();
+    persistHomeGarden();
+  }
+
+  function waterHomePlot(plotId){
+    const plot = state.homeGarden.plots[plotId];
+    if (!plot || !plot.crop || plot.wateredAt) return;
+    const crop = gardenCropTypes[plot.crop];
+    plot.wateredAt = Date.now();
+    plot.readyAt = plot.wateredAt + crop.growMs;
+    logEntry(`💧 Watered garden bed ${plotId + 1} (${crop.label}).`);
+    speak(`You water the ${crop.label} plants. They'll be ready to harvest soon — check back in a bit.`);
+    renderHomeGarden();
+    persistHomeGarden();
+  }
+
+  function harvestHomePlot(plotId){
+    const plot = state.homeGarden.plots[plotId];
+    if (!plot || plotStage(plot) !== 'ready') return;
+    const crop = gardenCropTypes[plot.crop];
+    const newItem = grantItem({ icon:crop.icon, label:crop.label, useAct:crop.useAct, mood:crop.mood, energy:crop.energy });
+    logEntry(`🧺 Harvested ${crop.label} from garden bed ${plotId + 1}.`);
+    speak(`You harvest the ${crop.label} and add it to your backpack.`);
+    plot.crop = null;
+    plot.plantedAt = null;
+    plot.wateredAt = null;
+    plot.readyAt = null;
+    renderHomeGarden();
+    persistHomeGarden();
+  }
+
+  function renderHomeGarden(){
+    const list = document.getElementById('homeGardenPlotList');
+    list.innerHTML = "";
+    state.homeGarden.plots.forEach(plot => {
+      const stage = plotStage(plot);
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+
+      if (stage === 'empty'){
+        info.innerHTML = `<strong>Bed ${plot.id + 1}</strong><span>Empty — ready to plant</span>`;
+        Object.keys(gardenCropTypes).forEach(cropId => {
+          const crop = gardenCropTypes[cropId];
+          const btn = document.createElement('button');
+          btn.textContent = `Plant ${crop.label} ($${crop.seedCost})`;
+          btn.addEventListener('click', () => plantHomeSeed(plot.id, cropId));
+          actions.appendChild(btn);
+        });
+      } else if (stage === 'planted'){
+        const crop = gardenCropTypes[plot.crop];
+        info.innerHTML = `<strong>Bed ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} seeds — needs water</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Water';
+        btn.addEventListener('click', () => waterHomePlot(plot.id));
+        actions.appendChild(btn);
+      } else if (stage === 'growing'){
+        const crop = gardenCropTypes[plot.crop];
+        const secsLeft = Math.max(1, Math.ceil((plot.readyAt - Date.now()) / 1000));
+        info.innerHTML = `<strong>Bed ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} growing — ready in about ${secsLeft}s</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Check back later';
+        btn.disabled = true;
+        actions.appendChild(btn);
+      } else {
+        const crop = gardenCropTypes[plot.crop];
+        info.innerHTML = `<strong>Bed ${plot.id + 1}</strong><span>${crop.icon} ${crop.label} ready to harvest!</span>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Harvest';
+        btn.addEventListener('click', () => harvestHomePlot(plot.id));
+        actions.appendChild(btn);
+      }
+
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  let homeGardenRefreshTimer = null;
+
+  function openHomeGarden(){
+    document.getElementById('homeGardenPanel').classList.remove('hidden');
+    renderHomeGarden();
+    speak("The home garden. Plant seeds, water them, and harvest once they're ready.");
+    if (homeGardenRefreshTimer) clearInterval(homeGardenRefreshTimer);
+    homeGardenRefreshTimer = setInterval(renderHomeGarden, 5000);
+    const firstBtn = document.querySelector('#homeGardenPlotList button:not([disabled])');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('homeGardenCloseBtn').focus();
+  }
+
+  function closeHomeGarden(){
+    document.getElementById('homeGardenPanel').classList.add('hidden');
+    if (homeGardenRefreshTimer){ clearInterval(homeGardenRefreshTimer); homeGardenRefreshTimer = null; }
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('homeGardenCloseBtn').addEventListener('click', closeHomeGarden);
 
   /* ---------- farm: barn animals ---------- */
   const animalTypes = {
@@ -1975,6 +2314,811 @@
   }
   document.getElementById('barnCloseBtn').addEventListener('click', closeBarn);
 
+  /* ---------- household pets ---------- */
+  const petTypes = {
+    dog: { label:"Dog", icon:"🐶", cost:15 },
+    cat: { label:"Cat", icon:"🐱", cost:10 },
+    rabbit: { label:"Rabbit", icon:"🐰", cost:8 },
+    bird: { label:"Bird", icon:"🐦", cost:6 },
+    fish: { label:"Fish", icon:"🐟", cost:4 },
+    hamster: { label:"Hamster", icon:"🐹", cost:5 }
+  };
+  const PET_CAPACITY = 4;
+  const PET_NEED_DECAY_PER_MIN = 5;
+
+  function petNeed(lastAt){
+    const minutesSince = (Date.now() - lastAt) / 60000;
+    return Math.max(0, Math.min(100, Math.round(100 - minutesSince * PET_NEED_DECAY_PER_MIN)));
+  }
+
+  function persistPets(){
+    if (!state.hasCreatedCharacter || !state.character.id) return;
+    state.character.pets = state.pets;
+    saveCharacterToStorage(state.character);
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    if (idx >= 0) cachedRoster[idx].pets = state.pets;
+  }
+
+  function adoptPet(typeId){
+    const type = petTypes[typeId];
+    if (!type) return;
+    if (state.pets.length >= PET_CAPACITY){
+      speak(`Your home can hold up to ${PET_CAPACITY} pets. You'll need to make room before adopting another.`);
+      return;
+    }
+    if (state.money < type.cost){
+      speak(`Adopting a ${type.label} costs $${type.cost}, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= type.cost;
+    updateWallet();
+    const now = Date.now();
+    state.pets.push({
+      id: 'p' + now + Math.random().toString(36).slice(2, 6),
+      type: typeId, lastFedAt: now, lastCleanedAt: now, lastPlayedAt: now
+    });
+    logEntry(`${type.icon} Adopted a ${type.label}.`);
+    speak(`You adopt a ${type.label}! It's already settling in.`);
+    renderPets();
+    persistPets();
+  }
+
+  function feedPet(id){
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+    pet.lastFedAt = Date.now();
+    const type = petTypes[pet.type];
+    logEntry(`${type.icon} Fed your ${type.label}.`);
+    speak(`You feed your ${type.label}. It's happy and full.`);
+    renderPets();
+    persistPets();
+  }
+
+  function playWithPet(id){
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+    pet.lastPlayedAt = Date.now();
+    const type = petTypes[pet.type];
+    state.mood += 6;
+    updateMeters();
+    logEntry(`${type.icon} Played with your ${type.label}.`);
+    speak(`You play with your ${type.label}. You're both grinning.`);
+    renderPets();
+    persistPets();
+  }
+
+  function cleanPet(id){
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+    pet.lastCleanedAt = Date.now();
+    const type = petTypes[pet.type];
+    logEntry(`🧽 Cleaned up after your ${type.label}.`);
+    speak(`You clean up your ${type.label}'s space. Much nicer now.`);
+    renderPets();
+    persistPets();
+  }
+
+  function renderPets(){
+    const list = document.getElementById('petsOwnedList');
+    list.innerHTML = "";
+    if (!state.pets.length){
+      const li = document.createElement('li');
+      li.textContent = "You don't have any pets yet. Adopt one below to get started.";
+      list.appendChild(li);
+    } else {
+      state.pets.forEach(pet => {
+        const type = petTypes[pet.type];
+        const hunger = petNeed(pet.lastFedAt);
+        const happiness = petNeed(pet.lastPlayedAt);
+        const clean = petNeed(pet.lastCleanedAt);
+        const li = document.createElement('li');
+        const info = document.createElement('div');
+        info.className = 'farm-item-info';
+        info.innerHTML = `<strong>${type.icon} ${type.label}</strong><span>Fullness: ${hunger}% · Happiness: ${happiness}% · Cleanliness: ${clean}%</span>`;
+        const actions = document.createElement('div');
+        actions.className = 'farm-item-actions';
+        const feedBtn = document.createElement('button');
+        feedBtn.textContent = 'Feed';
+        feedBtn.addEventListener('click', () => feedPet(pet.id));
+        const playBtn = document.createElement('button');
+        playBtn.textContent = 'Play';
+        playBtn.addEventListener('click', () => playWithPet(pet.id));
+        const cleanBtn = document.createElement('button');
+        cleanBtn.textContent = 'Clean';
+        cleanBtn.addEventListener('click', () => cleanPet(pet.id));
+        const giveBtn = document.createElement('button');
+        giveBtn.textContent = 'Give to...';
+        giveBtn.addEventListener('click', () => showGivePetChoices(pet.id));
+        actions.appendChild(feedBtn);
+        actions.appendChild(playBtn);
+        actions.appendChild(cleanBtn);
+        actions.appendChild(giveBtn);
+        li.appendChild(info);
+        li.appendChild(actions);
+        list.appendChild(li);
+      });
+    }
+
+    const adoptList = document.getElementById('petsAdoptList');
+    adoptList.innerHTML = "";
+    Object.keys(petTypes).forEach(typeId => {
+      const type = petTypes[typeId];
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${type.icon} ${type.label}</strong><span>$${type.cost}</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Adopt';
+      btn.addEventListener('click', () => adoptPet(typeId));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      adoptList.appendChild(li);
+    });
+  }
+
+  let petsRefreshTimer = null;
+  let pendingGivePetId = null;
+
+  function showGivePetChoices(petId){
+    pendingGivePetId = petId;
+    const others = cachedRoster.filter(c => c.id !== state.character.id);
+    document.getElementById('petsMainView').classList.add('hidden');
+    document.getElementById('petsGiveView').classList.remove('hidden');
+    const pet = state.pets.find(p => p.id === petId);
+    const type = petTypes[pet.type];
+    document.getElementById('petsGiveTitle').textContent = `Give your ${type.label} to...`;
+    const list = document.getElementById('petsGiveRecipientList');
+    list.innerHTML = "";
+    if (!others.length){
+      const li = document.createElement('li');
+      li.textContent = "You don't have any other characters to give a pet to yet.";
+      list.appendChild(li);
+      speak("You don't have any other characters to give a pet to yet.");
+      document.getElementById('petsGiveCancelBtn').focus();
+      return;
+    }
+    speak(`Give your ${type.label} to who?`);
+    others.forEach(other => {
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${other.name || "Unnamed"}</strong>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Give';
+      btn.addEventListener('click', () => givePetToCharacter(other.id));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+    const firstBtn = list.querySelector('button');
+    if (firstBtn) firstBtn.focus();
+  }
+
+  async function givePetToCharacter(recipientId){
+    const petIdx = state.pets.findIndex(p => p.id === pendingGivePetId);
+    if (petIdx === -1) return;
+    const recipient = cachedRoster.find(c => c.id === recipientId);
+    if (!recipient) return;
+    const pet = state.pets.splice(petIdx, 1)[0];
+    const type = petTypes[pet.type];
+    const now = Date.now();
+    pet.lastFedAt = now;
+    pet.lastCleanedAt = now;
+    pet.lastPlayedAt = now;
+    if (!recipient.pets) recipient.pets = [];
+    recipient.pets.push(pet);
+    await saveCharacterToStorage(recipient);
+    renderPets();
+    persistPets();
+    logEntry(`${type.icon} Gave your ${type.label} to ${recipient.name}.`);
+    speak(`You give your ${type.label} to ${recipient.name}. It moves into their home.`);
+    cancelGivePet();
+  }
+
+  function cancelGivePet(){
+    pendingGivePetId = null;
+    document.getElementById('petsGiveView').classList.add('hidden');
+    document.getElementById('petsMainView').classList.remove('hidden');
+    const firstBtn = document.querySelector('#petsOwnedList button, #petsAdoptList button');
+    if (firstBtn) firstBtn.focus();
+  }
+  document.getElementById('petsGiveCancelBtn').addEventListener('click', cancelGivePet);
+
+  function openPets(){
+    document.getElementById('petsPanel').classList.remove('hidden');
+    document.getElementById('petsMainView').classList.remove('hidden');
+    document.getElementById('petsGiveView').classList.add('hidden');
+    pendingGivePetId = null;
+    renderPets();
+    speak("The pet corner. Feed, play with, or clean your pets, give one away, or adopt a new one.");
+    if (petsRefreshTimer) clearInterval(petsRefreshTimer);
+    petsRefreshTimer = setInterval(renderPets, 5000);
+    const firstBtn = document.querySelector('#petsOwnedList button, #petsAdoptList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('petsCloseBtn').focus();
+  }
+
+  function closePets(){
+    document.getElementById('petsPanel').classList.add('hidden');
+    if (petsRefreshTimer){ clearInterval(petsRefreshTimer); petsRefreshTimer = null; }
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('petsCloseBtn').addEventListener('click', closePets);
+
+  /* ---------- babies ---------- */
+  const BABY_NEED_DECAY_PER_MIN = 8;
+  const BABY_ADOPTION_NAMES = ["Baby"];
+
+  function babyNeed(lastAt){
+    const minutesSince = (Date.now() - lastAt) / 60000;
+    return Math.max(0, Math.min(100, Math.round(100 - minutesSince * BABY_NEED_DECAY_PER_MIN)));
+  }
+
+  function persistBabies(){
+    if (!state.hasCreatedCharacter || !state.character.id) return;
+    state.character.babies = state.babies;
+    saveCharacterToStorage(state.character);
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    if (idx >= 0) cachedRoster[idx].babies = state.babies;
+  }
+
+  function updateBabyBtnVisibility(){
+    document.getElementById('babyBtn').classList.toggle('hidden', !state.hasCreatedCharacter || !state.babies.length);
+  }
+
+  function adoptBabyAction(hotspot){
+    const cost = hotspot.adoptionCost || 30;
+    if (state.money < cost){
+      speak(`Adopting a baby involves a $${cost} paperwork fee, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= cost;
+    updateWallet();
+    const now = Date.now();
+    state.babies.push({
+      id: 'b' + now + Math.random().toString(36).slice(2, 6),
+      name: BABY_ADOPTION_NAMES[0],
+      lastFedAt: now, lastPlayedAt: now
+    });
+    logEntry(`👶 Adopted a baby.`);
+    speak("You complete the paperwork and adopt a baby. They're now in your care.");
+    updateBabyBtnVisibility();
+    persistBabies();
+  }
+
+  function feedBaby(id){
+    const baby = state.babies.find(b => b.id === id);
+    if (!baby) return;
+    baby.lastFedAt = Date.now();
+    logEntry(`👶 Fed ${baby.name}.`);
+    speak(`You feed ${baby.name}. They're happy and full.`);
+    renderBabies();
+    persistBabies();
+  }
+
+  function playWithBaby(id){
+    const baby = state.babies.find(b => b.id === id);
+    if (!baby) return;
+    baby.lastPlayedAt = Date.now();
+    state.mood += 6;
+    updateMeters();
+    logEntry(`👶 Played with ${baby.name}.`);
+    speak(`You play with ${baby.name}. They giggle happily.`);
+    renderBabies();
+    persistBabies();
+  }
+
+  function talkToBaby(id){
+    const baby = state.babies.find(b => b.id === id);
+    if (!baby) return;
+    state.mood += 3;
+    updateMeters();
+    logEntry(`👶 Talked to ${baby.name}.`);
+    speak(`You talk softly to ${baby.name}. They coo back at you.`);
+    renderBabies();
+  }
+
+  function renderBabies(){
+    const list = document.getElementById('babyList');
+    list.innerHTML = "";
+    if (!state.babies.length){
+      const li = document.createElement('li');
+      li.textContent = "You aren't caring for any babies right now.";
+      list.appendChild(li);
+      return;
+    }
+    state.babies.forEach(baby => {
+      const fullness = babyNeed(baby.lastFedAt);
+      const happiness = babyNeed(baby.lastPlayedAt);
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>👶 ${baby.name}</strong><span>Fullness: ${fullness}% · Happiness: ${happiness}%</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const feedBtn = document.createElement('button');
+      feedBtn.textContent = 'Feed';
+      feedBtn.addEventListener('click', () => feedBaby(baby.id));
+      const playBtn = document.createElement('button');
+      playBtn.textContent = 'Play';
+      playBtn.addEventListener('click', () => playWithBaby(baby.id));
+      const talkBtn = document.createElement('button');
+      talkBtn.textContent = 'Talk';
+      talkBtn.addEventListener('click', () => talkToBaby(baby.id));
+      const giveBtn = document.createElement('button');
+      giveBtn.textContent = 'Give to...';
+      giveBtn.addEventListener('click', () => showGiveBabyChoices(baby.id));
+      actions.appendChild(feedBtn);
+      actions.appendChild(playBtn);
+      actions.appendChild(talkBtn);
+      actions.appendChild(giveBtn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  let babyRefreshTimer = null;
+  let pendingGiveBabyId = null;
+
+  function showGiveBabyChoices(babyId){
+    pendingGiveBabyId = babyId;
+    const others = cachedRoster.filter(c => c.id !== state.character.id);
+    document.getElementById('babyMainView').classList.add('hidden');
+    document.getElementById('babyGiveView').classList.remove('hidden');
+    const baby = state.babies.find(b => b.id === babyId);
+    document.getElementById('babyGiveTitle').textContent = `Give ${baby.name} to...`;
+    const list = document.getElementById('babyGiveRecipientList');
+    list.innerHTML = "";
+    if (!others.length){
+      const li = document.createElement('li');
+      li.textContent = "You don't have any other characters to hand the baby to yet.";
+      list.appendChild(li);
+      speak("You don't have any other characters to hand the baby to yet.");
+      document.getElementById('babyGiveCancelBtn').focus();
+      return;
+    }
+    speak(`Give ${baby.name} to who?`);
+    others.forEach(other => {
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${other.name || "Unnamed"}</strong>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Give';
+      btn.addEventListener('click', () => giveBabyToCharacter(other.id));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+    const firstBtn = list.querySelector('button');
+    if (firstBtn) firstBtn.focus();
+  }
+
+  async function giveBabyToCharacter(recipientId){
+    const babyIdx = state.babies.findIndex(b => b.id === pendingGiveBabyId);
+    if (babyIdx === -1) return;
+    const recipient = cachedRoster.find(c => c.id === recipientId);
+    if (!recipient) return;
+    const baby = state.babies.splice(babyIdx, 1)[0];
+    const now = Date.now();
+    baby.lastFedAt = now;
+    baby.lastPlayedAt = now;
+    if (!recipient.babies) recipient.babies = [];
+    recipient.babies.push(baby);
+    await saveCharacterToStorage(recipient);
+    renderBabies();
+    persistBabies();
+    updateBabyBtnVisibility();
+    logEntry(`👶 Gave ${baby.name} to ${recipient.name}.`);
+    speak(`You hand ${baby.name} to ${recipient.name}. ${recipient.name} is now carrying them.`);
+    cancelGiveBaby();
+  }
+
+  function cancelGiveBaby(){
+    pendingGiveBabyId = null;
+    document.getElementById('babyGiveView').classList.add('hidden');
+    document.getElementById('babyMainView').classList.remove('hidden');
+    const firstBtn = document.querySelector('#babyList button');
+    if (firstBtn) firstBtn.focus();
+  }
+  document.getElementById('babyGiveCancelBtn').addEventListener('click', cancelGiveBaby);
+
+  function openBabyPanel(){
+    document.getElementById('babyPanel').classList.remove('hidden');
+    document.getElementById('babyMainView').classList.remove('hidden');
+    document.getElementById('babyGiveView').classList.add('hidden');
+    pendingGiveBabyId = null;
+    renderBabies();
+    speak("The nursery. Feed, play with, or talk to your baby, or hand them to someone else.");
+    if (babyRefreshTimer) clearInterval(babyRefreshTimer);
+    babyRefreshTimer = setInterval(renderBabies, 5000);
+    const firstBtn = document.querySelector('#babyList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('babyCloseBtn').focus();
+  }
+
+  function closeBabyPanel(){
+    document.getElementById('babyPanel').classList.add('hidden');
+    if (babyRefreshTimer){ clearInterval(babyRefreshTimer); babyRefreshTimer = null; }
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('babyCloseBtn').addEventListener('click', closeBabyPanel);
+  document.getElementById('babyBtn').addEventListener('click', openBabyPanel);
+
+  /* ---------- cooking ---------- */
+  const recipes = {
+    cookedcorn: { label:"Cooked corn", icon:"🌽",
+      ingredients:[{ label:"Corn", qty:1 }],
+      useAct:"You eat a warm, buttered ear of cooked corn.", mood:5, energy:6 },
+    popcorn: { label:"Popcorn", icon:"🍿",
+      ingredients:[{ label:"Corn", qty:1 }],
+      useAct:"You munch on a fresh bowl of homemade popcorn.", mood:6, energy:5 },
+    cornsoup: { label:"Corn soup", icon:"🥣",
+      ingredients:[{ label:"Corn", qty:1 }, { label:"Milk", qty:1 }],
+      useAct:"You eat a warm bowl of corn soup.", mood:5, energy:7 },
+    roastedveg: { label:"Roasted vegetables", icon:"🥕",
+      ingredients:[{ label:"Carrot", qty:1 }, { label:"Potato", qty:1 }],
+      useAct:"You eat a plate of roasted vegetables.", mood:5, energy:7 },
+    bakedpotato: { label:"Baked potato", icon:"🥔",
+      ingredients:[{ label:"Potato", qty:1 }],
+      useAct:"You eat a fluffy baked potato.", mood:4, energy:7 },
+    pizza: { label:"Homemade pizza", icon:"🍕",
+      ingredients:[{ label:"Cheese", qty:1 }, { label:"Fresh bread", qty:1 }],
+      useAct:"You eat a slice of homemade pizza.", mood:7, energy:8 },
+    scrambledeggs: { label:"Scrambled eggs", icon:"🍳",
+      ingredients:[{ label:"Fresh eggs", qty:1 }],
+      useAct:"You eat a plate of scrambled eggs.", mood:4, energy:6 },
+    pancakes: { label:"Pancakes", icon:"🥞",
+      ingredients:[{ label:"Milk", qty:1 }, { label:"Fresh eggs", qty:1 }],
+      useAct:"You eat a stack of warm pancakes.", mood:6, energy:7 },
+    fruitsalad: { label:"Fruit salad", icon:"🍓",
+      ingredients:[{ label:"Apples", qty:1 }, { label:"Oranges", qty:1 }, { label:"Bananas", qty:1 }],
+      useAct:"You eat a refreshing bowl of fruit salad.", mood:5, energy:5 }
+  };
+
+  function countIngredient(label){
+    return state.inventory.filter(item => item.label === label).length;
+  }
+
+  function hasIngredients(recipe){
+    return recipe.ingredients.every(ing => countIngredient(ing.label) >= ing.qty);
+  }
+
+  function consumeIngredients(recipe){
+    recipe.ingredients.forEach(ing => {
+      let remaining = ing.qty;
+      state.inventory = state.inventory.filter(item => {
+        if (remaining > 0 && item.label === ing.label){
+          remaining -= 1;
+          return false;
+        }
+        return true;
+      });
+    });
+  }
+
+  function cookRecipe(recipeId){
+    const recipe = recipes[recipeId];
+    if (!recipe || !hasIngredients(recipe)) return;
+    consumeIngredients(recipe);
+    renderInventory();
+    const dish = grantItem({ icon:recipe.icon, label:recipe.label, useAct:recipe.useAct, mood:recipe.mood, energy:recipe.energy });
+    const ingredientList = recipe.ingredients.map(ing => `${ing.qty} ${ing.label}`).join(", ");
+    logEntry(`🍳 Cooked ${dish.label} using ${ingredientList}.`);
+    speak(`You cook ${dish.label} and add it to your backpack.`);
+    renderCooking();
+  }
+
+  function renderCooking(){
+    const list = document.getElementById('cookingRecipeList');
+    list.innerHTML = "";
+    Object.keys(recipes).forEach(recipeId => {
+      const recipe = recipes[recipeId];
+      const makeable = hasIngredients(recipe);
+      const li = document.createElement('li');
+      if (!makeable) li.style.opacity = '0.55';
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const ingredientText = recipe.ingredients
+        .map(ing => `${ing.qty} ${ing.label} (have ${countIngredient(ing.label)})`)
+        .join(", ");
+      info.innerHTML = `<strong>${recipe.icon} ${recipe.label}</strong><span>Needs: ${ingredientText}</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Cook';
+      btn.disabled = !makeable;
+      btn.addEventListener('click', () => cookRecipe(recipeId));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  function openCooking(){
+    document.getElementById('cookingPanel').classList.remove('hidden');
+    renderCooking();
+    speak("The stove. Cooking uses ingredients from your backpack. Recipes you can't make right now are grayed out.");
+    const firstBtn = document.querySelector('#cookingRecipeList button:not([disabled])');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('cookingCloseBtn').focus();
+  }
+
+  function closeCooking(){
+    document.getElementById('cookingPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('cookingCloseBtn').addEventListener('click', closeCooking);
+
+  /* ---------- town directory & relationships ---------- */
+  function relationshipKey(idA, idB){
+    return [idA, idB].sort().join('_');
+  }
+
+  function defaultRelationship(idA, idB){
+    return { a: idA, b: idB, score: 0, history: [] };
+  }
+
+  function relationshipTier(score){
+    if (score >= 85) return "Bonded";
+    if (score >= 60) return "Close Friend";
+    if (score >= 35) return "Friend";
+    if (score >= 15) return "Acquaintance";
+    return "Stranger";
+  }
+
+  async function loadRelationship(idA, idB){
+    try {
+      const value = await storageGetKey('relationship:' + relationshipKey(idA, idB));
+      if (value) return JSON.parse(value);
+    } catch (e){ console.error('Could not load relationship', e); }
+    return defaultRelationship(idA, idB);
+  }
+
+  async function saveRelationship(record){
+    await storageSetKey('relationship:' + relationshipKey(record.a, record.b), JSON.stringify(record));
+  }
+
+  function addRelationshipHistory(record, text){
+    record.history.unshift({ text, at: Date.now() });
+    record.history = record.history.slice(0, 6);
+  }
+
+  let directoryOthers = [];
+  let relationshipCache = {};
+  let currentVisitId = null;
+
+  const hangoutLocations = ["Park", "Beach", "Café", "Movie Theater", "Bowling Alley"];
+
+  async function openDirectory(){
+    directoryOthers = cachedRoster.filter(c => c.id !== state.character.id);
+    document.getElementById('directoryPanel').classList.remove('hidden');
+    document.getElementById('directoryVisitView').classList.add('hidden');
+    document.getElementById('directoryListView').classList.remove('hidden');
+    const list = document.getElementById('directoryList');
+    list.innerHTML = "";
+    if (!directoryOthers.length){
+      const li = document.createElement('li');
+      li.textContent = "You haven't created any other characters yet. Make one from the character select screen to have someone to visit.";
+      list.appendChild(li);
+      speak("Town Directory. You don't have any other characters to visit yet.");
+      document.getElementById('directoryCloseBtn').focus();
+      return;
+    }
+    speak("Town Directory. Choose someone to visit.");
+    await Promise.all(directoryOthers.map(async other => {
+      relationshipCache[other.id] = await loadRelationship(state.character.id, other.id);
+    }));
+    renderDirectoryList();
+    const firstBtn = document.querySelector('#directoryList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('directoryCloseBtn').focus();
+  }
+
+  function renderDirectoryList(){
+    const list = document.getElementById('directoryList');
+    list.innerHTML = "";
+    directoryOthers.forEach(other => {
+      const rel = relationshipCache[other.id] || defaultRelationship(state.character.id, other.id);
+      const tier = relationshipTier(rel.score);
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${other.name || "Unnamed"}</strong><span>${tier} (${rel.score}/100)</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const btn = document.createElement('button');
+      btn.textContent = 'Visit';
+      btn.addEventListener('click', () => visitCharacter(other.id));
+      actions.appendChild(btn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  }
+
+  function visitCharacter(otherId){
+    currentVisitId = otherId;
+    document.getElementById('directoryListView').classList.add('hidden');
+    document.getElementById('directoryVisitView').classList.remove('hidden');
+    document.getElementById('visitHangoutChoices').classList.add('hidden');
+    renderVisit();
+    speak(`Visiting ${directoryOthers.find(o => o.id === otherId).name}.`);
+    const firstBtn = document.querySelector('#visitActionsList button');
+    if (firstBtn) firstBtn.focus();
+  }
+
+  function renderVisit(){
+    const other = directoryOthers.find(o => o.id === currentVisitId);
+    if (!other) return;
+    const rel = relationshipCache[currentVisitId];
+    const tier = relationshipTier(rel.score);
+    document.getElementById('visitTitle').textContent = `Visiting ${other.name}`;
+    document.getElementById('visitRelationshipLine').textContent = `${tier} — ${rel.score}/100`;
+
+    const actions = document.getElementById('visitActionsList');
+    actions.innerHTML = "";
+
+    const talkLi = document.createElement('li');
+    const talkInfo = document.createElement('div');
+    talkInfo.className = 'farm-item-info';
+    talkInfo.innerHTML = `<strong>💬 Talk</strong><span>Catch up. +3 relationship.</span>`;
+    const talkActions = document.createElement('div');
+    talkActions.className = 'farm-item-actions';
+    const talkBtn = document.createElement('button');
+    talkBtn.textContent = 'Talk';
+    talkBtn.addEventListener('click', doTalk);
+    talkActions.appendChild(talkBtn);
+    talkLi.appendChild(talkInfo);
+    talkLi.appendChild(talkActions);
+    actions.appendChild(talkLi);
+
+    const hangoutLi = document.createElement('li');
+    const hangoutInfo = document.createElement('div');
+    hangoutInfo.className = 'farm-item-info';
+    const hangoutUnlocked = rel.score >= 15;
+    hangoutInfo.innerHTML = `<strong>🚶 Invite to hang out</strong><span>${hangoutUnlocked ? "Spend time together. +6 relationship." : "Unlocks at Acquaintance (15)."}</span>`;
+    const hangoutActions = document.createElement('div');
+    hangoutActions.className = 'farm-item-actions';
+    const hangoutBtn = document.createElement('button');
+    hangoutBtn.textContent = 'Invite';
+    hangoutBtn.disabled = !hangoutUnlocked;
+    hangoutBtn.addEventListener('click', showHangoutChoices);
+    hangoutActions.appendChild(hangoutBtn);
+    hangoutLi.appendChild(hangoutInfo);
+    hangoutLi.appendChild(hangoutActions);
+    actions.appendChild(hangoutLi);
+
+    const giftLi = document.createElement('li');
+    const giftInfo = document.createElement('div');
+    giftInfo.className = 'farm-item-info';
+    const giftUnlocked = rel.score >= 35;
+    giftInfo.innerHTML = `<strong>🎁 Give a small gift</strong><span>${giftUnlocked ? "Costs $5. +8 relationship." : "Unlocks at Friend (35)."}</span>`;
+    const giftActions = document.createElement('div');
+    giftActions.className = 'farm-item-actions';
+    const giftBtn = document.createElement('button');
+    giftBtn.textContent = 'Give gift';
+    giftBtn.disabled = !giftUnlocked;
+    giftBtn.addEventListener('click', doGift);
+    giftActions.appendChild(giftBtn);
+    giftLi.appendChild(giftInfo);
+    giftLi.appendChild(giftActions);
+    actions.appendChild(giftLi);
+
+    const historyList = document.getElementById('visitHistoryList');
+    const historyHeading = document.getElementById('visitHistoryHeading');
+    historyList.innerHTML = "";
+    if (rel.history.length){
+      historyHeading.classList.remove('hidden');
+      rel.history.forEach(entry => {
+        const li = document.createElement('li');
+        li.textContent = entry.text;
+        historyList.appendChild(li);
+      });
+    } else {
+      historyHeading.classList.add('hidden');
+    }
+  }
+
+  async function doTalk(){
+    const other = directoryOthers.find(o => o.id === currentVisitId);
+    const rel = relationshipCache[currentVisitId];
+    rel.score = Math.min(100, rel.score + 3);
+    const text = `${state.character.name} and ${other.name} caught up and talked for a while.`;
+    addRelationshipHistory(rel, text);
+    await saveRelationship(rel);
+    logEntry(`💬 ${text}`);
+    speak(`${text} Relationship: ${relationshipTier(rel.score)}, ${rel.score} out of 100.`);
+    renderVisit();
+  }
+
+  function showHangoutChoices(){
+    const box = document.getElementById('visitHangoutChoices');
+    box.classList.remove('hidden');
+    const list = document.getElementById('hangoutLocationList');
+    list.innerHTML = "";
+    hangoutLocations.forEach(loc => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.textContent = loc;
+      btn.addEventListener('click', () => doHangout(loc));
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+    const firstBtn = list.querySelector('button');
+    if (firstBtn) firstBtn.focus();
+  }
+
+  async function doHangout(locationName){
+    const other = directoryOthers.find(o => o.id === currentVisitId);
+    const rel = relationshipCache[currentVisitId];
+    rel.score = Math.min(100, rel.score + 6);
+    state.energy -= 5;
+    updateMeters();
+    const text = `${state.character.name} and ${other.name} spent time together at ${locationName}.`;
+    addRelationshipHistory(rel, text);
+    await saveRelationship(rel);
+    logEntry(`🚶 ${text}`);
+    speak(`${text} Relationship: ${relationshipTier(rel.score)}, ${rel.score} out of 100.`);
+    document.getElementById('visitHangoutChoices').classList.add('hidden');
+    renderVisit();
+  }
+
+  async function doGift(){
+    if (state.money < 5){
+      speak("A small gift costs $5, but you don't have enough right now.");
+      return;
+    }
+    const other = directoryOthers.find(o => o.id === currentVisitId);
+    const rel = relationshipCache[currentVisitId];
+    state.money -= 5;
+    updateWallet();
+    rel.score = Math.min(100, rel.score + 8);
+    const text = `${state.character.name} surprised ${other.name} with a small gift.`;
+    addRelationshipHistory(rel, text);
+    await saveRelationship(rel);
+    logEntry(`🎁 ${text}`);
+    speak(`${text} They're delighted. Relationship: ${relationshipTier(rel.score)}, ${rel.score} out of 100.`);
+    renderVisit();
+  }
+
+  function backToDirectoryList(){
+    currentVisitId = null;
+    document.getElementById('directoryVisitView').classList.add('hidden');
+    document.getElementById('directoryListView').classList.remove('hidden');
+    renderDirectoryList();
+    const firstBtn = document.querySelector('#directoryList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('directoryCloseBtn').focus();
+  }
+  document.getElementById('visitBackBtn').addEventListener('click', backToDirectoryList);
+
+  function closeDirectory(){
+    document.getElementById('directoryPanel').classList.add('hidden');
+    currentVisitId = null;
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('directoryCloseBtn').addEventListener('click', closeDirectory);
+  document.getElementById('directoryBtn').addEventListener('click', openDirectory);
+
   const jobRegistry = {
     barista: { label:"Barista", icon:"☕", pay:12, flavor:"You steam milk and pull espresso shots through the morning rush." },
     cashier: { label:"Cashier", icon:"🛒", pay:10, flavor:"You scan groceries and chat with regulars in line." },
@@ -2025,8 +3169,24 @@
       openGarden();
       return;
     }
+    if (h.opensHomeGarden){
+      openHomeGarden();
+      return;
+    }
     if (h.opensBarn){
       openBarn();
+      return;
+    }
+    if (h.opensPets){
+      openPets();
+      return;
+    }
+    if (h.adoptsBaby){
+      adoptBabyAction(h);
+      return;
+    }
+    if (h.opensCooking){
+      openCooking();
       return;
     }
     if (h.shopItems){
@@ -2190,7 +3350,7 @@
       age: "adult", bodyType: "average", facialHair: "none",
       freckles: false, vitiligo: false, tattoos: false,
       accessories: [], hobbies: ["reading"], job: "none", money: 50, color: "teal",
-      posture: "standing", farm: defaultFarm()
+      posture: "standing", farm: defaultFarm(), pets: [], homeGarden: defaultHomeGarden(), babies: []
     };
   }
 
@@ -2310,6 +3470,7 @@
   const characterSelectEl = document.getElementById('characterSelect');
   const characterListEl = document.getElementById('characterList');
   const switchCharBtn = document.getElementById('switchCharBtn');
+  const directoryBtn = document.getElementById('directoryBtn');
   const backToGameBtn = document.getElementById('backToGameBtn');
   let cachedRoster = [];
   let creatorContext = 'new'; // 'new' or 'edit'
@@ -2532,6 +3693,8 @@
       state.hasCreatedCharacter = false;
       editCharBtn.classList.add('hidden');
       switchCharBtn.classList.add('hidden');
+      directoryBtn.classList.add('hidden');
+      document.getElementById('babyBtn').classList.add('hidden');
       playerTag.textContent = "";
     }
     renderCharacterList();
@@ -2560,11 +3723,16 @@
     sceneNavEl.classList.remove('hidden');
     editCharBtn.classList.remove('hidden');
     switchCharBtn.classList.remove('hidden');
+    directoryBtn.classList.remove('hidden');
     playerTag.textContent = `Playing as ${state.character.name} (${state.character.pronouns})`;
     setPosture(state.character.posture || 'standing', false);
     state.money = typeof state.character.money === 'number' ? state.character.money : 50;
     document.getElementById('walletAmount').textContent = `$${state.money}`;
     state.farm = state.character.farm ? JSON.parse(JSON.stringify(state.character.farm)) : defaultFarm();
+    state.pets = state.character.pets ? JSON.parse(JSON.stringify(state.character.pets)) : [];
+    state.homeGarden = state.character.homeGarden ? JSON.parse(JSON.stringify(state.character.homeGarden)) : defaultHomeGarden();
+    state.babies = state.character.babies ? JSON.parse(JSON.stringify(state.character.babies)) : [];
+    updateBabyBtnVisibility();
     speak(`${characterSummary(state.character)} Welcome back to Sunny Town, ${state.character.name}!`);
     requestAnimationFrame(() => {
       const first = document.querySelector('.hotspot');
@@ -2602,6 +3770,9 @@
       state.character.createdAt = Date.now();
     }
     if (!state.character.farm) state.character.farm = defaultFarm();
+    if (!state.character.pets) state.character.pets = [];
+    if (!state.character.homeGarden) state.character.homeGarden = defaultHomeGarden();
+    if (!state.character.babies) state.character.babies = [];
     const saved = await saveCharacterToStorage(state.character);
     const idx = cachedRoster.findIndex(x => x.id === state.character.id);
     const snapshot = JSON.parse(JSON.stringify(state.character));
@@ -2613,8 +3784,13 @@
     state.money = typeof state.character.money === 'number' ? state.character.money : 50;
     document.getElementById('walletAmount').textContent = `$${state.money}`;
     state.farm = JSON.parse(JSON.stringify(state.character.farm));
+    state.pets = JSON.parse(JSON.stringify(state.character.pets));
+    state.homeGarden = JSON.parse(JSON.stringify(state.character.homeGarden));
+    state.babies = JSON.parse(JSON.stringify(state.character.babies));
+    updateBabyBtnVisibility();
     editCharBtn.classList.remove('hidden');
     switchCharBtn.classList.remove('hidden');
+    directoryBtn.classList.remove('hidden');
     creatorEl.classList.add('hidden');
     mainEl.classList.remove('hidden');
     sceneNavEl.classList.remove('hidden');
@@ -2672,8 +3848,40 @@
       closeGarden();
       return;
     }
+    if (e.key === 'Escape' && !document.getElementById('homeGardenPanel').classList.contains('hidden')){
+      closeHomeGarden();
+      return;
+    }
     if (e.key === 'Escape' && !document.getElementById('barnPanel').classList.contains('hidden')){
       closeBarn();
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('petsPanel').classList.contains('hidden')){
+      if (!document.getElementById('petsGiveView').classList.contains('hidden')){
+        cancelGivePet();
+      } else {
+        closePets();
+      }
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('babyPanel').classList.contains('hidden')){
+      if (!document.getElementById('babyGiveView').classList.contains('hidden')){
+        cancelGiveBaby();
+      } else {
+        closeBabyPanel();
+      }
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('cookingPanel').classList.contains('hidden')){
+      closeCooking();
+      return;
+    }
+    if (e.key === 'Escape' && !document.getElementById('directoryPanel').classList.contains('hidden')){
+      if (!document.getElementById('directoryVisitView').classList.contains('hidden')){
+        backToDirectoryList();
+      } else {
+        closeDirectory();
+      }
       return;
     }
     if (e.key === 'Escape' && !creatorEl.classList.contains('hidden')
