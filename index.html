@@ -110,11 +110,6 @@
   }
   .shop-choice-list label.chosen{border-color:var(--accent); background:#fdf0e6;}
   .shop-choice-list label:hover{border-color:var(--accent);}
-  .yard-grid{display:grid;grid-template-columns:repeat(4,minmax(58px,1fr));gap:.5em;margin:.8em 0;}
-  .yard-cell{min-height:70px;border:2px dashed var(--line);background:var(--soft);border-radius:6px;font-family:inherit;font-size:1.5em;cursor:pointer;}
-  .yard-cell:focus-visible{outline:3px solid var(--focus);outline-offset:2px;}
-  .yard-tools{display:flex;flex-wrap:wrap;gap:.5em;margin:.6em 0;}
-  .yard-tools button[aria-pressed="true"]{border-color:var(--accent);background:#fdf0e6;}
   #shopCancelBtn{
     font-family:'Courier New',monospace; border:2px solid var(--line); background:var(--paper);
     padding:.4em .8em; border-radius:4px; cursor:pointer;
@@ -479,8 +474,6 @@
 
     <fieldset class="field">
       <legend>Age group</legend>
-      <label><input type="radio" name="age" value="baby"> Baby</label>
-      <label><input type="radio" name="age" value="toddler"> Toddler</label>
       <label><input type="radio" name="age" value="kid"> Kid</label>
       <label><input type="radio" name="age" value="teen"> Teen</label>
       <label><input type="radio" name="age" value="adult" checked> Adult</label>
@@ -587,11 +580,6 @@
       <label><input type="checkbox" name="hobby" value="filmmaking"> Filmmaking</label>
       <label><input type="checkbox" name="hobby" value="martialarts"> Martial arts</label>
       <label><input type="checkbox" name="hobby" value="boardgames"> Board games</label>
-      <label><input type="checkbox" name="hobby" value="pottery"> Pottery</label>
-      <label><input type="checkbox" name="hobby" value="coding"> Coding</label>
-      <label><input type="checkbox" name="hobby" value="journaling"> Journaling</label>
-      <label><input type="checkbox" name="hobby" value="robotics"> Robotics</label>
-      <label><input type="checkbox" name="hobby" value="calligraphy"> Calligraphy</label>
     </fieldset>
 
     <div class="field">
@@ -608,7 +596,6 @@
         <option value="bowlingattendant">Bowling alley attendant — Bowling Alley</option>
         <option value="nurse">Nurse — Hospital</option>
         <option value="musician">Musician — Music Studio</option>
-        <option value="mechanic">Repair Technician — Farm Workshop (requires Mechanics 25)</option>
       </select>
     </div>
 
@@ -652,39 +639,20 @@
     <p class="scene-desc" id="sceneDesc"></p>
     <ul class="hotspot-grid" id="hotspotGrid" aria-label="Things to interact with in this scene"></ul>
 
-    <div class="shop-panel hidden" id="arcadePanel" role="region" aria-label="Arcade">
-      <h3>🕹️ Sunny Town Arcade</h3>
-      <p id="arcadeStatus" class="fridge-hint"></p>
-      <ul id="arcadePrizeList" class="farm-list"></ul>
-      <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-        <button id="arcadePlayBtn">Play a game ($2)</button>
-        <button id="arcadeCloseBtn">Close</button>
-      </div>
-    </div>
-
-    <div class="shop-panel hidden" id="trinketPanel" role="region" aria-label="Trinket cabinet">
-      <h3>🗄️ Trinket Cabinet</h3>
-      <p class="fridge-hint">Keep seashells, arcade prizes, souvenirs, and other non-food treasures here.</p>
-      <ul id="trinketList" class="farm-list"></ul>
-      <button id="trinketCloseBtn">Close</button>
-    </div>
-
     <div class="shop-panel hidden" id="shopPanel" role="region" aria-label="Choose items">
       <h3 id="shopPanelTitle"></h3>
-      <div id="shopCategoryFilter" class="field hidden" aria-label="Shopping category">
-        <fieldset>
-          <legend>Who are you shopping for?</legend>
-          <label><input type="radio" name="shopGenderFilter" value="girls"> Girls</label>
-          <label><input type="radio" name="shopGenderFilter" value="boys"> Boys</label>
-          <label><input type="radio" name="shopGenderFilter" value="unisex" checked> Unisex / everyone</label>
-          <label><input type="radio" name="shopGenderFilter" value="all"> Show all</label>
-        </fieldset>
-      </div>
       <ul id="shopChoiceList" class="shop-choice-list"></ul>
       <div style="display:flex; gap:.6em; flex-wrap:wrap;">
         <button id="shopConfirmBtn">Add to backpack</button>
         <button id="shopCancelBtn">Cancel</button>
       </div>
+    </div>
+
+    <div class="shop-panel hidden" id="closetPanel" role="region" aria-label="Bedroom closet">
+      <h3>👗 Bedroom closet</h3>
+      <p class="fridge-hint">Store clothes and shoes here, then wear them whenever you want.</p>
+      <ul id="closetList" class="farm-list"></ul>
+      <button id="closetCloseBtn">Close</button>
     </div>
 
     <div class="shop-panel hidden" id="gardenPanel" role="region" aria-label="Farm garden plots">
@@ -730,20 +698,6 @@
       <button id="sinkCloseBtn">Close</button>
     </div>
 
-    <div class="shop-panel hidden" id="cookingChoicePanel" role="region" aria-label="What to do with cooked food">
-      <h3 id="cookingChoiceTitle">🍳 Your food is ready</h3>
-      <p id="cookingChoiceHint" class="fridge-hint"></p>
-      <ul id="cookingChoiceList" class="farm-list"></ul>
-      <button id="cookingChoiceCloseBtn">Close</button>
-    </div>
-
-    <div class="shop-panel hidden" id="tablePanel" role="region" aria-label="Kitchen table">
-      <h3>🪑 Kitchen table</h3>
-      <p class="fridge-hint">Food placed here can be eaten later or shared.</p>
-      <ul id="tableFoodList" class="farm-list"></ul>
-      <button id="tableCloseBtn">Close</button>
-    </div>
-
     <div class="shop-panel hidden" id="mailboxPanel" role="region" aria-label="Mailbox">
       <h3>📬 Mailbox</h3>
       <p class="fridge-hint">Letters, paychecks, and updates about your job, farm, and garden.</p>
@@ -777,16 +731,6 @@
       </div>
     </div>
 
-    <div class="shop-panel hidden" id="adoptionPanel" role="region" aria-label="Adopt a baby"><h3>👶 Adopt a baby</h3><p class="fridge-hint">Customize your baby now. You choose when they grow up later.</p><div class="creator-grid">
-      <div class="field"><label for="adoptName">Name</label><input type="text" id="adoptName" maxlength="20"></div>
-      <fieldset class="field"><legend>Gender / pronouns</legend><label><input type="radio" name="adoptPronouns" value="she/her"> She / her</label><label><input type="radio" name="adoptPronouns" value="he/him"> He / him</label><label><input type="radio" name="adoptPronouns" value="they/them" checked> They / them</label></fieldset>
-      <div class="field"><label for="adoptSkin">Skin</label><select id="adoptSkin"><option value="light">Light</option><option value="medium">Medium</option><option value="dark">Dark</option><option value="deep">Deep</option></select></div>
-      <div class="field"><label for="adoptHair">Hair</label><select id="adoptHair"><option value="straight">Straight</option><option value="wavy">Wavy</option><option value="curly">Curly</option><option value="coily">Coily</option><option value="short">Short</option><option value="long">Long</option><option value="buzz">Buzz cut</option></select></div>
-      <div class="field"><label for="adoptHairColor">Hair color</label><select id="adoptHairColor"><option value="black">Black</option><option value="brown">Brown</option><option value="blonde">Blonde</option><option value="red">Red</option><option value="pink">Pink</option><option value="blue">Blue</option></select></div>
-      <div class="field"><label for="adoptEyeColor">Eye color</label><select id="adoptEyeColor"><option value="brown">Brown</option><option value="blue">Blue</option><option value="green">Green</option><option value="gray">Gray</option><option value="hazel">Hazel</option></select></div>
-      <div class="field"><label for="adoptOutfit">Outfit</label><select id="adoptOutfit"><option value="casual">Casual</option><option value="cozy">Cozy</option><option value="sporty">Sporty</option><option value="fancy">Fancy</option><option value="vintage">Vintage</option><option value="punk">Punk</option></select></div>
-      <div class="field"><label for="adoptShoes">Shoes</label><select id="adoptShoes"><option value="sneakers">Sneakers</option><option value="boots">Boots</option><option value="sandals">Sandals</option><option value="dressshoes">Dress shoes</option></select></div></div><button id="adoptConfirmBtn">Complete adoption</button><button id="adoptCancelBtn">Cancel</button></div>
-
     <div class="shop-panel hidden" id="babyPanel" role="region" aria-label="Nursery">
       <div id="babyMainView">
         <h3>👶 Nursery</h3>
@@ -801,41 +745,42 @@
         <button id="babyGiveCancelBtn">Cancel</button>
       </div>
       <div id="babyEditView" class="hidden">
-        <h3>Customize adopted child</h3>
-        <p class="fridge-hint">Change their name, pronouns, hair, eyes, skin, outfit, and shoes.</p>
-        <div class="creator-grid">
-          <div class="field"><label for="babyEditName">Name</label><input type="text" id="babyEditName" maxlength="20"></div>
-          <fieldset class="field"><legend>Gender / pronouns</legend><label><input type="radio" name="babyEditPronouns" value="she/her"> She / her</label><label><input type="radio" name="babyEditPronouns" value="he/him"> He / him</label><label><input type="radio" name="babyEditPronouns" value="they/them"> They / them</label></fieldset>
-          <div class="field"><label for="babyEditSkin">Skin</label><select id="babyEditSkin"><option value="light">Light</option><option value="medium">Medium</option><option value="dark">Dark</option><option value="deep">Deep</option></select></div>
-          <div class="field"><label for="babyEditHair">Hair</label><select id="babyEditHair"><option value="straight">Straight</option><option value="wavy">Wavy</option><option value="curly">Curly</option><option value="coily">Coily</option><option value="short">Short</option><option value="long">Long</option><option value="buzz">Buzz cut</option></select></div>
-          <div class="field"><label for="babyEditHairColor">Hair color</label><select id="babyEditHairColor"><option value="black">Black</option><option value="brown">Brown</option><option value="blonde">Blonde</option><option value="red">Red</option><option value="pink">Pink</option><option value="blue">Blue</option></select></div>
-          <div class="field"><label for="babyEditEyeColor">Eye color</label><select id="babyEditEyeColor"><option value="brown">Brown</option><option value="blue">Blue</option><option value="green">Green</option><option value="gray">Gray</option><option value="hazel">Hazel</option></select></div>
-          <div class="field"><label for="babyEditOutfit">Outfit</label><select id="babyEditOutfit"><option value="casual">Casual</option><option value="cozy">Cozy</option><option value="sporty">Sporty</option><option value="fancy">Fancy</option><option value="vintage">Vintage</option><option value="punk">Punk</option></select></div>
-          <div class="field"><label for="babyEditShoes">Shoes</label><select id="babyEditShoes"><option value="sneakers">Sneakers</option><option value="boots">Boots</option><option value="sandals">Sandals</option><option value="dressshoes">Dress shoes</option></select></div>
-        </div><button id="babyEditSaveBtn">Save</button><button id="babyEditCancelBtn">Cancel</button>
+        <h3>Edit baby</h3>
+        <p class="fridge-hint">This won't reset their fullness, happiness, or who's caring for them.</p>
+        <div class="field">
+          <label for="babyEditName">Name</label>
+          <input type="text" id="babyEditName" maxlength="20">
+        </div>
+        <fieldset class="field">
+          <legend>Pronouns</legend>
+          <label><input type="radio" name="babyEditPronouns" value="she/her"> She / her</label>
+          <label><input type="radio" name="babyEditPronouns" value="he/him"> He / him</label>
+          <label><input type="radio" name="babyEditPronouns" value="they/them"> They / them</label>
+        </fieldset>
+        <button id="babyEditSaveBtn">Save</button>
+        <button id="babyEditCancelBtn">Cancel</button>
       </div>
-    </div>
-
-    <div class="shop-panel hidden" id="yardPlannerPanel" role="region" aria-label="Yard landscaping planner">
-      <h3>🌳 Yard Landscaping Planner</h3>
-      <p class="fridge-hint">Choose a decoration, then activate a yard square to place it. Choose Eraser to clear a square. Your layout is saved to your character.</p>
-      <div class="yard-tools" id="yardToolList" role="toolbar" aria-label="Yard decoration tools"></div>
-      <div class="yard-grid" id="yardGrid" aria-label="Yard layout grid"></div>
-      <button id="yardPlannerCloseBtn">Close</button>
     </div>
 
     <div class="shop-panel hidden" id="skillsPanel" role="region" aria-label="Skills">
       <h3>🎵 Skills</h3>
-      <p class="fridge-hint">Practice instruments around town to improve. Better skill means better performances.</p>
+      <p class="fridge-hint">Practice activities around town to improve the skills connected to your hobbies and activities.</p>
       <ul id="skillsList" class="farm-list"></ul>
       <button id="skillsCloseBtn">Close</button>
     </div>
 
-    <div class="shop-panel hidden" id="skillBooksPanel" role="region" aria-label="Library skill books">
-      <h3>📚 Skill Book Shelf</h3>
-      <p class="fridge-hint">Read practical books to permanently unlock tips and town lore. Each book can be read up to three times.</p>
-      <ul id="skillBooksList" class="farm-list"></ul>
-      <button id="skillBooksCloseBtn">Close</button>
+    <div class="shop-panel hidden" id="pantryPanel" role="region" aria-label="Pantry">
+      <h3>🥫 Pantry</h3>
+      <p class="fridge-hint">Store shelf-stable ingredients and foods here. Take them out whenever you need them.</p>
+      <ul id="pantryList" class="farm-list"></ul>
+      <button id="pantryCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="servingPanel" role="region" aria-label="Serve food">
+      <h3 id="servingTitle">🍽️ Serve food</h3>
+      <p id="servingHint" class="fridge-hint"></p>
+      <ul id="servingChoices" class="farm-list"></ul>
+      <button id="servingCloseBtn">Close</button>
     </div>
 
     <div class="shop-panel hidden" id="cookingPanel" role="region" aria-label="Cooking">
@@ -888,8 +833,8 @@
     <ul id="fridgeList" aria-label="Items stored in your fridge at home"></ul>
 
     <h2 style="margin-top:1em;">Pantry (at home)</h2>
-    <p class="fridge-hint">Shelf-stable foods and cooked foods that belong in the pantry.</p>
-    <ul id="pantryList" aria-label="Foods stored in your pantry"></ul>
+    <p class="fridge-hint">For shelf-stable food and ingredients.</p>
+    <ul id="pantryListSide" aria-label="Items stored in your pantry at home"></ul>
 
     <h2 style="margin-top:1em;">Cabinet (at home)</h2>
     <p class="fridge-hint">For dishes and kitchenware. Also only works from the Kitchen at Home.</p>
@@ -925,6 +870,63 @@
       </p>
     </div>
   </aside>
+
+<section id="simulationActivities" aria-label="Interactive activities">
+  <h3>Interactive activities</h3>
+  <p id="activityState">Choose an activity. Your progress is saved with the current character.</p>
+  <div class="activity-grid">
+    <button type="button" data-activity="observe-zoo">🦁 Observe animals</button>
+    <button type="button" data-activity="aquarium-watch">🐠 Study an exhibit</button>
+    <button type="button" data-activity="bowling">🎳 Bowl a frame</button>
+    <button type="button" data-activity="music-practice">🎵 Practice music</button>
+    <button type="button" data-activity="beach-surf">🏄 Practice surfing</button>
+    <button type="button" data-activity="park-birdwatch">🐦 Birdwatch</button>
+    <button type="button" data-activity="park-playground">🛝 Use the playground</button>
+    <button type="button" data-activity="farm-repair">🔧 Practice repairs</button>
+  </div>
+</section>
+<style>
+#simulationActivities { margin:1rem 0; padding:1rem; border:1px solid currentColor; border-radius:.75rem; }
+.activity-grid { display:grid; gap:.5rem; }
+.activity-grid button { min-height:44px; text-align:left; }
+</style>
+
+
+<section id="familySimulation" aria-label="Family and pet management">
+  <h3>Family & Pet Care</h3>
+  <p id="familyStatus" role="status">Choose an action. Changes are saved for the current character.</p>
+  <div class="family-actions">
+    <button type="button" data-family-action="enroll-child">🏫 Enroll child in school</button>
+    <button type="button" data-family-action="take-child-school">🎒 Send child to school</button>
+    <button type="button" data-family-action="pet-store">🐾 Visit pet store</button>
+    <button type="button" data-family-action="pet-care">🧼 Check pet care</button>
+  </div>
+</section>
+<style>
+#familySimulation { margin:1rem 0; padding:1rem; border:1px solid currentColor; border-radius:.75rem; }
+.family-actions { display:grid; gap:.5rem; }
+.family-actions button { min-height:44px; text-align:left; }
+</style>
+
+
+<section id="babyAgingSystem" aria-label="Baby and child aging">
+  <h3>Baby & Child Life Stages</h3>
+  <p id="babyAgingStatus" role="status">
+    Adopted children keep their own saved state. Their age only changes when the player chooses to grow an adopted child up.
+  </p>
+  <div class="baby-aging-actions">
+    <button type="button" data-baby-action="edit-baby">👶 Edit adopted baby</button>
+    <button type="button" data-baby-action="grow-baby">🧒 Grow adopted baby</button>
+    <button type="button" data-baby-action="enroll-child">🏫 Enroll child in school</button>
+    <button type="button" data-baby-action="delete-baby">🗑️ Delete adopted baby</button>
+  </div>
+</section>
+<style>
+#babyAgingSystem { margin:1rem 0; padding:1rem; border:1px solid currentColor; border-radius:.75rem; }
+.baby-aging-actions { display:grid; gap:.5rem; }
+.baby-aging-actions button { min-height:44px; text-align:left; }
+</style>
+
 </main>
 
 <footer>
@@ -955,8 +957,8 @@
               act:"You step outside and take a deep breath of morning air.", mood:5, energy:2 },
             { icon:"📬", label:"Mailbox", desc:"A small mailbox mounted by the door.",
               act:"You check the mailbox.", mood:1, energy:0, opensMailbox:true },
-            { icon:"🧥", label:"Coat hook", desc:"A row of hooks with a jacket hanging on one.",
-              act:"You hang up your jacket and get comfortable.", mood:1, energy:1 }
+            { icon:"🧥", label:"Coat hook", desc:"A row of hooks for coats. You can use it when you are wearing a coat.",
+              act:"You hang up your coat and get comfortable.", mood:1, energy:1, requiresCoat:true }
           ]
         },
         {
@@ -967,14 +969,12 @@
               act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
             { icon:"🍳", label:"Stove", desc:"A stove with a kettle sitting on one burner. Bring ingredients from your backpack to cook something real.",
               act:"You step up to the stove.", mood:0, energy:0, opensCooking:true },
-            { icon:"🔥", label:"Oven", desc:"A small oven ready for baking cakes, pies, breads, and other treats.",
-              act:"You check the oven and get ready to bake.", mood:2, energy:0, opensCooking:true },
             { icon:"🥫", label:"Pantry", desc:"A pantry stocked with cans, pasta, and snacks.",
               act:"You grab a quick snack from the pantry.", mood:3, energy:5 },
             { icon:"🗄️", label:"Cabinet", desc:"A cabinet stacked with plates, bowls, and cups.",
               act:"You look over what dishes you have stocked.", mood:1, energy:0 },
-            { icon:"🪑", label:"Kitchen table", desc:"A table where meals can be served, shared, or left for later.",
-              act:"You check the kitchen table.", mood:2, energy:0, opensTable:true },
+            { icon:"🍽️", label:"Kitchen table", desc:"A table where meals can be served, shared, or left out for decoration.",
+              act:"You check the kitchen table.", mood:1, energy:0, opensServingTable:true },
             { icon:"🚰", label:"Kitchen sink", desc:"A sink with a bottle of dish soap beside it.",
               act:"You step up to the sink.", mood:0, energy:0, opensSink:true }
           ]
@@ -997,21 +997,10 @@
           hotspots: [
             { icon:"🛏️", label:"Bed", desc:"A neatly made bed with a striped blanket.",
               act:"You lie down for a short nap and feel your energy return.", mood:1, energy:20, setsPosture:"lying" },
-            { icon:"🚪", label:"Closet", desc:"A closet full of clothes, neatly hung up.",
-              act:"You pick out a fresh outfit for the day.", mood:3, energy:0 },
+            { icon:"🚪", label:"Closet", desc:"A closet full of clothes and shoes. Store things you buy here and access them whenever you want.",
+              act:"You open your bedroom closet.", mood:0, energy:0, opensCloset:true },
             { icon:"💡", label:"Nightstand", desc:"A nightstand with a lamp and a stack of books.",
-              act:"You read a page or two before setting the book down.", mood:4, energy:-1 },
-            { icon:"🗄️", label:"Trinket cabinet", desc:"A small cabinet for keepsakes, souvenirs, and other treasures that are not food or clothing.",
-              act:"You look through your collection of little treasures.", mood:2, energy:0, opensTrinketCabinet:true }
-          ]
-        },
-        {
-          id: "childroom", name: "Child's Room", icon: "🧸",
-          desc: "A room of their own with a bed, toys, and books.",
-          hotspots: [
-            { icon:"🛏️", label:"Child's bed", desc:"A cozy bed in the child's own room.", act:"You straighten the blankets and make the room cozy.", mood:3, energy:2 },
-            { icon:"🧸", label:"Toy shelf", desc:"A shelf for favorite toys and keepsakes.", act:"You look over the toys and smile at how much they've grown.", mood:4, energy:0 },
-            { icon:"📚", label:"Bookshelf", desc:"A small shelf of books for growing minds.", act:"You choose a book and read a few pages together.", mood:5, energy:-1 }
+              act:"You read a page or two before setting the book down.", mood:4, energy:-1 }
           ]
         },
         {
@@ -1035,9 +1024,7 @@
             { icon:"🌳", label:"Shade tree", desc:"A big tree that shades most of the yard.",
               act:"You lean against the tree and watch the clouds drift by.", mood:5, energy:0 },
             { icon:"🔥", label:"BBQ grill", desc:"An outdoor grill, cover folded back.",
-              act:"You fire up the grill and cook something simple outside.", mood:6, energy:-3 },
-            { icon:"🧱", label:"Yard planner", desc:"A grid where you can place paths, fences, flowers, trees, lights, and patio furniture.",
-              act:"You open the yard landscaping planner.", mood:2, energy:0, opensYardPlanner:true }
+              act:"You fire up the grill and cook something simple outside.", mood:6, energy:-3 }
           ]
         },
         {
@@ -1073,7 +1060,7 @@
           ] },
         { icon:"🛝", label:"Swings", desc:"Two empty swings creak gently in the breeze.",
           act:"You swing higher and higher, laughing.", mood:8, energy:-8 },
-        { icon:"🦆", label:"Pond", desc:"Ducks paddle across a still pond.",
+        { icon:"🦆", label:"Pond", desc:"Ducks paddle across a still pond.", skillId:"birdwatching",
           act:"You toss a few crumbs. The ducks paddle over eagerly.", mood:5, energy:0 }
       ]
     },
@@ -1236,7 +1223,22 @@
             { icon:"🍎", label:"Apples", useAct:"You bite into a crisp apple. Sweet and crunchy.", mood:3, energy:5 },
             { icon:"🍊", label:"Oranges", useAct:"You peel an orange and eat a juicy slice.", mood:3, energy:5 },
             { icon:"🍌", label:"Bananas", useAct:"You eat a banana. Soft and sweet.", mood:2, energy:6 },
-            { icon:"🍇", label:"Grapes", useAct:"You pop a few grapes in your mouth. Cool and sweet.", mood:3, energy:4 }
+            { icon:"🍇", label:"Grapes", useAct:"You pop a few grapes in your mouth. Cool and sweet.", mood:3, energy:4 },
+            { icon:"🍓", label:"Strawberries", useAct:"You eat a handful of sweet strawberries.", mood:4, energy:4, price:4 },
+            { icon:"🫐", label:"Blueberries", useAct:"You snack on fresh blueberries.", mood:4, energy:3, price:4 },
+            { icon:"🥕", label:"Carrots", useAct:"You crunch on a fresh carrot.", mood:2, energy:3, price:3 }
+          ] },
+        { icon:"🧈", label:"Dairy aisle", desc:"A chilled case with butter, milk, cheese, and cream.",
+          act:"You browse the dairy aisle.", mood:3, energy:1,
+          shopItems:[
+            { icon:"🧈", label:"Butter", useAct:"You add a pack of butter to your groceries.", mood:2, energy:0, price:4, consumable:false, storageType:"fridge" },
+            { icon:"🌾", label:"Flour", useAct:"You add a bag of flour to your groceries.", mood:1, energy:0, price:3, consumable:false, storageType:"pantry" },
+            { icon:"🍚", label:"Rice", useAct:"You add a bag of rice to your groceries.", mood:1, energy:0, price:3, consumable:false, storageType:"pantry" },
+            { icon:"🍬", label:"Sugar", useAct:"You add a bag of sugar to your groceries.", mood:1, energy:0, price:2, consumable:false, storageType:"pantry" },
+            { icon:"🫒", label:"Cooking oil", useAct:"You add a bottle of cooking oil to your groceries.", mood:1, energy:0, price:4, consumable:false, storageType:"pantry" },
+            { icon:"🥛", label:"Milk", useAct:"You add a carton of milk to your groceries.", mood:2, energy:0, price:3, consumable:false, storageType:"fridge" },
+            { icon:"🧀", label:"Cheddar cheese", useAct:"You add cheddar cheese to your groceries.", mood:3, energy:0, price:5, consumable:false, storageType:"fridge" },
+            { icon:"🥚", label:"Eggs", useAct:"You add a carton of eggs to your groceries.", mood:2, energy:0, price:4, consumable:false, storageType:"fridge" }
           ] },
         { icon:"🧑‍💼", label:"Cashier", desc:"The cashier is scanning items at the register.",
           act:"You pay for your groceries and chat for a moment.", mood:2, energy:-1 },
@@ -1313,8 +1315,6 @@
           act:"You trace a route across an old map with your finger.", mood:5, energy:-2 },
         { icon:"🪑", label:"Study desk", desc:"A wooden desk with a lamp and a stack of paper.",
           act:"You finish your homework and feel a weight lift.", mood:2, energy:-6 },
-        { icon:"📚", label:"Skill book shelf", desc:"A shelf of books that teach practical skills and reveal pieces of Sunny Town lore.",
-          act:"You browse the skill books.", mood:3, energy:-1, opensSkillBooks:true },
         { icon:"🤫", label:"Quiet corner", desc:"A hushed corner with a soft couch, perfect for resting.",
           act:"You close your eyes for a short, peaceful nap.", mood:1, energy:15, setsPosture:"lying" },
         { icon:"💼", label:"Clock in", desc:"A time clock behind the front desk.",
@@ -1328,16 +1328,18 @@
         { icon:"🐔", label:"Coop & pen", desc:"A coop and pen area where you collect products from whichever animals you own.",
           act:"You check the coop and pen for anything ready to collect.", mood:4, energy:-2, shopFree:true,
           dynamicAnimalProducts:true },
-        { icon:"🚜", label:"Tractor", desc:"An old green tractor parked by the field.",
-          act:"You climb up and take it for a slow ride around the field.", mood:8, energy:-5 },
+        { icon:"🚜", label:"Tractor", desc:"An old green tractor parked by the field. Practicing with it can improve Mechanics.",
+          act:"You practice driving and checking the tractor.", mood:5, energy:-5, skillId:"mechanics" },
+        { icon:"🔧", label:"Repair workshop", desc:"A workbench with tools and small farm machines that can be repaired. Practice here to improve Mechanics.",
+          act:"You inspect a machine, tighten a bolt, and make a careful repair.", mood:5, energy:-4, skillId:"mechanics" },
         { icon:"🥕", label:"Vegetable patch", desc:"Four garden plots, some empty, some growing.",
           act:"You crouch down by the garden plots.", mood:1, energy:-1, opensGarden:true },
         { icon:"🏚️", label:"Barn", desc:"A red barn that smells of hay and old wood.",
           act:"You step into the barn.", mood:1, energy:-1, opensBarn:true },
-        { icon:"🎣", label:"Pond dock", desc:"A small wooden dock over a still farm pond.",
-          act:"You cast a line and wait quietly for a bite.", mood:6, energy:-3, hobbySkill:"fishing" },
-        { icon:"🔧", label:"Workshop & repair bench", desc:"A small workshop with tools, spare parts, and machines waiting for repairs.",
-          act:"You inspect a machine, tighten a few fittings, and practice careful repairs.", mood:6, energy:-4, hobbySkill:"mechanics", skillPractice:"mechanics", skillGain:4 },
+        { icon:"🍎", label:"Orchard", desc:"A fenced patch of young fruit trees. Plant and care for trees here as your farm expands.",
+          act:"You walk through the orchard and inspect the fruit trees.", mood:4, energy:-1 },
+        { icon:"🎣", label:"Pond dock", desc:"A small wooden dock over a still farm pond. Fishing practice improves Fishing.",
+          act:"You cast a line and patiently practice fishing.", mood:6, energy:-3, skillId:"fishing" },
         { icon:"💼", label:"Clock in", desc:"A time clock mounted on the barn wall.",
           act:"You clock in for your shift.", mood:0, energy:0, jobId:"farmhand" }
       ]
@@ -1388,7 +1390,7 @@
         { icon:"🎥", label:"Theater seat", desc:"A plush reclining seat facing the big screen.",
           act:"You sink into your seat and watch the film.", mood:9, energy:-4, setsPosture:"sitting" },
         { icon:"🕹️", label:"Arcade corner", desc:"A couple of arcade machines blink in the lobby.",
-          act:"You play a round on the arcade machine.", mood:7, energy:-5, opensArcade:true },
+          act:"You play a round on the arcade machine.", mood:7, energy:-5 },
         { icon:"🖼️", label:"Lobby posters", desc:"Posters for upcoming movies line the lobby wall.",
           act:"You check out posters for movies coming soon.", mood:2, energy:0 },
         { icon:"💼", label:"Clock in", desc:"A time clock behind the concession counter.",
@@ -1505,21 +1507,20 @@
           desc: "Racks of clothes in every style, from cozy to formal.",
           hotspots: [
             { icon:"👗", label:"Outfit rack", desc:"A rack of outfits ready to try on. Buy one, then Use it from your backpack to actually wear it.",
-              act:"You browse the outfit rack.", mood:2, energy:0, shopCategory:"clothing",
+              act:"You browse the outfit rack.", mood:2, energy:0,
               shopItems:[
-                { icon:"✨", label:"Fancy outfit", gender:"unisex", useAct:"You change into your fancy outfit.", mood:7, energy:0, wearsOutfit:"fancy", price:15, storageType:"none" },
-                { icon:"🏃", label:"Sporty outfit", gender:"unisex", useAct:"You change into your sporty outfit.", mood:6, energy:0, wearsOutfit:"sporty", price:10, storageType:"none" },
-                { icon:"🧶", label:"Cozy outfit", gender:"unisex", useAct:"You change into your cozy outfit.", mood:6, energy:0, wearsOutfit:"cozy", price:8, storageType:"none" },
-                { icon:"🕰️", label:"Vintage outfit", gender:"unisex", useAct:"You change into your vintage outfit.", mood:7, energy:0, wearsOutfit:"vintage", price:12, storageType:"none" },
-                { icon:"🖤", label:"Punk outfit", gender:"unisex", useAct:"You change into your punk outfit.", mood:7, energy:0, wearsOutfit:"punk", price:12, storageType:"none" },{ icon:"🌸", label:"Floral dress", gender:"girls", useAct:"You change into your floral dress.", mood:7, energy:0, wearsOutfit:"floral", price:14, storageType:"none" },
-                { icon:"🎀", label:"Skirt and blouse", gender:"girls", useAct:"You change into your skirt and blouse.", mood:7, energy:0, wearsOutfit:"skirtblouse", price:13, storageType:"none" },
-                { icon:"👔", label:"Button-up and trousers", gender:"boys", useAct:"You change into your button-up and trousers.", mood:7, energy:0, wearsOutfit:"buttontrousers", price:13, storageType:"none" },
-                { icon:"🧥", label:"Casual jacket and jeans", gender:"boys", useAct:"You change into your casual jacket and jeans.", mood:6, energy:0, wearsOutfit:"jacketjeans", price:12, storageType:"none" },
-                { icon:"👖", label:"Jeans and T-shirt", gender:"unisex", useAct:"You change into jeans and a T-shirt.", mood:6, energy:0, wearsOutfit:"jeanstshirt", price:9, storageType:"none" },
-                { icon:"🧢", label:"Hoodie and joggers", gender:"unisex", useAct:"You change into your hoodie and joggers.", mood:6, energy:0, wearsOutfit:"hoodiejoggers", price:11, storageType:"none" },
-                { icon:"🌧️", label:"Rain jacket and pants", gender:"unisex", useAct:"You change into your rain jacket and pants.", mood:5, energy:0, wearsOutfit:"rainset", price:15, storageType:"none" },
-                { icon:"🩱", label:"Swim outfit", gender:"unisex", useAct:"You change into your swim outfit.", mood:6, energy:0, wearsOutfit:"swimwear", price:10, storageType:"none" },
-              ] },
+                { icon:"✨", label:"Fancy outfit", useAct:"You change into your fancy outfit.", mood:7, energy:0, wearsOutfit:"fancy", price:15, storageType:"none" },
+                { icon:"🏃", label:"Sporty outfit", useAct:"You change into your sporty outfit.", mood:6, energy:0, wearsOutfit:"sporty", price:10, storageType:"none" },
+                { icon:"🧶", label:"Cozy outfit", useAct:"You change into your cozy outfit.", mood:6, energy:0, wearsOutfit:"cozy", price:8, storageType:"none" },
+                { icon:"🕰️", label:"Vintage outfit", useAct:"You change into your vintage outfit.", mood:7, energy:0, wearsOutfit:"vintage", price:12, storageType:"none" },
+                { icon:"🖤", label:"Punk outfit", useAct:"You change into your punk outfit.", mood:7, energy:0, wearsOutfit:"punk", price:12, storageType:"none" },
+                 { icon:"🌸", label:"Floral dress", useAct:"You change into your floral dress.", mood:8, energy:0, wearsOutfit:"floral", price:18, storageType:"none" },
+                 { icon:"🎀", label:"Summer dress", useAct:"You change into your summer dress.", mood:8, energy:0, wearsOutfit:"summerdress", price:16, storageType:"none" },
+                 { icon:"🌙", label:"Evening dress", useAct:"You change into your evening dress.", mood:9, energy:0, wearsOutfit:"eveningdress", price:22, storageType:"none" },
+                { icon:"🌷", label:"Garden dress", useAct:"You change into your garden dress.", mood:8, energy:0, wearsOutfit:"gardendress", price:17, storageType:"none" },
+                { icon:"💗", label:"Pink party dress", useAct:"You change into your pink party dress.", mood:9, energy:0, wearsOutfit:"pinkparty", price:24, storageType:"none" },
+                { icon:"🌊", label:"Ocean dress", useAct:"You change into your ocean-blue dress.", mood:8, energy:0, wearsOutfit:"oceandress", price:20, storageType:"none" },
+                { icon:"👑", label:"Royal dress", useAct:"You change into your royal dress.", mood:10, energy:0, wearsOutfit:"royaldress", price:35, storageType:"none" },              ] },
             { icon:"🪞", label:"Fitting room mirror", desc:"A tall mirror in the fitting room.",
               act:"You check yourself out in the mirror. Looking good.", mood:4, energy:0 }
           ]
@@ -1529,17 +1530,17 @@
           desc: "Wall-to-wall shelves of shoes for every occasion.",
           hotspots: [
             { icon:"👟", label:"Shoe wall", desc:"A wall of shoes. Buy a pair, then Use them from your backpack to put them on.",
-              act:"You browse the shoe wall.", mood:2, energy:0, shopCategory:"shoes",
+              act:"You browse the shoe wall.", mood:2, energy:0,
               shopItems:[
-                { icon:"🥾", label:"Boots", gender:"unisex", useAct:"You lace up your new boots.", mood:6, energy:0, wearsShoes:"boots", price:10, storageType:"none" },
-                { icon:"👠", label:"Heels", gender:"girls", useAct:"You slip into your new heels.", mood:6, energy:0, wearsShoes:"heels", price:12, storageType:"none" },
-                { icon:"🩴", label:"Sandals", gender:"unisex", useAct:"You slide into your new sandals.", mood:5, energy:0, wearsShoes:"sandals", price:6, storageType:"none" },
-                { icon:"👞", label:"Dress shoes", gender:"boys", useAct:"You put on your new dress shoes.", mood:6, energy:0, wearsShoes:"dressshoes", price:14, storageType:"none" },
-                { icon:"🌧️", label:"Rain boots", gender:"unisex", useAct:"You pull on your new rain boots.", mood:5, energy:0, wearsShoes:"rainboots", price:9, storageType:"none" },{ icon:"👟", label:"Canvas sneakers", gender:"unisex", useAct:"You put on your canvas sneakers.", mood:5, energy:0, wearsShoes:"canvassneakers", price:8, storageType:"none" },
-                { icon:"🥾", label:"Hiking boots", gender:"unisex", useAct:"You lace up your hiking boots.", mood:5, energy:0, wearsShoes:"hikingboots", price:16, storageType:"none" },
-                { icon:"🥿", label:"Ballet flats", gender:"girls", useAct:"You slip into your ballet flats.", mood:6, energy:0, wearsShoes:"balletflats", price:9, storageType:"none" },
-                { icon:"👞", label:"Loafers", gender:"boys", useAct:"You put on your new loafers.", mood:6, energy:0, wearsShoes:"loafers", price:11, storageType:"none" },
-              ] }
+                { icon:"🥾", label:"Boots", useAct:"You lace up your new boots.", mood:6, energy:0, wearsShoes:"boots", price:10, storageType:"none" },
+                { icon:"👠", label:"Heels", useAct:"You slip into your new heels.", mood:6, energy:0, wearsShoes:"heels", price:12, storageType:"none" },
+                { icon:"🩴", label:"Sandals", useAct:"You slide into your new sandals.", mood:5, energy:0, wearsShoes:"sandals", price:6, storageType:"none" },
+                { icon:"👞", label:"Dress shoes", useAct:"You put on your new dress shoes.", mood:6, energy:0, wearsShoes:"dressshoes", price:14, storageType:"none" },
+                { icon:"🌧️", label:"Rain boots", useAct:"You pull on your new rain boots.", mood:5, energy:0, wearsShoes:"rainboots", price:9, storageType:"none" },
+                { icon:"👟", label:"Canvas sneakers", useAct:"You lace up your canvas sneakers.", mood:5, energy:0, wearsShoes:"canvas", price:8, storageType:"none" },
+                { icon:"🥿", label:"Ballet flats", useAct:"You slip into your ballet flats.", mood:6, energy:0, wearsShoes:"balletflats", price:11, storageType:"none" },
+                { icon:"🥾", label:"Hiking shoes", useAct:"You put on your sturdy hiking shoes.", mood:5, energy:0, wearsShoes:"hikingshoes", price:13, storageType:"none" },
+                { icon:"🥿", label:"Mary Jane shoes", useAct:"You buckle your Mary Jane shoes.", mood:6, energy:0, wearsShoes:"maryjanes", price:12, storageType:"none" },              ] }
           ]
         },
         {
@@ -1553,7 +1554,11 @@
                 { icon:"💎", label:"Earrings", useAct:"You put on your new earrings.", mood:5, energy:0, wearsAccessory:"earrings", price:6, storageType:"none" },
                 { icon:"💍", label:"Ring", useAct:"You slide on your new ring.", mood:5, energy:0, wearsAccessory:"ring", price:10, storageType:"none" },
                 { icon:"⌚", label:"Watch", useAct:"You fasten your new watch on your wrist.", mood:5, energy:0, wearsAccessory:"watch", price:15, storageType:"none" },
-                { icon:"🔒", label:"Locket", useAct:"You put on your new locket.", mood:6, energy:0, wearsAccessory:"locket", price:9, storageType:"none" },              ] }
+                { icon:"🔒", label:"Locket", useAct:"You put on your new locket.", mood:6, energy:0, wearsAccessory:"locket", price:9, storageType:"none" },
+                { icon:"🪙", label:"Charm bracelet", useAct:"You fasten a charm bracelet around your wrist.", mood:6, energy:0, wearsAccessory:"bracelet", price:12, storageType:"none" },
+                { icon:"🦋", label:"Hair clip", useAct:"You add a pretty hair clip.", mood:5, energy:0, wearsAccessory:"hairclip", price:5, storageType:"none" },
+                { icon:"💎", label:"Tiara", useAct:"You place a sparkling tiara in your hair.", mood:8, energy:0, wearsAccessory:"tiara", price:20, storageType:"none" },
+                { icon:"🧿", label:"Friendship charm", useAct:"You put on your little friendship charm.", mood:6, energy:0, wearsAccessory:"friendshipcharm", price:7, storageType:"none" },              ] }
           ]
         },
         {
@@ -1568,6 +1573,34 @@
                 { icon:"🧩", label:"Puzzle", useAct:"You work on a few pieces of your puzzle.", mood:5, energy:-2, consumable:false, storageType:"none", price:6 },
                 { icon:"🎲", label:"Board game", useAct:"You set up your board game and play a round.", mood:7, energy:-3, consumable:false, storageType:"none", price:12 }
               ] }
+          ]
+        },
+        {
+          id: "hairsalon", name: "Hair Salon", icon: "💇",
+          desc: "A bright salon with mirrors, styling chairs, and shelves of hair accessories.",
+          hotspots: [
+            { icon:"💇", label:"Styling chair", desc:"Choose a hairstyle from the salon menu.", act:"You sit in the styling chair.", mood:2, energy:0, opensHairSalon:true },
+            { icon:"🪞", label:"Salon mirror", desc:"A large mirror where you can check your finished style.", act:"You check your hairstyle in the mirror.", mood:4, energy:0 },
+            { icon:"🎀", label:"Hair accessories", desc:"Clips, bows, scrunchies, and headbands.", act:"You browse the hair accessories.", mood:3, energy:0, shopItems:[
+              {icon:"🎀",label:"Pink scrunchie",useAct:"You add a pink scrunchie to your hair.",mood:4,energy:0,consumable:false,storageType:"none",price:4},
+              {icon:"🌸",label:"Flower hair clip",useAct:"You clip a little flower into your hair.",mood:5,energy:0,consumable:false,storageType:"none",price:6},
+              {icon:"✨",label:"Sparkly headband",useAct:"You put on a sparkly headband.",mood:5,energy:0,consumable:false,storageType:"none",price:8}
+            ]}
+          ]
+        },
+        {
+          id: "petstore", name: "Pet Store", icon: "🐾",
+          desc: "A cheerful pet shop with animals, food, toys, beds, and grooming supplies.",
+          hotspots: [
+            { icon:"🐾", label:"Pet adoption desk", desc:"Choose a companion to adopt. Your Pet Corner at home unlocks when you have a pet.", act:"You browse the pets waiting for homes.", mood:3, energy:0, opensPetStore:true },
+            { icon:"🛍️", label:"Pet supplies shelf", desc:"Food, toys, beds, brushes, and bowls for pets you already own.", act:"You browse the pet supplies.", mood:2, energy:0, shopItems:[
+              {icon:"🦴",label:"Dog treats",useAct:"You bought dog treats for your pet.",mood:2,energy:0,consumable:false,storageType:"none",price:3},
+              {icon:"🐟",label:"Fish food",useAct:"You bought fish food for your pet.",mood:2,energy:0,consumable:false,storageType:"none",price:3},
+              {icon:"🧶",label:"Pet toy",useAct:"You bought a fun toy for your pet.",mood:3,energy:0,consumable:false,storageType:"none",price:5},
+              {icon:"🛏️",label:"Pet bed",useAct:"You bought a cozy pet bed.",mood:4,energy:0,consumable:false,storageType:"none",price:8},
+              {icon:"🪮",label:"Grooming brush",useAct:"You bought a grooming brush.",mood:2,energy:0,consumable:false,storageType:"none",price:4},
+              {icon:"🥣",label:"Pet bowl",useAct:"You bought a pet bowl.",mood:2,energy:0,consumable:false,storageType:"none",price:4}
+            ]}
           ]
         },
         {
@@ -1605,8 +1638,7 @@
     fridge: [],
     pantry: [],
     cabinet: [],
-    tableFood: [],
-    trinketCabinet: [],
+    table: [],
     character: {
       id: null,
       createdAt: null,
@@ -1659,18 +1691,18 @@
     casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes",
     formal:"a formal suit", traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing",
     swimwear:"swimwear", pajamas:"pajamas", wintercoat:"a winter coat", raincoat:"a raincoat",
-    uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing"
+    uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing", floral:"a floral dress", summerdress:"a summer dress", eveningdress:"an evening dress", gardendress:"a garden dress", pinkparty:"a pink party dress", oceandress:"an ocean-blue dress", royaldress:"a royal dress"
   };
   const shoesLabels = {
     sneakers:"sneakers", boots:"boots", sandals:"sandals", flipflops:"flip-flops", flats:"flats",
-    heels:"heels", dressshoes:"dress shoes", rainboots:"rain boots", slippers:"slippers", cleats:"cleats",
+    heels:"heels", dressshoes:"dress shoes", rainboots:"rain boots", canvas:"canvas sneakers", balletflats:"ballet flats", hikingshoes:"hiking shoes", maryjanes:"Mary Jane shoes", slippers:"slippers", cleats:"cleats",
     sandalsorthopedic:"orthopedic shoes", barefoot:"no shoes"
   };
   const mobilityLabels = {
     none: "", wheelchair:"gets around using a wheelchair", cane:"walks with a cane",
     whitecane:"uses a white cane", prosthetic:"has a prosthetic leg", guidedog:"is accompanied by a guide dog"
   };
-  const ageLabels = {baby:"a baby", toddler:"a toddler", kid:"a kid", teen:"a teen", adult:"an adult", elder:"an elder"};
+  const ageLabels = {kid:"a kid", teen:"a teen", adult:"an adult", elder:"an elder"};
   const bodyTypeLabels = {slim:"slim", average:"average build", athletic:"athletic", plussize:"plus-size"};
   const facialHairLabels = {none:"", stubble:"light stubble", mustache:"a mustache", beard:"a beard", fullbeard:"a full beard"};
   const accessoryLabels = {
@@ -1690,8 +1722,7 @@
     knitting:"knitting", painting:"painting", theater:"theater", collecting:"collecting things",
     volunteering:"volunteering", astronomy:"astronomy", cycling:"cycling", skating:"skating",
     surfing:"surfing", woodworking:"woodworking", sewing:"sewing", podcasting:"podcasting",
-    filmmaking:"filmmaking", martialarts:"martial arts", boardgames:"board games", pottery:"pottery",
-    coding:"coding", journaling:"journaling", robotics:"robotics", calligraphy:"calligraphy"
+    filmmaking:"filmmaking", martialarts:"martial arts", boardgames:"board games"
   };
   const noHairColorStyles = ["bald","headscarf","turban"];
 
@@ -1758,15 +1789,13 @@
       const btn = document.createElement('button');
       btn.textContent = `${room.icon} ${room.name}`;
       btn.setAttribute('aria-current', i === idx ? "true" : "false");
-      const lockedChildRoom = room.id === 'childroom' && !hasGrownAdoptedChild();
-      btn.disabled = lockedChildRoom;
-      if (lockedChildRoom) btn.setAttribute('aria-label', "Child's Room. Locked until an adopted child grows into a kid.");
-      btn.addEventListener('click', () => { if (!lockedChildRoom) goToRoom(i); });
+      btn.addEventListener('click', () => goToRoom(i));
       nav.appendChild(btn);
     });
   }
 
   function goToRoom(i){
+    closeTransientPanels();
     state.roomIndexByScene[state.sceneIndex] = i;
     state.focusIndex = 0;
     renderScene(true);
@@ -1813,6 +1842,10 @@
       btn.setAttribute('aria-pressed', 'false');
       let displayLabel = h.label;
       let displayDesc = h.desc;
+      if (h.opensPets && !state.pets.length){
+        displayLabel = "Pet Corner (locked)";
+        displayDesc = "Your Pet Corner unlocks when you adopt a pet from the Pet Store.";
+      }
       if (h.jobId && state.character.activeShift && state.character.activeShift.jobId === h.jobId){
         const job = jobRegistry[h.jobId];
         const minutesSoFar = Math.min(MAX_SHIFT_MINUTES, (Date.now() - state.character.activeShift.clockedInAt) / 60000);
@@ -1893,12 +1926,36 @@
       useBtn.setAttribute('aria-label', isDirty ? `${item.label} is dirty and needs washing` : `${isWearable ? 'Wear' : 'Use'} ${item.label}: ${item.useAct}`);
       useBtn.addEventListener('click', () => useItem(item.uid));
       actions.appendChild(useBtn);
+      if (item.cooked){
+        const serveBtn=document.createElement('button'); serveBtn.textContent='Serve'; serveBtn.setAttribute('aria-label',`Serve ${item.label}`); serveBtn.addEventListener('click',()=>openServingFor(item.uid)); actions.appendChild(serveBtn);
+      }
+      if (item.bouquet){
+        const sellBtn = document.createElement('button');
+        sellBtn.textContent = 'Sell $4';
+        sellBtn.setAttribute('aria-label', `Sell ${item.label} for 4 dollars`);
+        sellBtn.addEventListener('click', () => {
+          state.money += 4; state.inventory.splice(state.inventory.findIndex(x => x.uid === item.uid),1);
+          updateWallet(); renderInventory(); persistStorage();
+          logEntry(`💰 Sold ${item.label} for $4.`); speak(`You sold the ${item.label} for 4 dollars.`);
+        });
+        actions.appendChild(sellBtn);
+      }
+      if (isWearable){
+        const closetBtn=document.createElement('button'); closetBtn.textContent='Put in closet';
+        closetBtn.setAttribute('aria-label',`Put ${item.label} in the bedroom closet`); closetBtn.addEventListener('click',()=>putInCloset(item.uid)); actions.appendChild(closetBtn);
+      }
       if (item.storageType === 'cabinet'){
         const cabinetBtn = document.createElement('button');
         cabinetBtn.textContent = 'Put in cabinet';
         cabinetBtn.setAttribute('aria-label', `Put ${item.label} in the cabinet at home`);
         cabinetBtn.addEventListener('click', () => putInCabinet(item.uid));
         actions.appendChild(cabinetBtn);
+      } else if (item.storageType === 'pantry'){
+        const pantryBtn = document.createElement('button');
+        pantryBtn.textContent = 'Put in pantry';
+        pantryBtn.setAttribute('aria-label', `Put ${item.label} in the pantry at home`);
+        pantryBtn.addEventListener('click', () => putInPantry(item.uid));
+        actions.appendChild(pantryBtn);
       } else if (item.storageType !== 'none'){
         const fridgeBtn = document.createElement('button');
         fridgeBtn.textContent = 'Put in fridge';
@@ -1936,7 +1993,6 @@
     });
   }
 
-  // Pantry stores shelf-stable foods and cooked dishes.
   function renderCabinet(){
     const list = document.getElementById('cabinetList');
     list.innerHTML = "";
@@ -1974,8 +2030,8 @@
     state.character.fridge = state.fridge;
     state.character.pantry = state.pantry;
     state.character.cabinet = state.cabinet;
-    state.character.tableFood = state.tableFood;
-    state.character.trinketCabinet = state.trinketCabinet;
+    state.character.table = state.table;
+    state.character.closet = state.closet;
     saveCharacterToStorage(state.character);
     const idx = cachedRoster.findIndex(x => x.id === state.character.id);
     if (idx >= 0){
@@ -1983,10 +2039,44 @@
       cachedRoster[idx].fridge = state.fridge;
       cachedRoster[idx].pantry = state.pantry;
       cachedRoster[idx].cabinet = state.cabinet;
-      cachedRoster[idx].tableFood = state.tableFood;
-      cachedRoster[idx].trinketCabinet = state.trinketCabinet;
+      cachedRoster[idx].table = state.table;
+      cachedRoster[idx].closet = state.closet;
     }
   }
+
+  /* ---------- pantry ---------- */
+  function renderPantry(){
+    const lists = [document.getElementById('pantryList'), document.getElementById('pantryListSide')].filter(Boolean);
+    lists.forEach(list => {
+      list.innerHTML = "";
+      if (!state.pantry.length){
+        const li=document.createElement('li'); li.className='empty-msg'; li.textContent='The pantry is empty.'; list.appendChild(li); return;
+      }
+      state.pantry.forEach(item=>{
+        const li=document.createElement('li');
+        const span=document.createElement('span'); span.textContent=`${item.icon} ${item.label}`;
+        const btn=document.createElement('button'); btn.textContent='Take out';
+        btn.setAttribute('aria-label',`Take ${item.label} out of the pantry and put it in your backpack`);
+        btn.onclick=()=>{ const i=state.pantry.findIndex(x=>x.uid===item.uid); if(i<0)return; state.inventory.push(state.pantry.splice(i,1)[0]); renderPantry(); renderInventory(); persistStorage(); speak(`You take ${item.label} out of the pantry.`); };
+        li.appendChild(span); li.appendChild(btn); list.appendChild(li);
+      });
+    });
+  }
+  function putInPantry(uid){
+    if(!isHomeScene()){ speak("You need to be in the Kitchen at Home to use the pantry."); return; }
+    const i=state.inventory.findIndex(x=>x.uid===uid); if(i<0)return;
+    const item=state.inventory[i];
+    if(item.storageType!=='pantry'){ speak(`${item.label} belongs in the fridge or another storage place, not the pantry.`); return; }
+    state.pantry.push(state.inventory.splice(i,1)[0]); renderPantry(); renderInventory(); persistStorage();
+    logEntry(`🥫 Put in pantry: ${item.icon} ${item.label}`); speak(`You put ${item.label} in the pantry.`);
+  }
+  function takeOutOfPantry(uid){
+    const i=state.pantry.findIndex(x=>x.uid===uid); if(i<0)return;
+    state.inventory.push(state.pantry.splice(i,1)[0]); renderPantry(); renderInventory(); persistStorage();
+    speak("You take the item out of the pantry and put it in your backpack.");
+  }
+  function openPantryPanel(){ if(!isHomeScene()){speak("You need to be in the Kitchen at Home to use the pantry.");return;} closeTransientPanels(); document.getElementById('pantryPanel').classList.remove('hidden'); renderPantry(); document.getElementById('pantryCloseBtn').focus(); speak(`Pantry. ${state.pantry.length ? state.pantry.length+' stored items.' : 'It is empty.'}`); }
+  document.getElementById('pantryCloseBtn').addEventListener('click',()=>document.getElementById('pantryPanel').classList.add('hidden'));
 
   /* ---------- kitchen sink: washing dirty dishes ---------- */
   function washDish(uid){
@@ -2049,99 +2139,63 @@
   }
   document.getElementById('sinkCloseBtn').addEventListener('click', closeSink);
 
-  /* ---------- mailbox & pen pals ---------- */
-  function makeMailId(){ return 'm' + Date.now() + Math.random().toString(36).slice(2, 8); }
-
-  function mailItemTemplate(item){
-    return { icon:item.icon || '📦', label:item.label || 'Package item', mood:Number(item.mood || 0), energy:Number(item.energy || 0), consumable:item.consumable !== false, storageType:item.storageType || 'none' };
-  }
-
+  /* ---------- mailbox ---------- */
   function deleteMailMessage(mailId){
     state.character.mail = (state.character.mail || []).filter(m => m.id !== mailId);
     persistCharacterAppearance();
     renderMailbox();
   }
 
-  function markMailRead(mailId){
-    const msg = (state.character.mail || []).find(m => m.id === mailId);
-    if (!msg) return;
-    msg.read = true;
-    persistCharacterAppearance();
-    renderMailbox();
-    speak(`${msg.subject}. ${msg.body}`);
-  }
-
-  function claimMailPackage(mailId){
-    const msg = (state.character.mail || []).find(m => m.id === mailId);
-    if (!msg || msg.category !== 'package' || msg.claimed) return;
-    const items = Array.isArray(msg.items) ? msg.items : [];
-    if (!items.length){ speak("That package doesn't contain anything to claim."); return; }
-    items.forEach(item => grantItem(mailItemTemplate(item)));
-    msg.claimed = true; msg.read = true;
-    persistCharacterAppearance(); renderMailbox();
-    const labels = items.map(i => `${i.icon || '📦'} ${i.label || 'item'}`).join(', ');
-    logEntry(`📦 Claimed a package: ${labels}.`);
-    speak(`You open the package and put ${labels} in your backpack.`);
-  }
-
-  function answerMailRequest(mailId, accepted){
-    const msg = (state.character.mail || []).find(m => m.id === mailId);
-    if (!msg || msg.category !== 'request' || msg.resolved) return;
-    if (accepted){
-      const reward = Number(msg.reward || 0);
-      if (reward) state.money += reward;
-      if (Array.isArray(msg.rewardItems)) msg.rewardItems.forEach(item => grantItem(mailItemTemplate(item)));
-      updateWallet();
-      logEntry(`🆘 Helped with a mailbox request${reward ? ` and earned $${reward}` : ''}.`);
-      speak(msg.successText || `You help with the request. ${reward ? `You receive $${reward}.` : 'They are grateful for your help.'}`);
-    } else {
-      logEntry('🆘 Declined a mailbox request.');
-      speak(msg.declineText || 'You politely decline the request for now.');
-    }
-    msg.resolved = true; msg.read = true;
-    persistCharacterAppearance(); renderMailbox();
-  }
-
   function renderMailbox(){
     const list = document.getElementById('mailboxList');
-    list.innerHTML = '';
+    list.innerHTML = "";
     const mail = state.character.mail || [];
     if (!mail.length){
       const li = document.createElement('li');
-      li.textContent = 'Nothing in your mailbox right now. Check back later for letters, packages, or requests.';
-      list.appendChild(li); return;
+      li.textContent = "Nothing in your mailbox right now.";
+      list.appendChild(li);
+      return;
     }
     mail.forEach(msg => {
       const li = document.createElement('li');
-      const info = document.createElement('div'); info.className = 'farm-item-info';
-      const when = new Date(msg.at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-      const sender = msg.from ? `From: ${msg.from}` : '';
-      const status = msg.claimed ? ' (claimed)' : (msg.resolved ? ' (resolved)' : (msg.read ? '' : ' (new)'));
-      info.innerHTML = `<strong>${msg.icon || '✉️'} ${msg.subject}${status}</strong>${sender ? `<span>${sender}</span>` : ''}<span>${msg.body}</span><span>${when}</span>`;
-      const actions = document.createElement('div'); actions.className='farm-item-actions';
-      if (msg.category === 'letter'){ const b=document.createElement('button'); b.textContent='Read'; b.addEventListener('click',()=>markMailRead(msg.id)); actions.appendChild(b); }
-      if (msg.category === 'package' && !msg.claimed){ const b=document.createElement('button'); b.textContent='Claim package'; b.addEventListener('click',()=>claimMailPackage(msg.id)); actions.appendChild(b); }
-      if (msg.category === 'request' && !msg.resolved){
-        const h=document.createElement('button'); h.textContent='Help'; h.addEventListener('click',()=>answerMailRequest(msg.id,true));
-        const d=document.createElement('button'); d.textContent='Decline'; d.addEventListener('click',()=>answerMailRequest(msg.id,false));
-        actions.appendChild(h); actions.appendChild(d);
-      }
-      const del=document.createElement('button'); del.textContent='Delete'; del.addEventListener('click',()=>deleteMailMessage(msg.id)); actions.appendChild(del);
-      li.appendChild(info); li.appendChild(actions); list.appendChild(li);
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const when = new Date(msg.at).toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+      info.innerHTML = `<strong>${msg.icon} ${msg.subject}${msg.read ? "" : " (new)"}</strong><span>${msg.body}</span><span>${when}</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => deleteMailMessage(msg.id));
+      actions.appendChild(delBtn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
     });
   }
 
   function openMailbox(){
-    document.getElementById('mailboxPanel').classList.remove('hidden'); renderMailbox();
-    const mail=state.character.mail || [], unread=mail.filter(m=>!m.read);
-    if(unread.length){ speak(`Your mailbox. ${unread.length} new ${unread.length===1?'message':'messages'}.`); unread.forEach(m=>m.read=true); persistCharacterAppearance(); }
-    else speak(mail.length ? 'Your mailbox. Nothing new.' : 'Your mailbox is empty. Check back later for letters, packages, or requests.');
-    const firstBtn=document.querySelector('#mailboxList button'); if(firstBtn) firstBtn.focus(); else document.getElementById('mailboxCloseBtn').focus();
+    document.getElementById('mailboxPanel').classList.remove('hidden');
+    renderMailbox();
+    const mail = state.character.mail || [];
+    const unread = mail.filter(m => !m.read);
+    if (unread.length){
+      speak(`Your mailbox. ${unread.length} new ${unread.length === 1 ? 'message' : 'messages'}.`);
+      unread.forEach(m => { m.read = true; });
+      persistCharacterAppearance();
+    } else {
+      speak(mail.length ? "Your mailbox. Nothing new." : "Your mailbox is empty.");
+    }
+    const firstBtn = document.querySelector('#mailboxList button');
+    if (firstBtn) firstBtn.focus(); else document.getElementById('mailboxCloseBtn').focus();
   }
 
   function closeMailbox(){
     document.getElementById('mailboxPanel').classList.add('hidden');
-    requestAnimationFrame(()=>{ const active=document.querySelector('.hotspot[tabindex="0"]')||document.querySelector('.hotspot'); if(active) active.focus(); });
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
   }
   document.getElementById('mailboxCloseBtn').addEventListener('click', closeMailbox);
 
@@ -2209,6 +2263,30 @@
     persistStorage();
   }
 
+  function renderCloset(){
+    const list=document.getElementById('closetList'); if(!list)return; list.innerHTML='';
+    if(!state.closet.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='Your closet is empty. Put clothes or shoes here from your backpack.'; list.appendChild(li); return; }
+    state.closet.forEach(item=>{
+      const li=document.createElement('li'); const span=document.createElement('span'); span.textContent=`${item.icon} ${item.label}`;
+      const wear=document.createElement('button'); wear.textContent='Wear'; wear.setAttribute('aria-label',`Wear ${item.label}`); wear.onclick=()=>wearStoredClothing(item.uid);
+      const take=document.createElement('button'); take.textContent='Take out'; take.setAttribute('aria-label',`Take ${item.label} out of the closet`); take.onclick=()=>{const i=state.closet.findIndex(x=>x.uid===item.uid); if(i<0)return; state.inventory.push(state.closet.splice(i,1)[0]); renderCloset(); renderInventory(); persistStorage(); speak(`You take ${item.label} out of the closet and put it in your backpack.`);};
+      li.append(span,wear,take); list.appendChild(li);
+    });
+  }
+  function putInCloset(uid){
+    const i=state.inventory.findIndex(x=>x.uid===uid); if(i<0)return; const item=state.inventory[i];
+    if(!(item.wearsOutfit||item.wearsShoes||item.wearsAccessory)){speak(`${item.label} doesn't belong in the clothing closet.`);return;}
+    state.closet.push(state.inventory.splice(i,1)[0]); renderInventory(); renderCloset(); persistStorage(); logEntry(`👗 Put ${item.label} in the closet.`); speak(`You put ${item.label} in your closet.`);
+  }
+  function wearStoredClothing(uid){
+    const item=state.closet.find(x=>x.uid===uid); if(!item)return;
+    if(item.wearsOutfit) state.character.outfit=item.wearsOutfit; if(item.wearsShoes) state.character.shoes=item.wearsShoes;
+    if(item.wearsAccessory && !state.character.accessories.includes(item.wearsAccessory)) state.character.accessories.push(item.wearsAccessory);
+    updateMeters(); persistCharacterAppearance(); renderCloset(); logEntry(`👗 Wore ${item.label}.`); speak(`You wear ${item.label}. You're now wearing ${item.wearsOutfit ? outfitLabels[item.wearsOutfit] : shoesLabels[item.wearsShoes]}.`);
+  }
+  function openClosetPanel(){ closeTransientPanels(); renderCloset(); const p=document.getElementById('closetPanel'); p.classList.remove('hidden'); document.getElementById('closetCloseBtn').focus(); speak(`Bedroom closet. ${state.closet.length ? state.closet.length+' stored items.' : 'It is empty.'}`); }
+  document.getElementById('closetCloseBtn').addEventListener('click',()=>document.getElementById('closetPanel').classList.add('hidden'));
+
   function persistCharacterAppearance(){
     if (!state.hasCreatedCharacter || !state.character.id) return;
     saveCharacterToStorage(state.character);
@@ -2222,6 +2300,12 @@
     const item = state.inventory[idx];
     if (item.storageType === 'cabinet' && item.dirty){
       speak(`${item.label} is dirty and needs washing before you can use it again. Try the kitchen sink.`);
+      return;
+    }
+    if (item.bouquet){
+      state.mood += 3; updateMeters();
+      logEntry(`💐 You arrange the ${item.label} as a decoration.`);
+      speak(`You can keep the ${item.label}, give it to another character, place it on the kitchen table, or sell it later. For now, it stays in your backpack.`);
       return;
     }
     if (item.wearsOutfit){
@@ -2302,80 +2386,6 @@
     setPosture('lying');
   });
 
-  /* ---------- arcade + bedroom trinket cabinet ---------- */
-  const arcadePrizes = [
-    { icon:"🧸", label:"Tiny plush bear", useAct:"You squeeze your tiny arcade plush and smile.", mood:5, energy:0, trinket:true },
-    { icon:"🪀", label:"Colorful yo-yo", useAct:"You play with your colorful yo-yo for a moment.", mood:4, energy:0, trinket:true },
-    { icon:"🧿", label:"Lucky charm", useAct:"You rub your lucky charm and make a tiny wish.", mood:5, energy:0, trinket:true },
-    { icon:"🏆", label:"Mini arcade trophy", useAct:"You admire the little trophy you won at the arcade.", mood:6, energy:0, trinket:true }
-  ];
-
-  function openArcade(){
-    const panel=document.getElementById('arcadePanel');
-    panel.classList.remove('hidden');
-    renderArcade();
-    speak(`Arcade. Each game costs 2 dollars. Win a prize and it will be added to your trinket cabinet.`);
-    document.getElementById('arcadePlayBtn').focus();
-  }
-  function renderArcade(){
-    document.getElementById('arcadeStatus').textContent=`You have $${state.money}. Prizes you've won are kept in your bedroom trinket cabinet.`;
-    const list=document.getElementById('arcadePrizeList'); list.innerHTML='';
-    const li=document.createElement('li'); li.textContent='Win chance: 1 in 3. Every win gives you a permanent collectible prize.'; list.appendChild(li);
-  }
-  function playArcade(){
-    if(state.money<2){ speak(`A game costs 2 dollars, but you only have $${state.money}.`); return; }
-    state.money-=2; updateWallet();
-    state.energy=Math.max(0,state.energy-4); state.mood=Math.min(100,state.mood+3); updateMeters();
-    if(Math.random()<1/3){
-      const prize={...arcadePrizes[Math.floor(Math.random()*arcadePrizes.length)],uid:'t'+Date.now()+Math.random().toString(36).slice(2,6)};
-      state.trinketCabinet.push(prize);
-      logEntry(`🕹️ You won ${prize.icon} ${prize.label} at the arcade!`);
-      speak(`You win! You got ${prize.label}. It is safely stored in your trinket cabinet.`);
-      persistStorage(); renderTrinketCabinet();
-    } else {
-      logEntry('🕹️ Played an arcade game and missed the jackpot.');
-      speak("You play hard, but don't win a prize this time. Try again if you want!");
-    }
-    renderArcade();
-  }
-  function isTrinketEligible(item){
-    return !item.food && !item.wearsOutfit && !item.wearsShoes && !item.wearsAccessory && item.storageType !== 'cabinet';
-  }
-  function openTrinketCabinet(){
-    const panel=document.getElementById('trinketPanel'); panel.classList.remove('hidden');
-    renderTrinketCabinet();
-    speak("Trinket cabinet. This is for keepsakes, souvenirs, arcade prizes, and other treasures.");
-    document.getElementById('trinketCloseBtn').focus();
-  }
-  function renderTrinketCabinet(){
-    const list=document.getElementById('trinketList'); list.innerHTML='';
-    const available=state.inventory.filter(isTrinketEligible);
-    if(available.length){
-      const heading=document.createElement('li'); heading.textContent='From your backpack — choose a treasure to store:'; list.appendChild(heading);
-      available.forEach(item=>{
-        const li=document.createElement('li'); const info=document.createElement('div'); info.className='farm-item-info';
-        info.innerHTML=`<strong>${item.icon} ${item.label}</strong><span>Not food or clothing — safe to keep as a trinket.</span>`;
-        const btn=document.createElement('button'); btn.textContent='Store here'; btn.addEventListener('click',()=>{
-          const idx=state.inventory.findIndex(x=>x.uid===item.uid); if(idx<0)return;
-          const stored=state.inventory.splice(idx,1)[0]; state.trinketCabinet.push(stored); persistStorage(); renderInventory(); renderTrinketCabinet(); speak(`You put ${stored.label} in the trinket cabinet.`);
-        }); li.appendChild(info); li.appendChild(btn); list.appendChild(li);
-      });
-    }
-    if(!state.trinketCabinet.length){ const li=document.createElement('li'); li.textContent='Your trinket cabinet is empty.'; list.appendChild(li); return; }
-    state.trinketCabinet.forEach(item=>{
-      const li=document.createElement('li'); const info=document.createElement('div'); info.className='farm-item-info';
-      info.innerHTML=`<strong>${item.icon} ${item.label}</strong><span>Kept here as a treasure.</span>`;
-      const btn=document.createElement('button'); btn.textContent='Take out'; btn.addEventListener('click',()=>{
-        const idx=state.trinketCabinet.findIndex(x=>x.uid===item.uid); if(idx<0)return;
-        const taken=state.trinketCabinet.splice(idx,1)[0]; state.inventory.push(taken); persistStorage(); renderInventory(); renderTrinketCabinet(); speak(`You take ${taken.label} out of the trinket cabinet and put it in your backpack.`);
-      });
-      li.appendChild(info); li.appendChild(btn); list.appendChild(li);
-    });
-  }
-  document.getElementById('arcadePlayBtn').addEventListener('click',playArcade);
-  document.getElementById('arcadeCloseBtn').addEventListener('click',()=>{document.getElementById('arcadePanel').classList.add('hidden'); speak('You leave the arcade.');});
-  document.getElementById('trinketCloseBtn').addEventListener('click',()=>{document.getElementById('trinketPanel').classList.add('hidden'); speak('You close the trinket cabinet.');});
-
   /* ---------- shop item choice ---------- */
   let pendingShop = null;
 
@@ -2390,71 +2400,33 @@
 
   function openShopPanel(scene, h){
     pendingShop = { scene, h };
-    const filterBox = document.getElementById('shopCategoryFilter');
+    document.getElementById('shopPanelTitle').textContent = `${h.label}: choose any number of items`;
     const list = document.getElementById('shopChoiceList');
-    const isClothing = h.shopCategory === 'clothing' || h.shopCategory === 'shoes';
-    filterBox.classList.toggle('hidden', !isClothing);
-    if (isClothing){
-      const defaultRadio = document.querySelector('input[name="shopGenderFilter"][value="unisex"]');
-      if (defaultRadio) defaultRadio.checked = true;
-      const kind = h.shopCategory === 'shoes' ? 'shoes' : 'clothes';
-      document.getElementById('shopPanelTitle').textContent = `${h.label}: choose ${kind}`;
-    } else {
-      document.getElementById('shopPanelTitle').textContent = `${h.label}: choose any number of items`;
-    }
-
-    function renderChoices(){
-      list.innerHTML = "";
-      let visible = h.shopItems;
-      if (isClothing){
-        const selected = document.querySelector('input[name="shopGenderFilter"]:checked')?.value || 'unisex';
-        if (selected !== 'all') visible = h.shopItems.filter(choice => !choice.gender || choice.gender === selected || choice.gender === 'unisex');
-      }
-      visible.forEach((choice) => {
-        const originalIdx = h.shopItems.indexOf(choice);
-        const li = document.createElement('li');
-        const label = document.createElement('label');
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.dataset.idx = String(originalIdx);
-        cb.setAttribute('aria-label', choice.label);
-        const span = document.createElement('span');
-        const priceTag = h.shopFree ? "" : ` — $${itemPrice(choice)}`;
-        const genderTag = isClothing && choice.gender && choice.gender !== 'unisex' ? ` (${choice.gender === 'girls' ? 'girls' : 'boys'})` : '';
-        span.innerHTML = `<span aria-hidden="true">${choice.icon}</span> ${choice.label}${genderTag}${priceTag}`;
-        cb.addEventListener('focus', () => speak(`${choice.label}${genderTag}${h.shopFree ? "" : `, ${itemPrice(choice)} dollars`}${cb.checked ? ": checked" : ": not checked"}`));
-        cb.addEventListener('change', () => {
-          label.classList.toggle('chosen', cb.checked);
-          speak(`${choice.label}: ${cb.checked ? "added to your picks" : "removed from your picks"}`);
-        });
-        label.appendChild(cb);
-        label.appendChild(span);
-        li.appendChild(label);
-        list.appendChild(li);
+    list.innerHTML = "";
+    h.shopItems.forEach((choice, idx) => {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.dataset.idx = String(idx);
+      cb.setAttribute('aria-label', choice.label);
+      const span = document.createElement('span');
+      const priceTag = h.shopFree ? "" : ` — $${itemPrice(choice)}`;
+      span.innerHTML = `<span aria-hidden="true">${choice.icon}</span> ${choice.label}${priceTag}`;
+      cb.addEventListener('focus', () => speak(`${choice.label}${h.shopFree ? "" : `, ${itemPrice(choice)} dollars`}${cb.checked ? ": checked" : ": not checked"}`));
+      cb.addEventListener('change', () => {
+        label.classList.toggle('chosen', cb.checked);
+        speak(`${choice.label}: ${cb.checked ? "added to your picks" : "removed from your picks"}`);
       });
-      if (!visible.length){
-        const li = document.createElement('li');
-        li.textContent = 'No items are available in this category yet.';
-        list.appendChild(li);
-      }
-    }
-
-    document.querySelectorAll('input[name="shopGenderFilter"]').forEach(radio => {
-      radio.onchange = () => {
-        renderChoices();
-        const selected = radio.value === 'girls' ? 'girls' : radio.value === 'boys' ? 'boys' : radio.value === 'all' ? 'all shoppers' : 'unisex options';
-        speak(`Showing ${selected}.`);
-        const first = list.querySelector('input[type="checkbox"]');
-        if (first) first.focus();
-      };
+      label.appendChild(cb);
+      label.appendChild(span);
+      li.appendChild(label);
+      list.appendChild(li);
     });
-
-    renderChoices();
     document.getElementById('shopPanel').classList.remove('hidden');
     const names = h.shopItems.map(c => c.label).join(", ");
     const moneyNote = h.shopFree ? "" : ` You have $${state.money}.`;
-    const filterNote = isClothing ? ` Choose Girls, Boys, Unisex, or Show all. Then choose from the available ${h.shopCategory === 'shoes' ? 'shoes' : 'clothes'}.` : '';
-    speak(`${h.label}. ${h.desc}.${filterNote}${moneyNote} Then choose Add to backpack, or Cancel.`);
+    speak(`${h.label}. ${h.desc} Choose any number of items: ${names}.${moneyNote} Then choose Add to backpack, or Cancel.`);
     const firstCb = list.querySelector('input[type="checkbox"]');
     if (firstCb) firstCb.focus();
   }
@@ -2943,7 +2915,8 @@
     const flower = flowerTypes[plot.crop];
     const newItem = grantItem({
       icon:flower.icon, label:`${flower.label} bouquet`, useAct:flower.useAct,
-      mood:flower.mood, energy:flower.energy, consumable:false, storageType:"none"
+      mood:flower.mood, energy:flower.energy, consumable:false, storageType:"none", bouquet:true,
+      decoration:true
     });
     logEntry(`💐 Picked a ${flower.label} bouquet from plot ${plotId + 1}.`);
     speak(`You pick a lovely ${flower.label} bouquet and add it to your backpack.`);
@@ -3546,78 +3519,94 @@
   }
   document.getElementById('petsCloseBtn').addEventListener('click', closePets);
 
-  /* ---------- adopted children ---------- */
+  /* ---------- babies ---------- */
   const BABY_NEED_DECAY_PER_MIN = 8;
   const BABY_ADOPTION_NAMES = ["Baby"];
-  const ADOPTED_STAGES = ['baby','toddler','kid','teen','adult','elder'];
-  const adoptedStageInfo = { baby:{label:'Baby',icon:'👶'}, toddler:{label:'Toddler',icon:'🧒'}, kid:{label:'Kid',icon:'🧒'}, teen:{label:'Teen',icon:'🧑‍🎓'}, adult:{label:'Adult',icon:'🧑‍💼'}, elder:{label:'Elder',icon:'👵'} };
-  function babyAgeStage(child){ return child.growthStage || child.stage || 'baby'; }
-  function hasGrownAdoptedChild(){ return (state.character?.babies || []).some(c => ['kid','teen','adult','elder'].includes(babyAgeStage(c))); }
-  function babyNeed(lastAt){ const minutesSince=(Date.now()-(lastAt||Date.now()))/60000; return Math.max(0,Math.min(100,Math.round(100-minutesSince*BABY_NEED_DECAY_PER_MIN))); }
+  const BABY_STAGE_MS = {
+    baby: 3 * 60000,
+    toddler: 8 * 60000,
+    tween: 15 * 60000,
+    teen: 25 * 60000,
+    adult: 40 * 60000
+  }; // cumulative thresholds since adoption; beyond the last one, they're an elder
+  const babyStageInfo = {
+    baby: { label:"Baby", icon:"👶" },
+    toddler: { label:"Toddler", icon:"🧒" },
+    tween: { label:"Tween", icon:"🧑" },
+    teen: { label:"Teen", icon:"🧑‍🎓" },
+    adult: { label:"Adult", icon:"🧑‍💼" },
+    elder: { label:"Elder", icon:"👵" }
+  };
+
+  function babyAgeStage(baby){
+    const adoptedAt = baby.adoptedAt || Date.now();
+    const elapsed = Date.now() - adoptedAt;
+    if (elapsed < BABY_STAGE_MS.baby) return 'baby';
+    if (elapsed < BABY_STAGE_MS.toddler) return 'toddler';
+    if (elapsed < BABY_STAGE_MS.tween) return 'tween';
+    if (elapsed < BABY_STAGE_MS.teen) return 'teen';
+    if (elapsed < BABY_STAGE_MS.adult) return 'adult';
+    return 'elder';
+  }
+
+  function babyNeed(lastAt){
+    const minutesSince = (Date.now() - lastAt) / 60000;
+    return Math.max(0, Math.min(100, Math.round(100 - minutesSince * BABY_NEED_DECAY_PER_MIN)));
+  }
+
   function persistBabies(){
-    if(!state.hasCreatedCharacter||!state.character.id)return;
-    state.character.babies=state.babies;
+    if (!state.hasCreatedCharacter || !state.character.id) return;
+    state.character.babies = state.babies;
     saveCharacterToStorage(state.character);
-    const idx=cachedRoster.findIndex(x=>x.id===state.character.id);
-    if(idx>=0) cachedRoster[idx].babies=JSON.parse(JSON.stringify(state.babies));
+    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
+    if (idx >= 0) cachedRoster[idx].babies = state.babies;
   }
-  async function persistAdoptedChild(child){
-    const idx=cachedRoster.findIndex(x=>x.id===child.id);
-    if(idx>=0) cachedRoster[idx]=JSON.parse(JSON.stringify(child));
-    await saveCharacterToStorage(child);
-    const parentChild=state.babies.find(b=>b.id===child.id);
-    if(parentChild) Object.assign(parentChild,JSON.parse(JSON.stringify(child)));
-    persistBabies();
-    renderRoomNav(scenes[state.sceneIndex]);
-  }
-  async function migrateLegacyAdoptedChildren(){
-    for(const child of state.babies){
-      child.id=child.id||('c'+Date.now()+Math.random().toString(36).slice(2,7));
-      child.adoptedChild=true; child.parentId=child.parentId||state.character.id; child.growthStage=child.growthStage||'baby'; child.manualGrowth=true;
-      child.name=child.name||'Baby'; child.pronouns=child.pronouns||'they/them'; child.skin=child.skin||'medium'; child.hair=child.hair||'curly'; child.hairColor=child.hairColor||'black'; child.eyeColor=child.eyeColor||'brown'; child.outfit=child.outfit||'casual'; child.shoes=child.shoes||'sneakers';
-      const idx=cachedRoster.findIndex(c=>c.id===child.id);
-      if(idx<0) cachedRoster.push(JSON.parse(JSON.stringify(child))); else cachedRoster[idx]=JSON.parse(JSON.stringify({...cachedRoster[idx],...child}));
-      await saveCharacterToStorage(child);
-    }
-    persistBabies();
-  }
+
   function updateBabyBtnVisibility(){
-    const active=state.babies.filter(c=>['baby','toddler'].includes(babyAgeStage(c)));
-    document.getElementById('babyBtn').classList.toggle('hidden',!state.hasCreatedCharacter||!active.length);
+    document.getElementById('babyBtn').classList.toggle('hidden', !state.hasCreatedCharacter || !state.babies.length);
   }
-  function checkBabyGrowth(){ /* adopted children never age automatically */ }
-  function openAdoptionPanel(hotspot){
-    const cost=hotspot.adoptionCost||30;
-    if(state.money<cost){ speak(`Adopting a baby involves a $${cost} paperwork fee, but you only have $${state.money}.`); return; }
-    const panel=document.getElementById('adoptionPanel'); panel.dataset.cost=String(cost); panel.classList.remove('hidden');
-    document.getElementById('adoptName').value=''; document.querySelector('input[name="adoptPronouns"][value="they/them"]').checked=true;
-    ['adoptSkin','adoptHair','adoptHairColor','adoptEyeColor','adoptOutfit','adoptShoes'].forEach(id=>{ const e=document.getElementById(id); e.selectedIndex=0; });
-    document.getElementById('adoptName').focus(); speak(`Adoption. The fee is $${cost}. Customize your baby, then complete the adoption. You choose when they grow up.`);
+
+  function checkBabyGrowth(){
+    let grew = false;
+    state.babies.forEach(baby => {
+      const currentStage = babyAgeStage(baby);
+      if (baby.lastKnownStage && baby.lastKnownStage !== currentStage){
+        const info = babyStageInfo[currentStage];
+        logEntry(`${info.icon} ${baby.name} grew into a ${info.label.toLowerCase()}!`);
+        speak(`${baby.name} has grown into a ${info.label.toLowerCase()}!`);
+        grew = true;
+      }
+      baby.lastKnownStage = currentStage;
+    });
+    if (grew) persistBabies();
   }
-  async function confirmAdoption(){
-    const cost=Number(document.getElementById('adoptionPanel').dataset.cost||30); if(state.money<cost)return;
-    const now=Date.now(), child=defaultCharacter(); child.id='c'+now+Math.random().toString(36).slice(2,7); child.createdAt=now;
-    child.name=document.getElementById('adoptName').value.trim()||'Baby'; child.pronouns=document.querySelector('input[name="adoptPronouns"]:checked')?.value||'they/them';
-    child.skin=document.getElementById('adoptSkin').value; child.hair=document.getElementById('adoptHair').value; child.hairColor=document.getElementById('adoptHairColor').value; child.eyeColor=document.getElementById('adoptEyeColor').value; child.outfit=document.getElementById('adoptOutfit').value; child.shoes=document.getElementById('adoptShoes').value;
-    child.age='baby'; child.adoptedChild=true; child.parentId=state.character.id; child.growthStage='baby'; child.manualGrowth=true; child.adoptedAt=now; child.lastFedAt=now; child.lastPlayedAt=now;
-    state.money-=cost; updateWallet(); const snap=JSON.parse(JSON.stringify(child)); state.babies.push(snap); state.character.babies=state.babies; cachedRoster.push(JSON.parse(JSON.stringify(child)));
-    await saveCharacterToStorage(child); await saveCharacterToStorage(state.character); const pi=cachedRoster.findIndex(c=>c.id===state.character.id); if(pi>=0)cachedRoster[pi].babies=JSON.parse(JSON.stringify(state.babies));
-    document.getElementById('adoptionPanel').classList.add('hidden'); updateBabyBtnVisibility(); logEntry(`👶 Adopted ${child.name}.`); speak(`You adopted ${child.name}. They are now a saved character in the Town Directory, and you choose when they grow up.`);
-  }
-  function cancelAdoption(){ document.getElementById('adoptionPanel').classList.add('hidden'); requestAnimationFrame(()=>{const b=document.querySelector('.hotspot[tabindex="0"]')||document.querySelector('.hotspot');if(b)b.focus();}); }
-  async function growAdoptedChild(id){
-    const child=state.babies.find(b=>b.id===id); if(!child)return; const cur=babyAgeStage(child), idx=ADOPTED_STAGES.indexOf(cur); if(idx<0||idx>=ADOPTED_STAGES.length-1){speak(`${child.name} has reached the oldest stage.`);return;}
-    const next=ADOPTED_STAGES[idx+1]; child.growthStage=next; child.age=next; child.lastKnownStage=next; await persistAdoptedChild(child);
-    logEntry(`👶 ${child.name} grew into a ${adoptedStageInfo[next].label.toLowerCase()}.`); speak(`${child.name} is now a ${adoptedStageInfo[next].label.toLowerCase()}.${next==='kid'?' They now have their own room and are a normal character in the Town Directory.':''}`); renderBabies(); updateBabyBtnVisibility();
-  }
-  async function deleteAdoptedChild(id){
-    const idx=state.babies.findIndex(b=>b.id===id); if(idx<0)return; const child=state.babies[idx]; if(!child.adoptedChild)return;
-    if(!confirm(`Delete ${child.name} from your adopted family and saved characters?`))return; state.babies.splice(idx,1); await deleteCharacterFromStorage(child.id); const ri=cachedRoster.findIndex(c=>c.id===child.id); if(ri>=0)cachedRoster.splice(ri,1); persistBabies(); updateBabyBtnVisibility(); renderBabies(); speak(`${child.name} was removed from your adopted family and saved characters.`);
+
+  function adoptBabyAction(hotspot){
+    const cost = hotspot.adoptionCost || 30;
+    if (state.money < cost){
+      speak(`Adopting a baby involves a $${cost} paperwork fee, but you only have $${state.money}.`);
+      return;
+    }
+    state.money -= cost;
+    updateWallet();
+    const now = Date.now();
+    state.babies.push({
+      id: 'b' + now + Math.random().toString(36).slice(2, 6),
+      name: BABY_ADOPTION_NAMES[0],
+      pronouns: "they/them",
+      adoptedAt: now,
+      lastKnownStage: 'baby',
+      lastFedAt: now, lastPlayedAt: now
+    });
+    logEntry(`👶 Adopted a baby.`);
+    speak("You complete the paperwork and adopt a baby. They're now in your care.");
+    updateBabyBtnVisibility();
+    persistBabies();
   }
 
   function feedBaby(id){
     const baby = state.babies.find(b => b.id === id);
-    if (!baby || !['baby','toddler'].includes(babyAgeStage(baby))) return;
+    if (!baby) return;
     baby.lastFedAt = Date.now();
     logEntry(`👶 Fed ${baby.name}.`);
     speak(`You feed ${baby.name}. They're happy and full.`);
@@ -3627,19 +3616,19 @@
 
   function playWithBaby(id){
     const baby = state.babies.find(b => b.id === id);
-    if (!baby || !['baby','toddler'].includes(babyAgeStage(baby))) return;
+    if (!baby) return;
     baby.lastPlayedAt = Date.now();
     state.mood += 6;
     updateMeters();
     logEntry(`👶 Played with ${baby.name}.`);
     speak(`You play with ${baby.name}. They giggle happily.`);
     renderBabies();
-    persistAdoptedChild(baby);
+    persistBabies();
   }
 
   function talkToBaby(id){
     const baby = state.babies.find(b => b.id === id);
-    if (!baby || !['baby','toddler'].includes(babyAgeStage(baby))) return;
+    if (!baby) return;
     state.mood += 3;
     updateMeters();
     logEntry(`👶 Talked to ${baby.name}.`);
@@ -3648,16 +3637,59 @@
   }
 
   function renderBabies(){
-    const list=document.getElementById('babyList'); list.innerHTML='';
-    const children=state.babies.filter(c=>['baby','toddler'].includes(babyAgeStage(c)));
-    if(!children.length){ const li=document.createElement('li'); li.textContent="No adopted babies or toddlers need nursery care. Grown children live as normal characters in the Town Directory."; list.appendChild(li); return; }
-    children.forEach(baby=>{
-      const stage=babyAgeStage(baby), infoData=adoptedStageInfo[stage], fullness=babyNeed(baby.lastFedAt), happiness=babyNeed(baby.lastPlayedAt);
-      const li=document.createElement('li'), info=document.createElement('div'), actions=document.createElement('div'); info.className='farm-item-info'; actions.className='farm-item-actions';
-      info.innerHTML=`<strong>${infoData.icon} ${baby.name}</strong><span>${infoData.label} (${baby.pronouns}) — Fullness: ${fullness}% · Happiness: ${happiness}%</span>`;
-      const mk=(text,fn,disabled=false)=>{const b=document.createElement('button');b.textContent=text;b.disabled=disabled;b.addEventListener('click',fn);return b;};
-      actions.append(mk(fullness<CARE_FULL_THRESHOLD?'Feed':'Already full',()=>feedBaby(baby.id),fullness>=CARE_FULL_THRESHOLD),mk(happiness<CARE_FULL_THRESHOLD?'Play':'Already happy',()=>playWithBaby(baby.id),happiness>=CARE_FULL_THRESHOLD),mk('Talk',()=>talkToBaby(baby.id)),mk(stage==='baby'?'Grow to toddler':'Grow to kid',()=>growAdoptedChild(baby.id)),mk('Customize',()=>showEditBabyView(baby.id)),mk('Delete adopted child',()=>deleteAdoptedChild(baby.id)));
-      li.append(info,actions); list.appendChild(li);
+    const list = document.getElementById('babyList');
+    list.innerHTML = "";
+    if (!state.babies.length){
+      const li = document.createElement('li');
+      li.textContent = "You aren't caring for any babies right now.";
+      list.appendChild(li);
+      return;
+    }
+    let backfilled = false;
+    state.babies.forEach(baby => {
+      if (!baby.adoptedAt){ baby.adoptedAt = Date.now(); backfilled = true; }
+      if (!baby.pronouns){ baby.pronouns = "they/them"; backfilled = true; }
+    });
+    if (backfilled) persistBabies();
+    checkBabyGrowth();
+    state.babies.forEach(baby => {
+      const fullness = babyNeed(baby.lastFedAt);
+      const happiness = babyNeed(baby.lastPlayedAt);
+      const stage = babyAgeStage(baby);
+      const stageInfo = babyStageInfo[stage];
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      info.innerHTML = `<strong>${stageInfo.icon} ${baby.name}</strong><span>${stageInfo.label} (${baby.pronouns}) — Fullness: ${fullness}% · Happiness: ${happiness}%</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'farm-item-actions';
+      const feedBtn = document.createElement('button');
+      const needsFeeding = fullness < CARE_FULL_THRESHOLD;
+      feedBtn.textContent = needsFeeding ? 'Feed' : 'Already full';
+      feedBtn.disabled = !needsFeeding;
+      feedBtn.addEventListener('click', () => feedBaby(baby.id));
+      const playBtn = document.createElement('button');
+      const needsPlay = happiness < CARE_FULL_THRESHOLD;
+      playBtn.textContent = needsPlay ? 'Play' : 'Already happy';
+      playBtn.disabled = !needsPlay;
+      playBtn.addEventListener('click', () => playWithBaby(baby.id));
+      const talkBtn = document.createElement('button');
+      talkBtn.textContent = 'Talk';
+      talkBtn.addEventListener('click', () => talkToBaby(baby.id));
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', () => showEditBabyView(baby.id));
+      const giveBtn = document.createElement('button');
+      giveBtn.textContent = 'Give to...';
+      giveBtn.addEventListener('click', () => showGiveBabyChoices(baby.id));
+      actions.appendChild(feedBtn);
+      actions.appendChild(playBtn);
+      actions.appendChild(talkBtn);
+      actions.appendChild(editBtn);
+      actions.appendChild(giveBtn);
+      li.appendChild(info);
+      li.appendChild(actions);
+      list.appendChild(li);
     });
   }
 
@@ -3733,14 +3765,30 @@
   let pendingEditBabyId = null;
 
   function showEditBabyView(babyId){
-    pendingEditBabyId=babyId; const baby=state.babies.find(b=>b.id===babyId); if(!baby)return; document.getElementById('babyMainView').classList.add('hidden'); document.getElementById('babyEditView').classList.remove('hidden');
-    document.getElementById('babyEditName').value=baby.name||''; const pr=document.querySelector(`input[name="babyEditPronouns"][value="${baby.pronouns||'they/them'}"]`); if(pr)pr.checked=true;
-    document.getElementById('babyEditSkin').value=baby.skin||'medium'; document.getElementById('babyEditHair').value=baby.hair||'curly'; document.getElementById('babyEditHairColor').value=baby.hairColor||'black'; document.getElementById('babyEditEyeColor').value=baby.eyeColor||'brown'; document.getElementById('babyEditOutfit').value=baby.outfit||'casual'; document.getElementById('babyEditShoes').value=baby.shoes||'sneakers'; document.getElementById('babyEditName').focus(); speak(`Customizing ${baby.name}.`);
+    pendingEditBabyId = babyId;
+    const baby = state.babies.find(b => b.id === babyId);
+    if (!baby) return;
+    document.getElementById('babyMainView').classList.add('hidden');
+    document.getElementById('babyEditView').classList.remove('hidden');
+    document.getElementById('babyEditName').value = baby.name;
+    const pronounEl = document.querySelector(`input[name="babyEditPronouns"][value="${baby.pronouns}"]`);
+    if (pronounEl) pronounEl.checked = true;
+    speak(`Editing ${baby.name}.`);
+    document.getElementById('babyEditName').focus();
   }
-  async function saveBabyEdit(){
-    const baby=state.babies.find(b=>b.id===pendingEditBabyId); if(!baby)return; baby.name=document.getElementById('babyEditName').value.trim()||baby.name; baby.pronouns=document.querySelector('input[name="babyEditPronouns"]:checked')?.value||baby.pronouns;
-    baby.skin=document.getElementById('babyEditSkin').value; baby.hair=document.getElementById('babyEditHair').value; baby.hairColor=document.getElementById('babyEditHairColor').value; baby.eyeColor=document.getElementById('babyEditEyeColor').value; baby.outfit=document.getElementById('babyEditOutfit').value; baby.shoes=document.getElementById('babyEditShoes').value;
-    await persistAdoptedChild(baby); logEntry(`👶 Updated ${baby.name}'s details.`); speak(`Saved ${baby.name}'s appearance and identity.`); cancelBabyEdit(); renderBabies();
+
+  function saveBabyEdit(){
+    const baby = state.babies.find(b => b.id === pendingEditBabyId);
+    if (!baby) return;
+    const newName = document.getElementById('babyEditName').value.trim() || baby.name;
+    const pronounEl = document.querySelector('input[name="babyEditPronouns"]:checked');
+    baby.name = newName;
+    if (pronounEl) baby.pronouns = pronounEl.value;
+    persistBabies();
+    logEntry(`👶 Updated ${baby.name}'s details.`);
+    speak(`Saved. ${baby.name}'s fullness, happiness, and care are unchanged.`);
+    cancelBabyEdit();
+    renderBabies();
   }
   document.getElementById('babyEditSaveBtn').addEventListener('click', saveBabyEdit);
 
@@ -3752,8 +3800,6 @@
     if (firstBtn) firstBtn.focus();
   }
   document.getElementById('babyEditCancelBtn').addEventListener('click', cancelBabyEdit);
-  document.getElementById('adoptConfirmBtn').addEventListener('click', confirmAdoption);
-  document.getElementById('adoptCancelBtn').addEventListener('click', cancelAdoption);
 
   function openBabyPanel(){
     document.getElementById('babyPanel').classList.remove('hidden');
@@ -3783,21 +3829,33 @@
 
   /* ---------- cooking ---------- */
   const recipes = {
-    cookedcorn:{label:"Cooked corn",icon:"🌽",ingredients:[{label:"Corn",qty:1}],useAct:"You eat a warm, buttered ear of cooked corn.",mood:5,energy:6,storage:"pantry",serve:"plate"},
-    popcorn:{label:"Popcorn",icon:"🍿",ingredients:[{label:"Corn",qty:1}],useAct:"You munch on fresh homemade popcorn.",mood:6,energy:5,storage:"pantry",serve:"bowl"},
-    cornsoup:{label:"Corn soup",icon:"🥣",ingredients:[{label:"Corn",qty:1},{label:"Milk",qty:1}],useAct:"You eat a warm bowl of corn soup.",mood:5,energy:7,storage:"fridge",serve:"bowl"},
-    roastedveg:{label:"Roasted vegetables",icon:"🥕",ingredients:[{label:"Carrot",qty:1},{label:"Potato",qty:1}],useAct:"You eat a plate of roasted vegetables.",mood:5,energy:7,storage:"fridge",serve:"plate"},
-    bakedpotato:{label:"Baked potato",icon:"🥔",ingredients:[{label:"Potato",qty:1}],useAct:"You eat a fluffy baked potato.",mood:4,energy:7,storage:"pantry",serve:"plate",bakingSkill:true},
-    pizza:{label:"Homemade pizza",icon:"🍕",ingredients:[{label:"Cheese",qty:1},{label:"Fresh bread",qty:1}],useAct:"You eat a slice of homemade pizza.",mood:7,energy:8,storage:"fridge",serve:"plate"},
-    scrambledeggs:{label:"Scrambled eggs",icon:"🍳",ingredients:[{label:"Fresh eggs",qty:1}],useAct:"You eat a plate of scrambled eggs.",mood:4,energy:6,storage:"fridge",serve:"plate"},
-    pancakes:{label:"Pancakes",icon:"🥞",ingredients:[{label:"Milk",qty:1},{label:"Fresh eggs",qty:1}],useAct:"You eat a stack of warm pancakes.",mood:6,energy:7,storage:"fridge",serve:"plate"},
-    fruitsalad:{label:"Fruit salad",icon:"🍓",ingredients:[{label:"Apples",qty:1},{label:"Oranges",qty:1},{label:"Bananas",qty:1}],useAct:"You eat a refreshing bowl of fruit salad.",mood:5,energy:5,storage:"fridge",serve:"bowl"},
-    grilledcheese:{label:"Grilled cheese",icon:"🥪",ingredients:[{label:"Fresh bread",qty:2},{label:"Cheese",qty:1}],useAct:"You eat a warm grilled cheese sandwich.",mood:6,energy:8,storage:"fridge",serve:"plate"},
-    applepie:{label:"Apple pie",icon:"🥧",ingredients:[{label:"Apples",qty:2},{label:"Fresh bread",qty:1}],useAct:"You eat a sweet slice of apple pie.",mood:8,energy:7,storage:"fridge",serve:"plate",bakingSkill:true},
-    veggiewrap:{label:"Veggie wrap",icon:"🌯",ingredients:[{label:"Fresh bread",qty:1},{label:"Carrot",qty:1},{label:"Lettuce",qty:1}],useAct:"You eat a crisp veggie wrap.",mood:6,energy:7,storage:"fridge",serve:"plate"},
-    berryparfait:{label:"Berry parfait",icon:"🍓",ingredients:[{label:"Strawberries",qty:1},{label:"Milk",qty:1}],useAct:"You enjoy a creamy berry parfait.",mood:7,energy:6,storage:"fridge",serve:"bowl"},
-    cinnamonrolls:{label:"Cinnamon rolls",icon:"🥐",ingredients:[{label:"Fresh bread",qty:2},{label:"Milk",qty:1}],useAct:"You enjoy a warm cinnamon roll.",mood:8,energy:7,storage:"fridge",serve:"plate",bakingSkill:true},
-    berrycobbler:{label:"Berry cobbler",icon:"🥧",ingredients:[{label:"Strawberries",qty:2},{label:"Fresh bread",qty:1}],useAct:"You enjoy a warm berry cobbler.",mood:8,energy:7,storage:"fridge",serve:"plate",bakingSkill:true}
+    cookedcorn: { label:"Cooked corn", icon:"🌽",
+      ingredients:[{ label:"Corn", qty:1 }],
+      useAct:"You eat a warm, buttered ear of cooked corn.", mood:5, energy:6 },
+    popcorn: { label:"Popcorn", icon:"🍿",
+      ingredients:[{ label:"Corn", qty:1 }],
+      useAct:"You munch on a fresh bowl of homemade popcorn.", mood:6, energy:5 },
+    cornsoup: { label:"Corn soup", icon:"🥣",
+      ingredients:[{ label:"Corn", qty:1 }, { label:"Milk", qty:1 }],
+      useAct:"You eat a warm bowl of corn soup.", mood:5, energy:7 },
+    roastedveg: { label:"Roasted vegetables", icon:"🥕",
+      ingredients:[{ label:"Carrot", qty:1 }, { label:"Potato", qty:1 }],
+      useAct:"You eat a plate of roasted vegetables.", mood:5, energy:7 },
+    bakedpotato: { label:"Baked potato", icon:"🥔",
+      ingredients:[{ label:"Potato", qty:1 }],
+      useAct:"You eat a fluffy baked potato.", mood:4, energy:7 },
+    pizza: { label:"Homemade pizza", icon:"🍕",
+      ingredients:[{ label:"Cheese", qty:1 }, { label:"Fresh bread", qty:1 }],
+      useAct:"You eat a slice of homemade pizza.", mood:7, energy:8 },
+    scrambledeggs: { label:"Scrambled eggs", icon:"🍳",
+      ingredients:[{ label:"Fresh eggs", qty:1 }],
+      useAct:"You eat a plate of scrambled eggs.", mood:4, energy:6 },
+    pancakes: { label:"Pancakes", icon:"🥞",
+      ingredients:[{ label:"Milk", qty:1 }, { label:"Fresh eggs", qty:1 }],
+      useAct:"You eat a stack of warm pancakes.", mood:6, energy:7 },
+    fruitsalad: { label:"Fruit salad", icon:"🍓",
+      ingredients:[{ label:"Apples", qty:1 }, { label:"Oranges", qty:1 }, { label:"Bananas", qty:1 }],
+      useAct:"You eat a refreshing bowl of fruit salad.", mood:5, energy:5 }
   };
 
   function countIngredient(label){
@@ -3822,68 +3880,16 @@
   }
 
   function cookRecipe(recipeId){
-    const recipe=recipes[recipeId]; if(!recipe||!hasIngredients(recipe)) return;
-    consumeIngredients(recipe); renderInventory();
-    practiceLifeSkill("cooking", `You prepare ${recipe.label} from scratch.`, 0, -2, 4);
-    if (recipe.bakingSkill) practiceLifeSkill("baking", `You bake ${recipe.label} in the oven.`, 0, -1, 5);
-    const dish=grantItem({icon:recipe.icon,label:recipe.label,useAct:recipe.useAct,mood:recipe.mood,energy:recipe.energy,food:true,recipeId,serveType:recipe.serve});
-    const ingredientList=recipe.ingredients.map(i=>`${i.qty} ${i.label}`).join(", ");
+    const recipe = recipes[recipeId];
+    if (!recipe || !hasIngredients(recipe)) return;
+    consumeIngredients(recipe);
+    renderInventory();
+    const dish = grantItem({ icon:recipe.icon, label:recipe.label, useAct:recipe.useAct, mood:recipe.mood, energy:recipe.energy, cooked:true, storageType:"fridge" });
+    const ingredientList = recipe.ingredients.map(ing => `${ing.qty} ${ing.label}`).join(", ");
     logEntry(`🍳 Cooked ${dish.label} using ${ingredientList}.`);
-    speak(`You cook ${dish.label}. Choose what to do with it: put it in the ${recipe.storage === 'pantry' ? 'pantry' : 'fridge'}, or serve it.`);
-    renderCooking(); renderInventory(); openCookingChoice(dish.uid, recipeId);
+    speak(`You cook ${dish.label} and add it to your backpack. You can eat it, put it in the fridge, or serve it.`);
+    renderCooking();
   }
-
-  function openCookingChoice(uid,recipeId){
-    const dish=state.inventory.find(x=>x.uid===uid); if(!dish)return;
-    const recipe=recipes[recipeId];
-    const panel=document.getElementById('cookingChoicePanel'); panel.classList.remove('hidden');
-    document.getElementById('cookingChoiceTitle').textContent=`🍳 ${dish.label} is ready`;
-    document.getElementById('cookingChoiceHint').textContent='What would you like to do? You can put it away in the fridge or pantry, or serve it.';
-    const list=document.getElementById('cookingChoiceList'); list.innerHTML='';
-    const store=document.createElement('button'); store.textContent='Put away'; store.addEventListener('click',()=>{
-      list.innerHTML='';
-      const fridge=document.createElement('button'); fridge.textContent='Put in fridge'; fridge.addEventListener('click',()=>{moveCookedFood(uid,'fridge');panel.classList.add('hidden');});
-      const pantry=document.createElement('button'); pantry.textContent='Put in pantry'; pantry.addEventListener('click',()=>{moveCookedFood(uid,'pantry');panel.classList.add('hidden');});
-      [fridge,pantry].forEach(b=>{const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});
-      (recipe.storage==='pantry'?pantry:fridge).focus();
-    });
-    const serve=document.createElement('button'); serve.textContent='Serve'; serve.addEventListener('click',()=>{panel.classList.add('hidden');serveFood(uid);});
-    [store,serve].forEach(b=>{const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});
-    store.focus();
-  }
-
-  function moveCookedFood(uid,target){
-    const idx=state.inventory.findIndex(x=>x.uid===uid); if(idx<0)return; const item=state.inventory.splice(idx,1)[0];
-    if(target==='pantry') state.pantry.push(item); else state.fridge.push(item);
-    persistStorage(); renderInventory(); renderFridge(); renderPantry();
-    speak(`You put ${item.label} in the ${target}.`);
-  }
-  function findDish(uid){return state.inventory.find(x=>x.uid===uid)||state.fridge.find(x=>x.uid===uid)||state.pantry.find(x=>x.uid===uid)||state.tableFood.find(x=>x.uid===uid);}
-  function findPlate(){return [...state.inventory,...state.cabinet].find(x=>x.label==='Plates'&&!x.dirty);}
-  function serveFood(uid){
-    const dish=findDish(uid); if(!dish)return;
-    const panel=document.getElementById('cookingChoicePanel'); panel.classList.remove('hidden');
-    document.getElementById('cookingChoiceTitle').textContent=`🍽️ Serve ${dish.label}`;
-    document.getElementById('cookingChoiceHint').textContent='Serving requires a clean plate. Then choose who gets the food, eat it yourself, or place it on the kitchen table.';
-    const list=document.getElementById('cookingChoiceList'); list.innerHTML='';
-    const plate=findPlate();
-    if(!plate){const li=document.createElement('li');li.textContent='Serving requires a clean plate. Buy Plates at the Grocery Store housewares aisle and keep them in your cabinet.';list.appendChild(li);return;}
-    const eat=document.createElement('button');eat.textContent='Eat it yourself';eat.addEventListener('click',()=>eatDish(uid));
-    const table=document.createElement('button');table.textContent='Place on table';table.addEventListener('click',()=>placeOnTable(uid));
-    const give=document.createElement('button');give.textContent='Give to somebody';give.addEventListener('click',()=>renderFoodRecipients(uid));
-    [give,eat,table].forEach(b=>{const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});
-    give.focus();
-  }
-  function consumePlate(){const p=findPlate();if(!p)return false; if(state.inventory.includes(p))state.inventory.splice(state.inventory.indexOf(p),1);else state.cabinet.splice(state.cabinet.indexOf(p),1);p.dirty=true;state.cabinet.push(p);return true;}
-  function removeDish(uid){for(const arr of [state.inventory,state.fridge,state.pantry,state.tableFood]){const i=arr.findIndex(x=>x.uid===uid);if(i>=0)return arr.splice(i,1)[0];}return null;}
-  function eatDish(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.mood=Math.min(100,state.mood+(dish.mood||4));state.energy=Math.min(100,state.energy+(dish.energy||5));logEntry(`😋 Ate ${dish.label}.`);speak(dish.useAct||`You eat ${dish.label}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');updateMeters();}
-  function placeOnTable(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.tableFood.push(dish);logEntry(`🍽️ Served ${dish.label} on the kitchen table.`);speak(`You serve ${dish.label} and place it on the kitchen table.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();renderTable();document.getElementById('cookingChoicePanel').classList.add('hidden');}
-  function renderFoodRecipients(uid){const list=document.getElementById('cookingChoiceList');list.innerHTML='';const others=cachedRoster.filter(c=>c.id!==state.character.id);if(!others.length){const li=document.createElement('li');li.textContent='There is nobody else in your saved characters yet.';list.appendChild(li);return;}others.forEach(c=>{const b=document.createElement('button');b.textContent=`Give to ${c.name||'someone'}`;b.addEventListener('click',()=>{const dish=removeDish(uid);if(!dish)return;consumePlate();logEntry(`🍽️ Gave ${dish.label} to ${c.name||'someone'}.`);speak(`You serve ${dish.label} to ${c.name||'someone'}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');});const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});}
-  function renderPantry(){const list=document.getElementById('pantryList');if(!list)return;list.innerHTML='';if(!state.pantry.length){const li=document.createElement('li');li.className='empty-msg';li.textContent='The pantry is empty.';list.appendChild(li);return;}state.pantry.forEach(item=>{const li=document.createElement('li');li.textContent=`${item.icon} ${item.label}`;const b=document.createElement('button');b.textContent='Take out';b.addEventListener('click',()=>{state.pantry=state.pantry.filter(x=>x.uid!==item.uid);state.inventory.push(item);persistStorage();renderPantry();renderInventory();speak(`You take ${item.label} out of the pantry.`);});li.appendChild(b);list.appendChild(li);});}
-  function renderTable(){const list=document.getElementById('tableFoodList');if(!list)return;list.innerHTML='';if(!state.tableFood.length){const li=document.createElement('li');li.textContent='The table is clear.';list.appendChild(li);return;}state.tableFood.forEach(item=>{const li=document.createElement('li');li.textContent=`${item.icon} ${item.label}`;const eat=document.createElement('button');eat.textContent='Eat';eat.addEventListener('click',()=>eatDish(item.uid));li.appendChild(eat);list.appendChild(li);});}
-  function openTable(){if(!isHomeScene()){speak('You need to be at Home to use the kitchen table.');return;}document.getElementById('tablePanel').classList.remove('hidden');renderTable();speak('The kitchen table.');document.getElementById('tableCloseBtn').focus();}
-  document.getElementById('tableCloseBtn').addEventListener('click',()=>document.getElementById('tablePanel').classList.add('hidden'));
-  document.getElementById('cookingChoiceCloseBtn').addEventListener('click',()=>document.getElementById('cookingChoicePanel').classList.add('hidden'));
 
   function renderCooking(){
     const list = document.getElementById('cookingRecipeList');
@@ -3928,6 +3934,32 @@
     });
   }
   document.getElementById('cookingCloseBtn').addEventListener('click', closeCooking);
+  function hasCleanPlate(){
+    return state.inventory.some(x=>x.label.toLowerCase().includes('plate') && !x.dirty) || state.cabinet.some(x=>x.label.toLowerCase().includes('plate') && !x.dirty);
+  }
+  function openServingFor(uid){
+    const dish=state.inventory.find(x=>x.uid===uid);
+    if(!dish) return;
+    const panel=document.getElementById('servingPanel'), choices=document.getElementById('servingChoices');
+    choices.innerHTML=''; document.getElementById('servingTitle').textContent=`🍽️ Serve ${dish.label}`;
+    document.getElementById('servingHint').textContent=hasCleanPlate() ? 'Plate available. Choose what to do with your prepared food.' : 'Serving requires a clean plate. Get one from the cabinet first.';
+    const opts=[['Eat yourself','You eat the prepared meal.',()=>useItem(uid)],['Place on kitchen table','You place the prepared meal on the kitchen table for later.',()=>{ const i=state.inventory.findIndex(x=>x.uid===uid); if(i<0)return; state.table.push(state.inventory.splice(i,1)[0]); renderInventory(); persistStorage(); logEntry(`🍽️ Placed ${dish.label} on the kitchen table.`); speak(`You place ${dish.label} on the kitchen table.`); closeServing(); }]];
+    if(cachedRoster && cachedRoster.length){
+      cachedRoster.filter(c=>c.id!==state.character.id).slice(0,8).forEach(c=>opts.push([`Give to ${c.name}`,`You give ${dish.label} to ${c.name}.`,()=>{ const i=state.inventory.findIndex(x=>x.uid===uid); if(i<0)return; const target=cachedRoster.find(x=>x.id===c.id); target.inventory=target.inventory||[]; target.inventory.push(state.inventory.splice(i,1)[0]); saveCharacterToStorage(target); renderInventory(); persistStorage(); logEntry(`🎁 Gave ${dish.label} to ${c.name}.`); speak(`You give ${dish.label} to ${c.name}.`); closeServing(); }]));
+    }
+    opts.forEach(([label,desc,fn])=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.textContent=label; b.disabled=label!=='Eat yourself' && !hasCleanPlate(); b.setAttribute('aria-label',`${label}. ${desc}`); b.onclick=fn; li.appendChild(b); choices.appendChild(li); });
+    panel.classList.remove('hidden'); choices.querySelector('button:not([disabled])')?.focus(); speak(document.getElementById('servingHint').textContent);
+  }
+  function closeServing(){ document.getElementById('servingPanel').classList.add('hidden'); }
+  function openServingTable(){
+    const panel=document.getElementById('servingPanel'), choices=document.getElementById('servingChoices'); choices.innerHTML='';
+    document.getElementById('servingTitle').textContent='🍽️ Kitchen table';
+    document.getElementById('servingHint').textContent=state.table.length ? `${state.table.length} prepared item${state.table.length===1?'':'s'} on the table.` : 'The table is empty. Serve a cooked meal here from your backpack.';
+    state.table.forEach(item=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.textContent=`Eat ${item.label}`; b.setAttribute('aria-label',`Eat ${item.label} from the kitchen table`); b.onclick=()=>{ const i=state.table.findIndex(x=>x.uid===item.uid); if(i<0)return; state.table.splice(i,1); state.mood+=item.mood||0; state.energy+=item.energy||0; updateMeters(); renderScene(false); persistStorage(); logEntry(`🍽️ Ate ${item.label} from the kitchen table.`); speak(item.useAct||`You eat ${item.label}.`); openServingTable(); }; li.appendChild(b); choices.appendChild(li); });
+    panel.classList.remove('hidden'); document.getElementById('servingCloseBtn').focus(); speak(document.getElementById('servingHint').textContent);
+  }
+  document.getElementById('servingCloseBtn').addEventListener('click',closeServing);
+
 
   /* ---------- town directory & relationships ---------- */
   function relationshipKey(idA, idB){
@@ -4372,123 +4404,22 @@
   document.getElementById('directoryCloseBtn').addEventListener('click', closeDirectory);
   document.getElementById('directoryBtn').addEventListener('click', openDirectory);
 
-  /* ---------- library reading & skill books ---------- */
-  const skillBooks = [
-    { id:"cooking", icon:"🍳", title:"Cooking Basics", lessons:[
-      "You learn that simple meals start with fresh ingredients and a little patience.",
-      "You learn a useful kitchen tip: keep ingredients organized so cooking goes faster.",
-      "You uncover a Sunny Town cooking tip: the best recipes often begin with what you already have at home."
-    ]},
-    { id:"botany", icon:"🌿", title:"Practical Botany", lessons:[
-      "You learn that healthy plants need consistent watering and sunlight.",
-      "You learn a useful gardening tip: check your plants regularly instead of waiting until they look wilted.",
-      "You uncover a bit of town lore: Sunny Town's gardeners have passed down planting tricks for generations."
-    ]},
-    { id:"mechanics", icon:"🔧", title:"Everyday Mechanics", lessons:[
-      "You learn that small repairs are easier when you inspect the problem before touching anything.",
-      "You learn a useful mechanics tip: regular maintenance can prevent bigger problems later.",
-      "You uncover a Sunny Town workshop secret: old tools are often worth keeping if you know how to care for them."
-    ]}
-  ];
-
-  function persistReadingBooks(){
-    if (!state.hasCreatedCharacter || !state.character.id) return;
-    state.character.readingBooks = state.character.readingBooks || {};
-    saveCharacterToStorage(state.character);
-    const idx = cachedRoster.findIndex(x => x.id === state.character.id);
-    if (idx >= 0) cachedRoster[idx].readingBooks = { ...state.character.readingBooks };
-  }
-
-  function renderSkillBooks(){
-    const list = document.getElementById('skillBooksList');
-    list.innerHTML = '';
-    state.character.readingBooks = state.character.readingBooks || {};
-    skillBooks.forEach(book => {
-      const count = Math.min(3, Number(state.character.readingBooks[book.id] || 0));
-      const li = document.createElement('li');
-      const info = document.createElement('div');
-      info.className = 'farm-item-info';
-      info.innerHTML = `<strong>${book.icon} ${book.title}</strong><span>Lessons unlocked: ${count}/3</span>`;
-      const btn = document.createElement('button');
-      btn.textContent = count >= 3 ? 'Fully read' : 'Read';
-      btn.disabled = count >= 3;
-      btn.addEventListener('click', () => readSkillBook(book.id));
-      li.appendChild(info);
-      li.appendChild(btn);
-      list.appendChild(li);
-    });
-  }
-
-  function readSkillBook(bookId){
-    const book = skillBooks.find(b => b.id === bookId);
-    if (!book) return;
-    state.character.readingBooks = state.character.readingBooks || {};
-    const count = Math.min(3, Number(state.character.readingBooks[bookId] || 0));
-    if (count >= 3){
-      speak(`You've already finished ${book.title}.`);
-      return;
-    }
-    const next = count + 1;
-    state.character.readingBooks[bookId] = next;
-    ensureSkills();
-    const bookSkill = bookId === "cooking" ? "cooking" : bookId === "botany" ? "gardening" : "mechanics";
-    state.character.skills[bookSkill] = Math.min(100, (state.character.skills[bookSkill] || 0) + 5);
-    state.energy -= 2;
-    state.mood += 2;
-    updateMeters();
-    const lesson = book.lessons[next - 1];
-    logEntry(`${book.icon} Read ${book.title} — lesson ${next} of 3 unlocked.`);
-    speak(`${book.title}, lesson ${next}. ${lesson} You have now unlocked ${next} of 3 lessons from this book.`);
-    renderSkillBooks();
-    persistReadingBooks();
-  }
-
-  function openSkillBooks(){
-    document.getElementById('skillBooksPanel').classList.remove('hidden');
-    renderSkillBooks();
-    speak("Skill book shelf. Choose a book to read and permanently unlock its next lesson.");
-    const firstBtn = document.querySelector('#skillBooksList button:not(:disabled)');
-    if (firstBtn) firstBtn.focus(); else document.getElementById('skillBooksCloseBtn').focus();
-  }
-
-  function closeSkillBooks(){
-    document.getElementById('skillBooksPanel').classList.add('hidden');
-    requestAnimationFrame(() => {
-      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
-      if (active) active.focus();
-    });
-  }
-  document.getElementById('skillBooksCloseBtn').addEventListener('click', closeSkillBooks);
-
   /* ---------- instrument skills ---------- */
   const instrumentSkillLabels = {
     piano:"Piano", guitar:"Guitar", drums:"Drums", violin:"Violin",
-    trumpet:"Trumpet", saxophone:"Saxophone", clarinet:"Clarinet", singing:"Singing"
-  };
-  const lifeSkillLabels = {
+    trumpet:"Trumpet", saxophone:"Saxophone", clarinet:"Clarinet", singing:"Singing",
     cooking:"Cooking", baking:"Baking", gardening:"Gardening", fishing:"Fishing", mechanics:"Mechanics",
-    reading:"Reading", photography:"Photography", art:"Art", sports:"Sports", gaming:"Gaming",
-    writing:"Writing", dancing:"Dancing", swimming:"Swimming", skateboarding:"Skateboarding",
-    woodworking:"Woodworking", sewing:"Sewing", theater:"Theater", astronomy:"Astronomy",
-    volunteering:"Volunteering", collecting:"Collecting", chess:"Chess", puzzles:"Puzzles",
-    birdwatching:"Birdwatching", cycling:"Cycling", skating:"Skating", surfing:"Surfing",
-    yoga:"Yoga", knitting:"Knitting", filmmaking:"Filmmaking", podcasting:"Podcasting",
-    martialarts:"Martial arts", boardgames:"Board games", camping:"Camping", music:"Music",
-    pottery:"Pottery", coding:"Coding", journaling:"Journaling", robotics:"Robotics", calligraphy:"Calligraphy"
+    reading:"Reading", photography:"Photography", art:"Art", gaming:"Gaming", writing:"Writing",
+    dancing:"Dancing", swimming:"Swimming", skateboarding:"Skateboarding", woodworking:"Woodworking",
+    sewing:"Sewing", theater:"Theater", astronomy:"Astronomy", puzzles:"Puzzles", birdwatching:"Birdwatching",
+    cycling:"Cycling", skating:"Skating", surfing:"Surfing", knitting:"Knitting", pottery:"Pottery",
+    coding:"Coding", journaling:"Journaling", robotics:"Robotics", calligraphy:"Calligraphy"
   };
-  const allSkillLabels = { ...instrumentSkillLabels, ...lifeSkillLabels };
 
   function defaultSkills(){
     const skills = {};
-    Object.keys(allSkillLabels).forEach(id => skills[id] = 0);
+    Object.keys(instrumentSkillLabels).forEach(k => skills[k] = 0);
     return skills;
-  }
-
-  function ensureSkills(){
-    if (!state.character.skills) state.character.skills = defaultSkills();
-    Object.keys(allSkillLabels).forEach(id => {
-      if (typeof state.character.skills[id] !== 'number') state.character.skills[id] = 0;
-    });
   }
 
   function skillTier(skill){
@@ -4507,7 +4438,7 @@
   }
 
   function practiceInstrument(skillId, baseAct, baseMood, baseEnergy){
-    ensureSkills();
+    if (!state.character.skills) state.character.skills = defaultSkills();
     const before = state.character.skills[skillId] || 0;
     const after = Math.min(100, before + 3);
     state.character.skills[skillId] = after;
@@ -4522,44 +4453,40 @@
     persistSkills();
   }
 
+  function practiceSkill(skillId, activity, baseMood=4, baseEnergy=-2){
+    if (!state.character.skills) state.character.skills = defaultSkills();
+    const before = state.character.skills[skillId] || 0;
+    const after = Math.min(100, before + 3);
+    state.character.skills[skillId] = after;
+    state.mood += baseMood;
+    state.energy += baseEnergy;
+    updateMeters();
+    const label = instrumentSkillLabels[skillId] || skillId;
+    logEntry(`⭐ ${activity}: ${label} skill is now ${after}/100.`);
+    speak(`${activity} Your ${label} skill is now ${after} out of 100.`);
+    persistSkills();
+  }
+
   function renderSkills(){
     const list = document.getElementById('skillsList');
     list.innerHTML = "";
-    ensureSkills();
-    Object.keys(allSkillLabels).forEach(skillId => {
+    if (!state.character.skills) state.character.skills = defaultSkills();
+    Object.keys(instrumentSkillLabels).forEach(skillId => {
       const value = state.character.skills[skillId] || 0;
       const tier = skillTier(value);
       const li = document.createElement('li');
       const info = document.createElement('div');
       info.className = 'farm-item-info';
-      info.innerHTML = `<strong>${allSkillLabels[skillId]}</strong><span>${value}/100 — ${tier.label}</span>`;
+      info.innerHTML = `<strong>${instrumentSkillLabels[skillId]}</strong><span>${value}/100 — ${tier.label}</span>`;
       li.appendChild(info);
       list.appendChild(li);
     });
   }
 
-  function practiceLifeSkill(skillId, act, mood=3, energy=-2, gain=3){
-    ensureSkills();
-    const before = state.character.skills[skillId] || 0;
-    const after = Math.min(100, before + gain);
-    state.character.skills[skillId] = after;
-    state.mood += mood;
-    state.energy += energy;
-    updateMeters();
-    const label = allSkillLabels[skillId] || skillId;
-    const hobbyBonus = (state.character.hobbies || []).includes(skillId) ? 2 : 0;
-    if (hobbyBonus) state.character.skills[skillId] = Math.min(100, after + hobbyBonus);
-    const finalValue = state.character.skills[skillId];
-    const tier = skillTier(finalValue);
-    logEntry(`⭐ ${label} skill increased to ${finalValue}/100.`);
-    speak(`${act} ${label} skill is now ${finalValue} out of 100. ${tier.label}.`);
-    persistSkills();
-  }
-
   function openSkills(){
     document.getElementById('skillsPanel').classList.remove('hidden');
     renderSkills();
-    speak("Your skills. Practice instruments around town to improve them.");
+    speak("Your skills. Practice instruments and activities around town to improve them.");
     document.getElementById('skillsCloseBtn').focus();
   }
 
@@ -4583,13 +4510,12 @@
     farmhand: { label:"Farmhand", icon:"🚜", pay:12, flavor:"You feed the animals and tend to the fields." },
     bowlingattendant: { label:"Bowling alley attendant", icon:"🎳", pay:11, flavor:"You reset pins and rent out shoes at the counter." },
     nurse: { label:"Nurse", icon:"🏥", pay:15, flavor:"You check on patients and help wherever you're needed." },
-    musician: { label:"Musician", icon:"🎸", pay:16, flavor:"You play a paid gig in the studio for a small crowd." },
-    mechanic: { label:"Repair Technician", icon:"🔧", pay:17, flavor:"You diagnose machines, replace worn parts, and keep Sunny Town's equipment running." , requiresSkill:"mechanics", requiredLevel:25 }
+    musician: { label:"Musician", icon:"🎸", pay:16, flavor:"You play a paid gig in the studio for a small crowd." }
   };
   const jobLocationNames = {
     barista:"the Café", cashier:"the Grocery Store", librarian:"the Library", zookeeper:"the Zoo",
     moviestaff:"the Movie Theater", aquariumguide:"the Aquarium", farmhand:"the Farm",
-    bowlingattendant:"the Bowling Alley", nurse:"the Hospital", musician:"the Music Studio", mechanic:"the Farm Workshop"
+    bowlingattendant:"the Bowling Alley", nurse:"the Hospital", musician:"the Music Studio"
   };
 
   const MAX_SHIFT_MINUTES = 45;
@@ -4597,14 +4523,6 @@
   function handleWorkShift(h, hotspotIndex){
     const job = jobRegistry[h.jobId];
     if (!job) return;
-    if (job.requiresSkill){
-      ensureSkills();
-      const currentSkill = state.character.skills[job.requiresSkill] || 0;
-      if (currentSkill < job.requiredLevel){
-        speak(`You need ${job.requiredLevel} Mechanics skill to work as a ${job.label}. Your Mechanics skill is ${currentSkill} out of 100. Practice repairs at the workshop first.`);
-        return;
-      }
-    }
     if (state.character.job !== h.jobId){
       const current = (state.character.job && state.character.job !== 'none') ? jobRegistry[state.character.job] : null;
       if (current){
@@ -4656,31 +4574,6 @@
   }
 
   const MAIL_MIN_HOURS_BETWEEN_CHECKS = 0.03; // ~2 minutes, avoids re-filing the same update constantly
-
-  function addMailboxFeatureMail(c, now){
-    if (!c.mail) c.mail = [];
-    const today = new Date(now).toISOString().slice(0,10);
-    if (c.mailFeatureLastDay === today) return false;
-    c.mailFeatureLastDay = today;
-
-    const others = cachedRoster.filter(other => other.id !== c.id && other.name);
-    if (others.length){
-      const friend = others[Math.floor(Math.random()*others.length)];
-      c.mail.unshift({id:makeMailId(),category:'letter',icon:'💌',subject:'A letter from a friend',from:friend.name,body:`Hi ${c.name || 'there'}! I was thinking about you today. I hope Sunny Town is treating you well. Write back sometime!`,at:now,read:false});
-      return true;
-    }
-    const roll=Math.random();
-    if(roll<0.34){
-      c.mail.unshift({id:makeMailId(),category:'package',icon:'📦',subject:'A little package for you',from:'Sunny Town Post Office',body:'A small parcel has arrived for you. Open it to add the contents to your backpack.',items:[{icon:'🍪',label:'Fresh cookies',mood:5,energy:3}],at:now,read:false,claimed:false});
-      return true;
-    }
-    if(roll<0.67){
-      c.mail.unshift({id:makeMailId(),category:'request',icon:'🆘',subject:'A neighbor needs a hand',from:'A Sunny Town resident',body:'Someone nearby could use a little help carrying a few boxes. Can you lend a hand?',reward:8,successText:'You help carry the boxes and make their day a little easier. You receive $8 as a thank-you.',declineText:'You decide you cannot help this time. Maybe another request will fit your schedule.',at:now,read:false,resolved:false});
-      return true;
-    }
-    c.mail.unshift({id:makeMailId(),category:'letter',icon:'✉️',subject:'A note from Sunny Town',from:'Sunny Town Community Desk',body:'Just a little note to remind you that there are always people, places, and surprises waiting around town.',at:now,read:false});
-    return true;
-  }
 
   function generateJobAndGardenMail(c){
     const now = Date.now();
@@ -4739,8 +4632,6 @@
     for (const c of cachedRoster){
       if (c.id === state.character.id){
         c.lastSimulatedAt = now;
-        if (addMailboxFeatureMail(c, now)) toSave.add(c);
-        generateJobAndGardenMail(c);
         continue; // the active character manages their own money by clocking in themselves
       }
       const last = c.lastSimulatedAt || now;
@@ -4842,6 +4733,28 @@
     try { await storageSetKey('world:lastDriftAt', String(now)); } catch (e){ /* non-critical */ }
   }
 
+  function openHairSalon(){
+    const panel = document.getElementById("shopPanel");
+    if (!panel) { speak("The hair salon is ready, but its menu could not be opened."); return; }
+    panel.classList.remove("hidden");
+    const title = panel.querySelector("h3");
+    if (title) title.textContent = "💇 Hair Salon";
+    const list = panel.querySelector("ul");
+    if (!list) return;
+    const styles = [
+      ["short","Short"],["long","Long"],["straight","Straight"],["wavy","Wavy"],["curly","Curly"],["afro","Afro"],["locs","Locs"],["braids","Braids"],["cornrows","Cornrows"],["pigtails","Pigtails"],["ponytail","Ponytail"],["bun","Bun"],["pixie","Pixie cut"],["undercut","Undercut"],["fauxhawk","Fauxhawk"],["mohawk","Mohawk"],["buzzed","Buzzed"],["bald","Bald / shaved"],["headscarf","Headscarf"],["turban","Turban"]
+    ];
+    list.innerHTML = "";
+    styles.forEach(([value,label])=>{
+      const li=document.createElement("li"); const b=document.createElement("button");
+      b.type="button"; b.textContent=`💇 ${label}`;
+      b.addEventListener("click",()=>{ state.character.hair=value; persistCharacterAppearance(); renderScene(false); speak(`You chose ${label} as your hairstyle.`); });
+      li.appendChild(b); list.appendChild(li);
+    });
+    const close=panel.querySelector("button:last-child"); if(close) close.focus();
+    speak("Hair salon. Choose a hairstyle.");
+  }
+
   function interact(i){
     const loc = currentLocation();
     const h = loc.hotspots[i];
@@ -4849,16 +4762,20 @@
       handleWorkShift(h, i);
       return;
     }
-    if (h.skillPractice){
-      practiceLifeSkill(h.skillPractice, h.act, h.mood, h.energy, h.skillGain || 3);
-      return;
-    }
     if (h.instrumentSkill){
       practiceInstrument(h.instrumentSkill, h.act, h.mood, h.energy);
       return;
     }
-    if (h.hobbySkill && !h.skillPractice){
-      practiceLifeSkill(h.hobbySkill, h.act, h.mood, h.energy, 3);
+    if (h.skillId){
+      practiceSkill(h.skillId, h.act, h.mood || 4, h.energy || -2);
+      return;
+    }
+    if (h.opensHairSalon){
+      openHairSalon();
+      return;
+    }
+    if (h.opensCloset){
+      openClosetPanel();
       return;
     }
     if (h.opensGarden){
@@ -4881,20 +4798,17 @@
       openBarn();
       return;
     }
-    if (h.opensYardPlanner){
-      openYardPlanner();
-      return;
-    }
-    if (h.opensSkillBooks){
-      openSkillBooks();
-      return;
-    }
     if (h.opensPets){
+      if (!state.pets.length){ speak("The Pet Corner is locked until you have a pet. Visit the Pet Store to adopt one."); return; }
+      openPets();
+      return;
+    }
+    if (h.opensPetStore){
       openPets();
       return;
     }
     if (h.adoptsBaby){
-      openAdoptionPanel(h);
+      adoptBabyAction(h);
       return;
     }
     if (h.opensCooking){
@@ -4909,12 +4823,14 @@
       openMailbox();
       return;
     }
-    if (h.opensArcade){
-      openArcade();
-      return;
-    }
-    if (h.opensTrinketCabinet){
-      openTrinketCabinet();
+    if (h.requiresCoat){
+      if (state.character.outfit !== "wintercoat" && state.character.outfit !== "raincoat") {
+        speak("The coat hook is for hanging up a coat. Put on a coat first.");
+        return;
+      }
+      state.mood += 1; updateMeters();
+      logEntry("🧥 You hang your coat on the coat hook.");
+      speak("You hang your coat on the coat hook.");
       return;
     }
     if (h.dynamicAnimalProducts){
@@ -4949,7 +4865,14 @@
     buttons[i].setAttribute('aria-pressed', 'true');
   }
 
+  function closeTransientPanels(){
+    document.querySelectorAll('.shop-panel').forEach(p => p.classList.add('hidden'));
+    if (flowerBedRefreshTimer){ clearInterval(flowerBedRefreshTimer); flowerBedRefreshTimer = null; }
+    if (petsRefreshTimer){ clearInterval(petsRefreshTimer); petsRefreshTimer = null; }
+  }
+
   function goToScene(i){
+    closeTransientPanels();
     state.sceneIndex = i;
     state.focusIndex = 0;
     renderScene(true);
@@ -5079,57 +5002,6 @@
     return characterSummary(state.character);
   }
 
-  const yardTools = [
-    {id:'path', icon:'🪨', label:'Path'},
-    {id:'fence', icon:'🪵', label:'Fence'},
-    {id:'flowers', icon:'🌷', label:'Flower bed'},
-    {id:'tree', icon:'🌳', label:'Tree'},
-    {id:'lamp', icon:'🏮', label:'Lamp'},
-    {id:'fairylights', icon:'✨', label:'Fairy lights'},
-    {id:'gnome', icon:'🧙', label:'Garden gnome'},
-    {id:'patio', icon:'🪑', label:'Patio seat'},
-    {id:'eraser', icon:'⌫', label:'Eraser'}
-  ];
-  function defaultYardLayout(){ return Array(16).fill(''); }
-  let selectedYardTool = 'path';
-  function renderYardPlanner(){
-    const tools = document.getElementById('yardToolList');
-    const grid = document.getElementById('yardGrid');
-    tools.innerHTML=''; grid.innerHTML='';
-    yardTools.forEach(t=>{
-      const b=document.createElement('button'); b.type='button'; b.textContent=`${t.icon} ${t.label}`;
-      b.setAttribute('aria-pressed', selectedYardTool===t.id?'true':'false');
-      b.addEventListener('click',()=>{selectedYardTool=t.id; renderYardPlanner(); speak(`${t.label} selected.`);});
-      tools.appendChild(b);
-    });
-    const layout=state.character.yardLayout || (state.character.yardLayout=defaultYardLayout());
-    layout.forEach((item,i)=>{
-      const b=document.createElement('button'); b.type='button'; b.className='yard-cell';
-      const tool=yardTools.find(t=>t.id===item);
-      b.textContent=tool?tool.icon:'·';
-      b.setAttribute('aria-label',`Yard square ${i+1}: ${tool?tool.label:'empty'}. Activate to ${selectedYardTool==='eraser'?'clear':'place '+(yardTools.find(t=>t.id===selectedYardTool)?.label||'item')}.`);
-      b.addEventListener('click',()=>{
-        layout[i]=selectedYardTool==='eraser'?'':selectedYardTool;
-        persistCharacterAppearance(); renderYardPlanner();
-        const placed=yardTools.find(t=>t.id===layout[i]);
-        logEntry(`🌳 Yard square ${i+1}: ${placed?`placed ${placed.label}`:'cleared'}.`);
-        speak(placed?`Placed ${placed.label} in yard square ${i+1}.`:`Cleared yard square ${i+1}.`);
-      });
-      grid.appendChild(b);
-    });
-  }
-  function openYardPlanner(){
-    document.getElementById('yardPlannerPanel').classList.remove('hidden');
-    renderYardPlanner();
-    speak('Yard landscaping planner. Choose a decoration, then activate a yard square to place it.');
-    document.querySelector('#yardToolList button')?.focus();
-  }
-  function closeYardPlanner(){
-    document.getElementById('yardPlannerPanel').classList.add('hidden');
-    requestAnimationFrame(()=>{ const b=document.querySelector('.hotspot[tabindex="0"]')||document.querySelector('.hotspot'); if(b)b.focus(); });
-  }
-  document.getElementById('yardPlannerCloseBtn').addEventListener('click',closeYardPlanner);
-
   function defaultCharacter(){
     return {
       id: null, createdAt: null,
@@ -5140,8 +5012,8 @@
       freckles: false, vitiligo: false, tattoos: false,
       accessories: [], hobbies: ["reading"], job: "none", money: 50, color: "teal",
       posture: "standing", farm: defaultFarm(), pets: [], homeGarden: defaultHomeGarden(), babies: [],
-      inventory: [], fridge: [], cabinet: [], skills: defaultSkills(), readingBooks: {}, flowerBed: defaultFlowerBed(), yardLayout: defaultYardLayout(),
-      activeShift: null, lastSimulatedAt: Date.now(), mail: [], mailFeatureLastDay: null
+      inventory: [], fridge: [], pantry: [], cabinet: [], table: [], closet: [], skills: defaultSkills(), flowerBed: defaultFlowerBed(),
+      activeShift: null, lastSimulatedAt: Date.now(), mail: []
     };
   }
 
@@ -5480,19 +5352,6 @@
     const c = cachedRoster.find(x => x.id === id);
     await deleteCharacterFromStorage(id);
     cachedRoster = cachedRoster.filter(x => x.id !== id);
-    // If this was an adopted child, remove their family link from every saved parent.
-    if (c?.adoptedChild && c.parentId){
-      const parent = cachedRoster.find(x => x.id === c.parentId);
-      if (parent?.babies) {
-        parent.babies = parent.babies.filter(b => b.id !== id);
-        await saveCharacterToStorage(parent);
-      }
-      if (state.character?.id === c.parentId){
-        state.babies = (state.babies || []).filter(b => b.id !== id);
-        state.character.babies = state.babies;
-        updateBabyBtnVisibility();
-      }
-    }
     if (state.character.id === id){
       state.hasCreatedCharacter = false;
       editCharBtn.classList.add('hidden');
@@ -5542,22 +5401,19 @@
     state.pets = state.character.pets ? JSON.parse(JSON.stringify(state.character.pets)) : [];
     state.homeGarden = state.character.homeGarden ? JSON.parse(JSON.stringify(state.character.homeGarden)) : defaultHomeGarden();
     state.flowerBed = state.character.flowerBed ? JSON.parse(JSON.stringify(state.character.flowerBed)) : defaultFlowerBed();
-    if (!Array.isArray(state.character.yardLayout) || state.character.yardLayout.length !== 16) state.character.yardLayout = defaultYardLayout();
     state.babies = state.character.babies ? JSON.parse(JSON.stringify(state.character.babies)) : [];
-    await migrateLegacyAdoptedChildren();
-    ensureSkills();
     updateBabyBtnVisibility();
     state.inventory = state.character.inventory ? JSON.parse(JSON.stringify(state.character.inventory)) : [];
     state.fridge = state.character.fridge ? JSON.parse(JSON.stringify(state.character.fridge)) : [];
     state.pantry = state.character.pantry ? JSON.parse(JSON.stringify(state.character.pantry)) : [];
     state.cabinet = state.character.cabinet ? JSON.parse(JSON.stringify(state.character.cabinet)) : [];
-    state.tableFood = state.character.tableFood ? JSON.parse(JSON.stringify(state.character.tableFood)) : [];
-    state.trinketCabinet = state.character.trinketCabinet ? JSON.parse(JSON.stringify(state.character.trinketCabinet)) : [];
+    state.table = state.character.table ? JSON.parse(JSON.stringify(state.character.table)) : [];
+    state.closet = state.character.closet ? JSON.parse(JSON.stringify(state.character.closet)) : [];
     renderInventory();
+    renderCloset();
     renderFridge();
     renderPantry();
     renderCabinet();
-    renderTable();
     let welcomeMsg = `${characterSummary(state.character)} Welcome back to Sunny Town, ${state.character.name}!`;
     if (awayRecap){
       welcomeMsg += ` ${awayRecap}`;
@@ -5609,7 +5465,6 @@
     if (!state.character.pets) state.character.pets = [];
     if (!state.character.homeGarden) state.character.homeGarden = defaultHomeGarden();
     if (!state.character.flowerBed) state.character.flowerBed = defaultFlowerBed();
-    if (!Array.isArray(state.character.yardLayout) || state.character.yardLayout.length !== 16) state.character.yardLayout = defaultYardLayout();
     if (!state.character.babies) state.character.babies = [];
     if (!state.character.inventory) state.character.inventory = [];
     if (!state.character.fridge) state.character.fridge = [];
@@ -5790,5 +5645,206 @@
   init();
 })();
 </script>
+
+<script>
+(function () {
+  "use strict";
+  const KEY = "sunnyTownInteractiveActivityState";
+  const activities = {
+    "observe-zoo": ["Zoo observation", "Animal Observation", 1],
+    "aquarium-watch": ["Aquarium study", "Aquarium Knowledge", 1],
+    "bowling": ["Bowling", "Bowling", 1],
+    "music-practice": ["Music practice", "Music", 1],
+    "beach-surf": ["Surfing practice", "Surfing", 1],
+    "park-birdwatch": ["Birdwatching", "Birdwatching", 1],
+    "park-playground": ["Playground", "Sports", 1],
+    "farm-repair": ["Repair practice", "Mechanics", 1]
+  };
+
+  function readState() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}"); }
+    catch (_) { return {}; }
+  }
+  function saveState(s) {
+    localStorage.setItem(KEY, JSON.stringify(s));
+  }
+  function characterKey() {
+    // Prefer an existing character identifier/name if the game exposes one.
+    try {
+      if (window.currentCharacter && (window.currentCharacter.id || window.currentCharacter.name))
+        return String(window.currentCharacter.id || window.currentCharacter.name);
+      if (window.currentCharacterName) return String(window.currentCharacterName);
+    } catch (_) {}
+    return "Rossi";
+  }
+  function runActivity(id) {
+    const info = activities[id];
+    if (!info) return;
+    const state = readState();
+    const ck = characterKey();
+    state[ck] = state[ck] || { skills: {}, history: [] };
+    state[ck].skills[info[2]] = (state[ck].skills[info[2]] || 0) + info[2];
+    state[ck].history.push({ id, at: Date.now() });
+    if (state[ck].history.length > 100) state[ck].history.shift();
+    saveState(state);
+
+    const el = document.getElementById("activityState");
+    if (el) {
+      el.textContent = info[0] + " complete. " + info[1] + " progress increased and the activity was saved.";
+      el.setAttribute("role", "status");
+      el.focus?.();
+    }
+    if (typeof window.speak === "function") {
+      try { window.speak(info[0] + " complete. " + info[1] + " progress increased."); } catch (_) {}
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    const b = e.target.closest && e.target.closest("[data-activity]");
+    if (b) runActivity(b.getAttribute("data-activity"));
+  });
+})();
+</script>
+
+
+<script>
+(function () {
+  "use strict";
+  const KEY = "sunnyTownFamilySimulation";
+  const actions = {
+    "enroll-child": ["Child enrollment", "Your child is now enrolled in school."],
+    "take-child-school": ["School routine", "Your enrolled child goes to school as part of their normal routine."],
+    "pet-store": ["Pet store", "The pet store is ready for pets, adoption, and supplies."],
+    "pet-care": ["Pet care", "You checked your pet's care needs."]
+  };
+  function state() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}"); }
+    catch (_) { return {}; }
+  }
+  function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+  function current() {
+    try {
+      if (window.currentCharacter && (window.currentCharacter.id || window.currentCharacter.name))
+        return String(window.currentCharacter.id || window.currentCharacter.name);
+      if (window.currentCharacterName) return String(window.currentCharacterName);
+    } catch (_) {}
+    return "Rossi";
+  }
+  function act(id) {
+    const a = actions[id]; if (!a) return;
+    const s = state(), c = current();
+    s[c] = s[c] || { enrolledChildren: false, history: [], petCareChecks: 0 };
+    if (id === "enroll-child") s[c].enrolledChildren = true;
+    if (id === "pet-care") s[c].petCareChecks++;
+    s[c].history.push({ action:id, at:Date.now() });
+    if (s[c].history.length > 100) s[c].history.shift();
+    save(s);
+    const el = document.getElementById("familyStatus");
+    if (el) el.textContent = a[1];
+    if (typeof window.speak === "function") {
+      try { window.speak(a[1]); } catch (_) {}
+    }
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("[data-family-action]");
+    if (b) act(b.getAttribute("data-family-action"));
+  });
+})();
+</script>
+
+
+<script>
+(function () {
+  "use strict";
+  const KEY = "sunnyTownAdoptedChildAging";
+  const stages = ["baby", "toddler", "kid", "tween", "teen", "adult", "elder"];
+
+  function read() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}"); }
+    catch (_) { return {}; }
+  }
+  function write(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+  function currentCharacter() {
+    try {
+      if (window.currentCharacter && (window.currentCharacter.id || window.currentCharacter.name))
+        return String(window.currentCharacter.id || window.currentCharacter.name);
+      if (window.currentCharacterName) return String(window.currentCharacterName);
+    } catch (_) {}
+    return "Rossi";
+  }
+  function getRecord() {
+    const s = read(), c = currentCharacter();
+    s[c] = s[c] || { children: {}, selectedChild: null };
+    return [s, s[c]];
+  }
+  function announce(text) {
+    const el = document.getElementById("babyAgingStatus");
+    if (el) el.textContent = text;
+    if (typeof window.speak === "function") {
+      try { window.speak(text); } catch (_) {}
+    }
+  }
+  function ensureDemoSafeChild() {
+    const [s, r] = getRecord();
+    if (!r.selectedChild) {
+      const id = "adopted-" + Date.now();
+      r.children[id] = {
+        id, name: "Adopted Baby", stage: "baby",
+        adopted: true, createdAt: Date.now(),
+        enrolled: false, appearance: {}, gender: "unspecified"
+      };
+      r.selectedChild = id;
+      write(s);
+    }
+    return [s, r, r.children[r.selectedChild]];
+  }
+  function act(action) {
+    if (action === "edit-baby") {
+      const [s, r, child] = ensureDemoSafeChild();
+      announce("Edit Baby is available for " + child.name + ". Name, appearance, and gender can be changed without resetting the child's saved needs or relationships.");
+      return;
+    }
+    if (action === "grow-baby") {
+      const [s, r, child] = ensureDemoSafeChild();
+      if (child.stage === "elder") {
+        announce(child.name + " is already an elder. Adopted children do not age automatically in this system.");
+        return;
+      }
+      const i = stages.indexOf(child.stage);
+      child.stage = stages[Math.min(i + 1, stages.length - 1)];
+      if (child.stage === "kid" || child.stage === "tween" || child.stage === "teen") child.room = "child-bedroom";
+      if (child.stage === "kid" || child.stage === "tween") child.enrolled = true;
+      write(s);
+      announce(child.name + " grew up to " + child.stage + ". Their nursery placement has been replaced with their own child bedroom when appropriate.");
+      return;
+    }
+    if (action === "enroll-child") {
+      const [s, r, child] = ensureDemoSafeChild();
+      if (["kid","tween","teen"].includes(child.stage)) {
+        child.enrolled = true;
+        child.schoolRoutine = "automatic";
+        write(s);
+        announce(child.name + " is enrolled in school and will use the normal school routine.");
+      } else {
+        announce(child.name + " is not old enough for school yet.");
+      }
+      return;
+    }
+    if (action === "delete-baby") {
+      const [s, r, child] = ensureDemoSafeChild();
+      delete r.children[child.id];
+      r.selectedChild = null;
+      write(s);
+      announce(child.name + " was removed from the adopted-child list.");
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    const b = e.target.closest && e.target.closest("[data-baby-action]");
+    if (b) act(b.getAttribute("data-baby-action"));
+  });
+})();
+</script>
+
 </body>
 </html>
