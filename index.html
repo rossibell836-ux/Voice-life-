@@ -732,6 +732,13 @@
       <button id="tableCloseBtn">Close</button>
     </div>
 
+    <div class="shop-panel hidden" id="fridgePanel" role="region" aria-label="Kitchen fridge">
+      <h3>🧊 Fridge</h3>
+      <p class="fridge-hint">Store perishable foods and drinks here, or take them back out into your backpack.</p>
+      <ul id="fridgeActionList" class="farm-list"></ul>
+      <button id="fridgeCloseBtn">Close</button>
+    </div>
+
     <div class="shop-panel hidden" id="pantryPanel" role="region" aria-label="Kitchen pantry">
       <h3>🥫 Pantry</h3>
       <p class="fridge-hint">Store shelf-stable ingredients and foods here. Choose an item to take it out, or put pantry items away from your backpack.</p>
@@ -1001,8 +1008,8 @@
           id: "kitchen", name: "Kitchen", icon: "🍳",
           desc: "A bright kitchen with morning light spilling across the counter.",
           hotspots: [
-            { icon:"🧊", label:"Fridge", desc:"The fridge hums. Inside there's milk, eggs, and leftover pie.",
-              act:"You pour a glass of milk and drink it. Cool and refreshing.", mood:2, energy:6 },
+            { icon:"🧊", label:"Fridge", desc:"A working refrigerator where you can store and retrieve food and drinks.",
+              act:"You open the refrigerator.", mood:0, energy:0, opensFridge:true },
             { icon:"🍳", label:"Stove", desc:"A stove with a kettle sitting on one burner. Bring ingredients from your backpack to cook something real.",
               act:"You step up to the stove.", mood:0, energy:0, opensCooking:true },
             { icon:"🔥", label:"Oven", desc:"A working oven for baking breads, pastries, pies, casseroles, and other oven recipes.",
@@ -1699,7 +1706,7 @@
     blue:"blue", lightblue:"light blue", gray:"gray", heterochromia:"two different colors"
   };
   const outfitLabels = {
-    casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes",
+    casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes", floral:"a floral dress", ocean:"an ocean dress",
     formal:"a formal suit", traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing",
     swimwear:"swimwear", pajamas:"pajamas", wintercoat:"a winter coat", raincoat:"a raincoat",
     uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing"
@@ -1790,7 +1797,7 @@
       'shopPanel','gardenPanel','homeGardenPanel','flowerBedPanel',
       'benchPanel','sinkPanel','mailboxPanel','barnPanel','petsPanel','babyPanel',
       'skillsPanel','cookingPanel','directoryPanel',
-      'skillBooksPanel','adoptionPanel','cookingChoicePanel','tablePanel','pantryPanel','cabinetPanel','achievementsPanel',
+      'skillBooksPanel','adoptionPanel','cookingChoicePanel','tablePanel','fridgePanel','pantryPanel','cabinetPanel','achievementsPanel',
       'orchardPanel','beehivePanel','toasterPanel','yardPlannerPanel','closetPanel'
     ];
     panelIds.forEach(id => {
@@ -2409,9 +2416,17 @@
 
   function wearFromCloset(uid){
     const item=state.closet.find(x=>x.uid===uid); if(!item)return;
-    if(item.wearsOutfit){ state.character.outfit=item.wearsOutfit; state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`👗 ${item.label}: You put it on.`); speak(`You put on ${item.label}. You're now wearing ${outfitLabels[item.wearsOutfit] || item.label}.`); }
-    else if(item.wearsShoes){ state.character.shoes=item.wearsShoes; state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`👟 ${item.label}: You put them on.`); speak(`You put on ${item.label}.`); }
-    else if(item.wearsAccessory){ if(!state.character.accessories.includes(item.wearsAccessory)) state.character.accessories.push(item.wearsAccessory); state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`💍 ${item.label}: You put it on.`); speak(`You put on ${item.label}.`); }
+    if(item.wearsOutfit){
+      if(state.character.outfit===item.wearsOutfit){ speak(`You are already wearing ${item.label}.`); return; }
+      state.character.outfit=item.wearsOutfit; state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`👗 ${item.label}: You put it on.`); speak(`You put on ${item.label}. You're now wearing ${outfitLabels[item.wearsOutfit] || item.label}.`);
+    } else if(item.wearsShoes){
+      if(state.character.shoes===item.wearsShoes){ speak(`You are already wearing ${item.label}.`); return; }
+      state.character.shoes=item.wearsShoes; state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`👟 ${item.label}: You put them on.`); speak(`You put on ${item.label}.`);
+    } else if(item.wearsAccessory){
+      if(state.character.accessories.includes(item.wearsAccessory)){ speak(`You are already wearing ${item.label}.`); return; }
+      state.character.accessories.push(item.wearsAccessory); state.mood=Math.min(100,state.mood+(item.mood||0)); updateMeters(); logEntry(`💍 ${item.label}: You put it on.`); speak(`You put on ${item.label}.`);
+    }
+    state.closet=state.closet.filter(x=>x.uid!==uid);
     persistStorage(); persistCharacterAppearance(); renderClosetPanel();
   }
 
@@ -4095,7 +4110,7 @@
   };
 
   function countIngredient(label){
-    return state.inventory.filter(item => item.label === label).length;
+    return [state.inventory,state.fridge,state.pantry].reduce((total,arr)=>total+(arr||[]).filter(item=>item.label===label).length,0);
   }
 
   function hasIngredients(recipe){
@@ -4104,15 +4119,15 @@
 
   function consumeIngredients(recipe){
     recipe.ingredients.forEach(ing => {
-      let remaining = ing.qty;
-      state.inventory = state.inventory.filter(item => {
-        if (remaining > 0 && item.label === ing.label){
-          remaining -= 1;
-          return false;
+      let remaining=ing.qty;
+      for(const arr of [state.inventory,state.fridge,state.pantry]){
+        for(let i=arr.length-1;i>=0 && remaining>0;i--){
+          if(arr[i].label===ing.label){ arr.splice(i,1); remaining--; }
         }
-        return true;
-      });
+        if(remaining<=0) break;
+      }
     });
+    persistStorage(); renderInventory(); renderFridge(); renderPantry(); renderFridgePanel(); renderPantryPanel();
   }
 
   function cookRecipe(recipeId){
@@ -4172,6 +4187,20 @@
   function eatDish(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.mood=Math.min(100,state.mood+(dish.mood||4));state.energy=Math.min(100,state.energy+(dish.energy||5));logEntry(`😋 Ate ${dish.label}.`);speak(dish.useAct||`You eat ${dish.label}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');updateMeters();}
   function placeOnTable(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.tableFood.push(dish);logEntry(`🍽️ Served ${dish.label} on the kitchen table.`);speak(`You serve ${dish.label} and place it on the kitchen table.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();renderTable();document.getElementById('cookingChoicePanel').classList.add('hidden');}
   function renderFoodRecipients(uid){const list=document.getElementById('cookingChoiceList');list.innerHTML='';const others=cachedRoster.filter(c=>c.id!==state.character.id);if(!others.length){const li=document.createElement('li');li.textContent='There is nobody else in your saved characters yet.';list.appendChild(li);return;}others.forEach(c=>{const b=document.createElement('button');b.textContent=`Give to ${c.name||'someone'}`;b.addEventListener('click',()=>{const dish=removeDish(uid);if(!dish)return;consumePlate();logEntry(`🍽️ Gave ${dish.label} to ${c.name||'someone'}.`);speak(`You serve ${dish.label} to ${c.name||'someone'}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');});const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});}
+  function renderFridgePanel(){
+    const list=document.getElementById('fridgeActionList'); if(!list)return; list.innerHTML='';
+    const inBackpack=state.inventory.filter(x=>x.storageType==='fridge' || (x.food && x.storageType!=='pantry' && x.storageType!=='cabinet'));
+    if(inBackpack.length){ const h=document.createElement('li'); h.innerHTML='<strong>Food and drinks in your backpack</strong>'; list.appendChild(h);
+      inBackpack.forEach(item=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.textContent=`Put ${item.label} in fridge`; b.setAttribute('aria-label',`Put ${item.label} in the fridge`); b.onclick=()=>putInFridge(item.uid); li.textContent=`${item.icon} ${item.label} `; li.appendChild(b); list.appendChild(li); }); }
+    if(!state.fridge.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='The fridge is empty.'; list.appendChild(li); }
+    else { const h=document.createElement('li'); h.innerHTML='<strong>Stored in fridge</strong>'; list.appendChild(h); state.fridge.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const b=document.createElement('button'); b.textContent='Take out'; b.setAttribute('aria-label',`Take ${item.label} out of the fridge`); b.onclick=()=>takeOutOfFridge(item.uid); li.appendChild(b); list.appendChild(li); }); }
+  }
+  function openFridge(){
+    if(!isHomeScene()){ speak('You need to be in the Kitchen at Home to use the fridge.'); return; }
+    const panel=document.getElementById('fridgePanel'); panel.classList.remove('hidden'); renderFridgePanel(); speak('The fridge. You can store or take out food and drinks.'); const first=panel.querySelector('button'); if(first)first.focus();
+  }
+  document.getElementById('fridgeCloseBtn').addEventListener('click',()=>document.getElementById('fridgePanel').classList.add('hidden'));
+
   function putInPantry(uid){
     if (!isHomeScene()){ speak("You need to be in the Kitchen at Home to use the pantry."); return; }
     const idx=state.inventory.findIndex(x=>x.uid===uid); if(idx<0)return;
@@ -4839,6 +4868,19 @@
     persistReadingBooks();
   }
 
+  function advanceSkillBook(book){
+    if(!book) return;
+    const skill=book.skillId || book.skill || null;
+    if(!skill) return;
+    const levels=['Basic','Intermediate','Advanced','Expert','Master'];
+    const current=String(book.level||'Basic');
+    const idx=levels.indexOf(current);
+    if(idx<0 || idx>=levels.length-1) return;
+    const next=levels[idx+1];
+    book.level=next;
+    book.title=String(book.title||book.name||skill).replace(/Basic|Intermediate|Advanced|Expert|Master/i,next);
+  }
+
   function openSkillBooks(){
     document.getElementById('skillBooksPanel').classList.remove('hidden');
     renderSkillBooks();
@@ -5439,6 +5481,10 @@
     }
     if (h.adoptsBaby){
       openAdoptionPanel(h);
+      return;
+    }
+    if (h.opensFridge){
+      openFridge();
       return;
     }
     if (h.opensPantry){
