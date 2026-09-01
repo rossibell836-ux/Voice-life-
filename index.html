@@ -727,8 +727,24 @@
 
     <div class="shop-panel hidden" id="tablePanel" role="region" aria-label="Kitchen table">
       <h3>🪑 Kitchen table</h3>
-      <p class="fridge-hint">Food placed here can be eaten later or shared.</p>
-      <ul id="tableFoodList" class="farm-list"></ul>
+      <div id="tableMainView">
+        <p class="fridge-hint">Food placed here can be eaten later or shared. You can also sit, set the table, or place bouquets here as decoration.</p>
+        <button id="tableSitBtn">🪑 Sit at the table</button>
+        <button id="tableSetBtn">🍽️ Set the table</button>
+        <button id="tablePlatterBtn">🥘 Arrange a serving platter</button>
+        <ul id="tableFoodList" class="farm-list"></ul>
+      </div>
+      <div id="tableSettingView" class="hidden">
+        <p class="fridge-hint">Bring plates, bowls, cups, or cutlery from the cabinet to set the table.</p>
+        <ul id="tableSettingList" class="farm-list"></ul>
+        <button id="tableSettingBackBtn">Back</button>
+      </div>
+      <div id="tablePlatterView" class="hidden">
+        <p class="fridge-hint" id="platterHint">Choose at least two dishes to arrange on a serving platter. You'll need a serving dish from the cabinet.</p>
+        <ul id="tablePlatterList" class="farm-list"></ul>
+        <button id="tablePlatterFinishBtn" class="hidden">Finish platter</button>
+        <button id="tablePlatterBackBtn">Back</button>
+      </div>
       <button id="tableCloseBtn">Close</button>
     </div>
 
@@ -864,7 +880,7 @@
 
     <div class="shop-panel hidden" id="skillBooksPanel" role="region" aria-label="Library skill books">
       <h3>📚 Skill Book Shelf</h3>
-      <p class="fridge-hint">Read practical books to permanently unlock tips and town lore. Each book can be read up to three times.</p>
+      <p class="fridge-hint">Read practical books to unlock tips, town lore, and skill progress. Each book progresses through five levels, from Basic to Master.</p>
       <ul id="skillBooksList" class="farm-list"></ul>
       <button id="skillBooksCloseBtn">Close</button>
     </div>
@@ -1657,6 +1673,7 @@
     closet: [],
     tableFood: [],
     homeDecor: [],
+    tableSettings: [],
     character: {
       id: null,
       createdAt: null,
@@ -1798,17 +1815,17 @@
       'benchPanel','sinkPanel','mailboxPanel','barnPanel','petsPanel','babyPanel',
       'skillsPanel','cookingPanel','directoryPanel',
       'skillBooksPanel','adoptionPanel','cookingChoicePanel','tablePanel','fridgePanel','pantryPanel','cabinetPanel','achievementsPanel',
-      'orchardPanel','beehivePanel','toasterPanel','yardPlannerPanel','closetPanel'
+      'orchardPanel','toasterPanel','yardPlannerPanel','closetPanel','ovenPanel','repairJobsPanel','bouquetPanel'
     ];
     panelIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.add('hidden');
     });
     // Reset nested views so reopening a panel always starts at its main screen.
-    ['benchMainView','petsMainView','babyMainView','directoryListView'].forEach(id => {
+    ['benchMainView','petsMainView','babyMainView','directoryListView','tableMainView'].forEach(id => {
       const el=document.getElementById(id); if(el) el.classList.remove('hidden');
     });
-    ['benchCompanionView','petsGiveView','babyGiveView','babyEditView','directoryVisitView','visitHangoutChoices'].forEach(id => {
+    ['benchCompanionView','petsGiveView','babyGiveView','babyEditView','directoryVisitView','visitHangoutChoices','tableSettingView','tablePlatterView'].forEach(id => {
       const el=document.getElementById(id); if(el) el.classList.add('hidden');
     });
   }
@@ -2064,6 +2081,7 @@
     state.character.closet = state.closet;
     state.character.tableFood = state.tableFood;
     state.character.homeDecor = state.homeDecor;
+    state.character.tableSettings = state.tableSettings;
     saveCharacterToStorage(state.character);
     const idx = cachedRoster.findIndex(x => x.id === state.character.id);
     if (idx >= 0){
@@ -2074,6 +2092,7 @@
       cachedRoster[idx].closet = state.closet;
       cachedRoster[idx].tableFood = state.tableFood;
       cachedRoster[idx].homeDecor = state.homeDecor;
+      cachedRoster[idx].tableSettings = state.tableSettings;
     }
   }
 
@@ -2245,6 +2264,7 @@
     state.fridge.push(item);
     renderInventory();
     renderFridge();
+    renderFridgePanel();
     logEntry(`🧊 Put in fridge: ${item.icon} ${item.label}`);
     speak(`You put ${item.label} in the fridge for later.`);
     persistStorage();
@@ -2261,6 +2281,7 @@
     state.inventory.push(item);
     renderInventory();
     renderFridge();
+    renderFridgePanel();
     logEntry(`🧊 Took out of fridge: ${item.icon} ${item.label}`);
     speak(`You take ${item.label} out of the fridge and put it back in your backpack.`);
     persistStorage();
@@ -2799,19 +2820,19 @@
 
   /* ---------- orchard ---------- */
   const orchardFruitTypes = {
-    apple: { label:"Apple tree", fruit:"Apple", icon:"🍎", seedCost:12, growMs:90000, value:8 },
-    peach: { label:"Peach tree", fruit:"Peach", icon:"🍑", seedCost:14, growMs:105000, value:10 },
-    orange: { label:"Orange tree", fruit:"Orange", icon:"🍊", seedCost:15, growMs:120000, value:11 },
-    pear: { label:"Pear tree", fruit:"Pear", icon:"🍐", seedCost:13, growMs:100000, value:9 },
-    cherry: { label:"Cherry tree", fruit:"Cherry", icon:"🍒", seedCost:16, growMs:115000, value:12 },
-    lemon: { label:"Lemon tree", fruit:"Lemon", icon:"🍋", seedCost:14, growMs:110000, value:10 },
-    lime: { label:"Lime tree", fruit:"Lime", icon:"🟢", seedCost:14, growMs:110000, value:10 },
-    plum: { label:"Plum tree", fruit:"Plum", icon:"🟣", seedCost:15, growMs:115000, value:11 },
-    apricot: { label:"Apricot tree", fruit:"Apricot", icon:"🍑", seedCost:17, growMs:125000, value:13 },
-    nectarine: { label:"Nectarine tree", fruit:"Nectarine", icon:"🍑", seedCost:18, growMs:130000, value:14 },
-    fig: { label:"Fig tree", fruit:"Fig", icon:"🟤", seedCost:16, growMs:125000, value:13 },
-    pomegranate: { label:"Pomegranate tree", fruit:"Pomegranate", icon:"🔴", seedCost:20, growMs:140000, value:17 },
-    mango: { label:"Mango tree", fruit:"Mango", icon:"🥭", seedCost:22, growMs:150000, value:19 }
+    apple: { label:"Apple tree", fruit:"Apple", icon:"🍎", seedCost:12, growMs:90000, regrowMs:60000, value:8 },
+    peach: { label:"Peach tree", fruit:"Peach", icon:"🍑", seedCost:14, growMs:105000, regrowMs:70000, value:10 },
+    orange: { label:"Orange tree", fruit:"Orange", icon:"🍊", seedCost:15, growMs:120000, regrowMs:80000, value:11 },
+    pear: { label:"Pear tree", fruit:"Pear", icon:"🍐", seedCost:13, growMs:100000, regrowMs:65000, value:9 },
+    cherry: { label:"Cherry tree", fruit:"Cherry", icon:"🍒", seedCost:16, growMs:115000, regrowMs:75000, value:12 },
+    lemon: { label:"Lemon tree", fruit:"Lemon", icon:"🍋", seedCost:14, growMs:110000, regrowMs:70000, value:10 },
+    lime: { label:"Lime tree", fruit:"Lime", icon:"🟢", seedCost:14, growMs:110000, regrowMs:70000, value:10 },
+    plum: { label:"Plum tree", fruit:"Plum", icon:"🟣", seedCost:15, growMs:115000, regrowMs:75000, value:11 },
+    apricot: { label:"Apricot tree", fruit:"Apricot", icon:"🍑", seedCost:17, growMs:125000, regrowMs:80000, value:13 },
+    nectarine: { label:"Nectarine tree", fruit:"Nectarine", icon:"🍑", seedCost:18, growMs:130000, regrowMs:85000, value:14 },
+    fig: { label:"Fig tree", fruit:"Fig", icon:"🟤", seedCost:16, growMs:125000, regrowMs:80000, value:13 },
+    pomegranate: { label:"Pomegranate tree", fruit:"Pomegranate", icon:"🔴", seedCost:20, growMs:140000, regrowMs:90000, value:17 },
+    mango: { label:"Mango tree", fruit:"Mango", icon:"🥭", seedCost:22, growMs:150000, regrowMs:95000, value:19 }
   };
   function defaultOrchard(){
     return { unlocked:false, plots:Array.from({length:13},(_,id)=>({id, tree:null, plantedAt:null, readyAt:null, pollinated:false})), beehive:{owned:false, plotId:null, honeyReady:false} };
@@ -2896,7 +2917,7 @@
     grantItem({icon:f.icon,label:f.fruit,useAct:`You enjoy a ripe ${f.fruit.toLowerCase()} from your orchard.`,mood:5,energy:4,consumable:true,storageType:'fridge',sellPrice:f.value});
     if(plot.pollinated){ grantItem({icon:f.icon,label:`Large ${f.fruit}`,useAct:`You enjoy a large, sweet ${f.fruit.toLowerCase()} from your well-pollinated tree.`,mood:7,energy:5,consumable:true,storageType:'fridge',sellPrice:f.value+3}); if(state.orchard.beehive) state.orchard.beehive.honeyReady=true; }
     if(state.orchard.beehive && state.orchard.beehive.plotId===plotId) state.orchard.beehive.honeyReady=true;
-    plot.tree=null; plot.plantedAt=null; plot.readyAt=null; persistOrchard(); renderOrchard(); speak(`You harvest a fresh ${f.fruit.toLowerCase()} from the orchard.`); unlockAchievement('first_orchard_harvest');
+    plot.plantedAt=Date.now(); plot.readyAt=Date.now()+f.regrowMs; persistOrchard(); renderOrchard(); speak(`You harvest a fresh ${f.fruit.toLowerCase()} from the orchard. The tree will grow more fruit soon.`); unlockAchievement('first_orchard_harvest');
   }
   function openOrchard(){
     renderOrchard(); document.getElementById('orchardPanel').classList.remove('hidden'); document.getElementById('orchardCloseBtn').focus(); speak('Orchard.');
@@ -4256,15 +4277,221 @@
   function renderTable(){
     const list=document.getElementById('tableFoodList'); if(!list)return; list.innerHTML='';
     const available=[...state.inventory,...state.fridge,...state.pantry].filter(x=>x.food);
-    if(!state.tableFood.length && !available.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='The table is clear. There is no food ready to place here.'; list.appendChild(li); return; }
+    const decor=state.homeDecor.filter(x=>x.decorPlace==='kitchen table');
+    if(!state.tableFood.length && !available.length && !decor.length && !state.tableSettings.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='The table is clear. There is no food ready to place here.'; list.appendChild(li); return; }
+    if(state.tableSettings.length){
+      const h=document.createElement('li'); h.innerHTML='<strong>Table is set with</strong>'; list.appendChild(h);
+      state.tableSettings.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const clear=document.createElement('button'); clear.textContent='Clear'; clear.setAttribute('aria-label',`Clear ${item.label} from the table, back into the cabinet`); clear.addEventListener('click',()=>clearTableSetting(item.uid)); li.appendChild(clear); list.appendChild(li); });
+    }
     if(state.tableFood.length){
       const h=document.createElement('li'); h.innerHTML=state.tableFood.length>1 ? '<strong>Choose a dish to eat or share</strong>' : '<strong>Food on the table</strong>'; list.appendChild(h);
-      state.tableFood.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const eat=document.createElement('button'); eat.textContent='Eat this'; eat.setAttribute('aria-label',`Eat ${item.label} from the kitchen table`); eat.addEventListener('click',()=>eatDish(item.uid)); li.appendChild(eat); const give=document.createElement('button'); give.textContent='Give to someone'; give.addEventListener('click',()=>openTableGiveMenu(item.uid)); li.appendChild(give); list.appendChild(li); });
+      state.tableFood.forEach(item=>{
+        const li=document.createElement('li');
+        li.textContent=`${item.icon} ${item.label}`;
+        if(item.isPlatter){
+          const eat=document.createElement('button'); eat.textContent='Eat from platter'; eat.setAttribute('aria-label',`Choose a dish to eat from the ${item.label}`); eat.addEventListener('click',()=>openPlatterDishChoice(item.uid,'eat')); li.appendChild(eat);
+          const give=document.createElement('button'); give.textContent='Give from platter'; give.setAttribute('aria-label',`Choose a dish to give from the ${item.label}`); give.addEventListener('click',()=>openPlatterDishChoice(item.uid,'give')); li.appendChild(give);
+          const putAway=document.createElement('button'); putAway.textContent='Put away platter'; putAway.setAttribute('aria-label',`Put away all dishes from the ${item.label}`); putAway.addEventListener('click',()=>putAwayPlatter(item.uid)); li.appendChild(putAway);
+        } else {
+          const eat=document.createElement('button'); eat.textContent='Eat this'; eat.setAttribute('aria-label',`Eat ${item.label} from the kitchen table`); eat.addEventListener('click',()=>eatDish(item.uid)); li.appendChild(eat);
+          const give=document.createElement('button'); give.textContent='Give to someone'; give.addEventListener('click',()=>openTableGiveMenu(item.uid)); li.appendChild(give);
+          const putAway=document.createElement('button'); putAway.textContent='Put away'; putAway.setAttribute('aria-label',`Put ${item.label} away, back into storage`); putAway.addEventListener('click',()=>putAwayTableDish(item.uid)); li.appendChild(putAway);
+        }
+        list.appendChild(li);
+      });
+    }
+    if(decor.length){
+      const h=document.createElement('li'); h.innerHTML='<strong>Decorations on the table</strong>'; list.appendChild(h);
+      decor.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const remove=document.createElement('button'); remove.textContent='Remove from table'; remove.setAttribute('aria-label',`Remove ${item.label} from the kitchen table, back into your backpack`); remove.addEventListener('click',()=>removeTableDecor(item.uid)); li.appendChild(remove); list.appendChild(li); });
     }
     if(available.length){
       const h=document.createElement('li'); h.innerHTML='<strong>Food you can serve</strong>'; list.appendChild(h);
       available.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const b=document.createElement('button'); b.textContent='Serve on table'; b.setAttribute('aria-label',`Serve ${item.label} on the kitchen table`); b.addEventListener('click',()=>serveExistingFoodOnTable(item.uid)); li.appendChild(b); list.appendChild(li); });
     }
+  }
+
+  /* ---------- table setting (plates, bowls, cups, cutlery) ---------- */
+  function renderTableSettingList(){
+    const list=document.getElementById('tableSettingList'); if(!list)return; list.innerHTML='';
+    const eligible=state.cabinet.filter(x=>['Plates','Bowls','Mugs','Glasses','Cutlery set'].includes(x.label));
+    if(!eligible.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='Nothing in the cabinet to set the table with yet. Buy plates, bowls, mugs, glasses, or a cutlery set at the Grocery Store housewares aisle.'; list.appendChild(li); }
+    eligible.forEach(item=>{ const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}`; const b=document.createElement('button'); b.textContent='Add to table'; b.setAttribute('aria-label',`Add ${item.label} to the table setting`); b.addEventListener('click',()=>addToTableSetting(item.uid)); li.appendChild(b); list.appendChild(li); });
+  }
+  function addToTableSetting(uid){
+    const idx=state.cabinet.findIndex(x=>x.uid===uid); if(idx<0)return;
+    const item=state.cabinet.splice(idx,1)[0];
+    state.tableSettings.push(item);
+    persistStorage(); renderCabinet(); renderCabinetPanel(); renderTableSettingList(); renderTable();
+    logEntry(`🍽️ Added ${item.label} to the table setting.`);
+    speak(`You bring ${item.label} from the cabinet and set them on the table.`);
+  }
+  function clearTableSetting(uid){
+    const idx=state.tableSettings.findIndex(x=>x.uid===uid); if(idx<0)return;
+    const item=state.tableSettings.splice(idx,1)[0];
+    state.cabinet.push(item);
+    persistStorage(); renderCabinet(); renderCabinetPanel(); renderTable();
+    logEntry(`🍽️ Cleared ${item.label} from the table.`);
+    speak(`You clear ${item.label} from the table and put them back in the cabinet.`);
+  }
+  function openTableSetting(){
+    document.getElementById('tableMainView').classList.add('hidden');
+    document.getElementById('tableSettingView').classList.remove('hidden');
+    renderTableSettingList();
+    speak('Set the table. Choose kitchenware from the cabinet to bring to the table.');
+    document.getElementById('tableSettingBackBtn').focus();
+  }
+  function closeTableSetting(){
+    document.getElementById('tableSettingView').classList.add('hidden');
+    document.getElementById('tableMainView').classList.remove('hidden');
+    renderTable();
+    document.getElementById('tableSetBtn').focus();
+  }
+  document.getElementById('tableSetBtn').addEventListener('click', openTableSetting);
+  document.getElementById('tableSettingBackBtn').addEventListener('click', closeTableSetting);
+
+  /* ---------- serving platters ---------- */
+  let pendingPlatterDishes = [];
+  function findServingDish(){ return state.cabinet.find(x=>x.label==='Serving dish') || state.tableSettings.find(x=>x.label==='Serving dish'); }
+  function platterCandidates(){ return [...state.tableFood.filter(x=>!x.isPlatter), ...state.inventory, ...state.fridge, ...state.pantry].filter(x=>x.food); }
+  function renderPlatterBuilder(){
+    const list=document.getElementById('tablePlatterList'); if(!list)return; list.innerHTML='';
+    const dish=findServingDish();
+    const hint=document.getElementById('platterHint');
+    if(!dish){ hint.textContent='You need a serving dish from the cabinet to arrange a platter.'; document.getElementById('tablePlatterFinishBtn').classList.add('hidden'); return; }
+    hint.textContent=`Choose at least two dishes to arrange on the serving dish. Selected: ${pendingPlatterDishes.length}.`;
+    const candidates=platterCandidates();
+    if(!candidates.length && !pendingPlatterDishes.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='There is no food ready to arrange yet.'; list.appendChild(li); }
+    candidates.forEach(item=>{
+      const already=pendingPlatterDishes.some(d=>d.uid===item.uid);
+      const li=document.createElement('li'); li.textContent=`${item.icon} ${item.label}${already?' (selected)':''}`;
+      const b=document.createElement('button'); b.textContent=already?'Remove from platter':'Add to platter';
+      b.setAttribute('aria-label', `${already?'Remove':'Add'} ${item.label} ${already?'from':'to'} the platter`);
+      b.addEventListener('click',()=>{
+        if(already) pendingPlatterDishes=pendingPlatterDishes.filter(d=>d.uid!==item.uid);
+        else pendingPlatterDishes.push(item);
+        renderPlatterBuilder();
+      });
+      li.appendChild(b); list.appendChild(li);
+    });
+    document.getElementById('tablePlatterFinishBtn').classList.toggle('hidden', pendingPlatterDishes.length<2);
+  }
+  function openPlatterBuilder(){
+    if(!isHomeScene()){speak('You need to be in the Kitchen at Home to arrange a platter.');return;}
+    pendingPlatterDishes=[];
+    document.getElementById('tableMainView').classList.add('hidden');
+    document.getElementById('tablePlatterView').classList.remove('hidden');
+    renderPlatterBuilder();
+    speak('Arrange a serving platter. Choose at least two dishes to combine.');
+    document.getElementById('tablePlatterBackBtn').focus();
+  }
+  function closePlatterBuilder(){
+    pendingPlatterDishes=[];
+    document.getElementById('tablePlatterView').classList.add('hidden');
+    document.getElementById('tableMainView').classList.remove('hidden');
+    renderTable();
+    document.getElementById('tablePlatterBtn').focus();
+  }
+  function finishPlatter(){
+    if(pendingPlatterDishes.length<2)return;
+    const dish=findServingDish(); if(!dish)return;
+    if(state.cabinet.includes(dish)) state.cabinet.splice(state.cabinet.indexOf(dish),1);
+    else state.tableSettings.splice(state.tableSettings.indexOf(dish),1);
+    const dishes=pendingPlatterDishes.map(item=>removeDish(item.uid)).filter(Boolean);
+    const platter={ uid: 'platter-'+Date.now()+'-'+Math.random().toString(36).slice(2), icon:'🥘', label:`Serving platter (${dishes.map(d=>d.label).join(', ')})`, isPlatter:true, dishes };
+    state.tableFood.push(platter);
+    pendingPlatterDishes=[];
+    persistStorage(); renderInventory(); renderFridge(); renderFridgePanel(); renderPantry(); renderPantryPanel(); renderCabinet(); renderCabinetPanel();
+    logEntry(`🥘 Arranged a serving platter with ${dishes.map(d=>d.label).join(', ')}.`);
+    speak(`You arrange ${dishes.map(d=>d.label).join(', ')} on the serving dish.`);
+    closePlatterBuilder();
+  }
+  document.getElementById('tablePlatterBtn').addEventListener('click', openPlatterBuilder);
+  document.getElementById('tablePlatterBackBtn').addEventListener('click', closePlatterBuilder);
+  document.getElementById('tablePlatterFinishBtn').addEventListener('click', finishPlatter);
+
+  function openPlatterDishChoice(platterUid, mode){
+    const platter=state.tableFood.find(x=>x.uid===platterUid && x.isPlatter); if(!platter)return;
+    const list=document.getElementById('tableFoodList'); list.innerHTML='';
+    const h=document.createElement('li'); h.innerHTML=`<strong>Choose a dish to ${mode==='eat'?'eat':'give'} from ${platter.label}</strong>`; list.appendChild(h);
+    if(!platter.dishes.length){ const li=document.createElement('li'); li.className='empty-msg'; li.textContent='The platter is empty.'; list.appendChild(li); }
+    platter.dishes.forEach(dish=>{
+      const li=document.createElement('li'); li.textContent=`${dish.icon} ${dish.label}`;
+      const b=document.createElement('button'); b.textContent = mode==='eat' ? 'Eat this' : 'Choose recipient';
+      b.addEventListener('click',()=>{
+        if(mode==='eat') eatDishFromPlatter(platter.uid, dish.uid);
+        else openPlatterGiveMenu(platter.uid, dish.uid);
+      });
+      li.appendChild(b); list.appendChild(li);
+    });
+    const back=document.createElement('button'); back.textContent='Back'; back.addEventListener('click', renderTable);
+    const li=document.createElement('li'); li.appendChild(back); list.appendChild(li);
+  }
+  function eatDishFromPlatter(platterUid, dishUid){
+    const platter=state.tableFood.find(x=>x.uid===platterUid && x.isPlatter); if(!platter)return;
+    const idx=platter.dishes.findIndex(d=>d.uid===dishUid); if(idx<0)return;
+    const dish=platter.dishes.splice(idx,1)[0];
+    state.mood=Math.min(100,state.mood+(dish.mood||4)); state.energy=Math.min(100,state.energy+(dish.energy||5));
+    logEntry(`😋 Ate ${dish.label} from the serving platter.`); speak(dish.useAct||`You eat ${dish.label}.`);
+    if(!platter.dishes.length) removeFinishedPlatter(platter.uid);
+    persistStorage(); updateMeters(); renderTable();
+  }
+  function openPlatterGiveMenu(platterUid, dishUid){
+    const platter=state.tableFood.find(x=>x.uid===platterUid && x.isPlatter); if(!platter)return;
+    const dish=platter.dishes.find(d=>d.uid===dishUid); if(!dish)return;
+    const others=cachedRoster.filter(c=>c.id!==state.character.id);
+    const list=document.getElementById('tableFoodList'); list.innerHTML='';
+    if(!others.length){speak('There is nobody else in your saved characters to give this food to.');return;}
+    const h=document.createElement('li'); h.innerHTML=`<strong>Give ${dish.label} to...</strong>`; list.appendChild(h);
+    others.forEach(c=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.textContent=`Give to ${c.name||'someone'}`; b.addEventListener('click',()=>{
+      const i=platter.dishes.findIndex(d=>d.uid===dishUid); if(i<0)return; platter.dishes.splice(i,1);
+      logEntry(`🍽️ Gave ${dish.label} to ${c.name||'someone'}.`); speak(`You give ${dish.label} to ${c.name||'someone'}.`);
+      if(!platter.dishes.length) removeFinishedPlatter(platter.uid);
+      persistStorage(); renderTable();
+    }); li.appendChild(b); list.appendChild(li); });
+  }
+  function removeFinishedPlatter(platterUid){
+    const idx=state.tableFood.findIndex(x=>x.uid===platterUid); if(idx<0)return;
+    state.tableFood.splice(idx,1);
+    state.cabinet.push({uid:'servingdish-'+Date.now(), icon:'🥘', label:'Serving dish', useAct:'You bring out a big serving dish for the table.', mood:3, energy:0, consumable:false, storageType:'cabinet'});
+    renderCabinet(); renderCabinetPanel();
+    logEntry('🥘 The serving platter is empty. The serving dish goes back to the cabinet.');
+  }
+  function putAwayPlatter(platterUid){
+    const idx=state.tableFood.findIndex(x=>x.uid===platterUid && x.isPlatter); if(idx<0)return;
+    const platter=state.tableFood.splice(idx,1)[0];
+    platter.dishes.forEach(item=>{
+      const recipeStorage = item.recipeId && recipes[item.recipeId] ? recipes[item.recipeId].storage : null;
+      const target = item.storageType || recipeStorage;
+      if(target==='fridge') state.fridge.push(item);
+      else if(target==='pantry') state.pantry.push(item);
+      else state.inventory.push(item);
+    });
+    state.cabinet.push({uid:'servingdish-'+Date.now(), icon:'🥘', label:'Serving dish', useAct:'You bring out a big serving dish for the table.', mood:3, energy:0, consumable:false, storageType:'cabinet'});
+    persistStorage(); renderInventory(); renderFridge(); renderFridgePanel(); renderPantry(); renderPantryPanel(); renderCabinet(); renderCabinetPanel(); renderTable();
+    logEntry(`🥘 Put away the serving platter and its dishes.`);
+    speak('You clear the platter, put the dishes away, and return the serving dish to the cabinet.');
+  }
+
+  function putAwayTableDish(uid){
+    const idx=state.tableFood.findIndex(x=>x.uid===uid); if(idx<0)return;
+    const item=state.tableFood.splice(idx,1)[0];
+    const recipeStorage = item.recipeId && recipes[item.recipeId] ? recipes[item.recipeId].storage : null;
+    const target = item.storageType || recipeStorage;
+    if(target==='fridge') state.fridge.push(item);
+    else if(target==='pantry') state.pantry.push(item);
+    else state.inventory.push(item);
+    persistStorage(); renderInventory(); renderFridge(); renderFridgePanel(); renderPantry(); renderPantryPanel(); renderTable();
+    logEntry(`🍽️ Put away ${item.label} from the kitchen table.`);
+    speak(`You clear ${item.label} from the table and put it away.`);
+  }
+  function removeTableDecor(uid){
+    const idx=state.homeDecor.findIndex(x=>x.uid===uid && x.decorPlace==='kitchen table'); if(idx<0)return;
+    const item=state.homeDecor.splice(idx,1)[0];
+    delete item.decorPlace;
+    state.inventory.push(item);
+    persistStorage(); renderInventory(); renderTable();
+    logEntry(`💐 Took ${item.label} off the kitchen table.`);
+    speak(`You take the ${item.label} off the table and put it back in your backpack.`);
   }
   function serveExistingFoodOnTable(uid){
     if(!isHomeScene()){speak('You need to be in the Kitchen at Home to serve food on the table.');return;}
@@ -4279,8 +4506,13 @@
     others.forEach(c=>{const li=document.createElement('li');const b=document.createElement('button');b.textContent=`Give to ${c.name||'someone'}`;b.addEventListener('click',()=>{const idx=state.tableFood.findIndex(x=>x.uid===uid);if(idx<0)return;state.tableFood.splice(idx,1);persistStorage();renderTable();logEntry(`🍽️ Gave ${item.label} to ${c.name||'someone'}.`);speak(`You give ${item.label} to ${c.name||'someone'}.`);});li.appendChild(b);list.appendChild(li);});
     const back=document.createElement('button');back.textContent='Back';back.addEventListener('click',renderTable);const li=document.createElement('li');li.appendChild(back);list.appendChild(li);
   }
-  function openTable(){if(!isHomeScene()){speak('You need to be at Home to use the kitchen table.');return;}document.getElementById('tablePanel').classList.remove('hidden');renderTable();speak('The kitchen table. You can serve food here, eat food already served, or share it with someone.');document.getElementById('tableCloseBtn').focus();}
-  document.getElementById('tableCloseBtn').addEventListener('click',()=>document.getElementById('tablePanel').classList.add('hidden'));
+  function openTable(){if(!isHomeScene()){speak('You need to be at Home to use the kitchen table.');return;}document.getElementById('tablePanel').classList.remove('hidden');document.getElementById('tableMainView').classList.remove('hidden');document.getElementById('tableSettingView').classList.add('hidden');document.getElementById('tablePlatterView').classList.add('hidden');renderTable();speak('The kitchen table. You can serve food here, eat food already served, share it with someone, sit down, set the table, or arrange a serving platter.');document.getElementById('tableCloseBtn').focus();}
+  document.getElementById('tableCloseBtn').addEventListener('click',()=>{document.getElementById('tablePanel').classList.add('hidden');document.getElementById('tableMainView').classList.remove('hidden');document.getElementById('tableSettingView').classList.add('hidden');document.getElementById('tablePlatterView').classList.add('hidden');pendingPlatterDishes=[];});
+  document.getElementById('tableSitBtn').addEventListener('click',()=>{
+    setPosture('sitting', false);
+    logEntry('🪑 Sat down at the kitchen table.');
+    speak('You pull out a chair and sit down at the kitchen table.');
+  });
   document.getElementById('pantryCloseBtn').addEventListener('click',()=>document.getElementById('pantryPanel').classList.add('hidden'));
   document.getElementById('cabinetCloseBtn').addEventListener('click',()=>document.getElementById('cabinetPanel').classList.add('hidden'));
   document.getElementById('cookingChoiceCloseBtn').addEventListener('click',()=>document.getElementById('cookingChoicePanel').classList.add('hidden'));
@@ -4815,6 +5047,11 @@
     ]}
   ];
 
+  const bookSkillMap = { cooking:'cooking', botany:'gardening', mechanics:'mechanics', baking:'baking', gardening:'gardening', fishing:'fishing', music:'piano' };
+  const skillBookLevels = ['Basic','Intermediate','Advanced','Expert','Master'];
+  const LESSONS_PER_LEVEL = 3;
+  const MAX_BOOK_LESSONS = skillBookLevels.length * LESSONS_PER_LEVEL;
+
   function persistReadingBooks(){
     if (!state.hasCreatedCharacter || !state.character.id) return;
     state.character.readingBooks = state.character.readingBooks || {};
@@ -4828,14 +5065,17 @@
     list.innerHTML = '';
     state.character.readingBooks = state.character.readingBooks || {};
     skillBooks.forEach(book => {
-      const count = Math.min(3, Number(state.character.readingBooks[book.id] || 0));
+      const total = Math.min(MAX_BOOK_LESSONS, Number(state.character.readingBooks[book.id] || 0));
+      const level = Math.min(skillBookLevels.length - 1, Math.floor(total / LESSONS_PER_LEVEL));
+      const lessonInLevel = total % LESSONS_PER_LEVEL;
+      const mastered = total >= MAX_BOOK_LESSONS;
       const li = document.createElement('li');
       const info = document.createElement('div');
       info.className = 'farm-item-info';
-      info.innerHTML = `<strong>${book.icon} ${book.title}</strong><span>Lessons unlocked: ${count}/3</span>`;
+      info.innerHTML = `<strong>${book.icon} ${book.title}</strong><span>${mastered ? 'Mastered' : `${skillBookLevels[level]} level — lesson ${lessonInLevel}/${LESSONS_PER_LEVEL}`}</span>`;
       const btn = document.createElement('button');
-      btn.textContent = count >= 3 ? 'Fully read' : 'Read';
-      btn.disabled = count >= 3;
+      btn.textContent = mastered ? 'Fully mastered' : 'Read';
+      btn.disabled = mastered;
       btn.addEventListener('click', () => readSkillBook(book.id));
       li.appendChild(info);
       li.appendChild(btn);
@@ -4847,44 +5087,45 @@
     const book = skillBooks.find(b => b.id === bookId);
     if (!book) return;
     state.character.readingBooks = state.character.readingBooks || {};
-    const count = Math.min(3, Number(state.character.readingBooks[bookId] || 0));
-    if (count >= 3){
-      speak(`You've already finished ${book.title}.`);
+    const total = Math.min(MAX_BOOK_LESSONS, Number(state.character.readingBooks[bookId] || 0));
+    if (total >= MAX_BOOK_LESSONS){
+      speak(`You've already mastered ${book.title}.`);
       return;
     }
-    const next = count + 1;
-    state.character.readingBooks[bookId] = next;
+    const nextTotal = total + 1;
+    state.character.readingBooks[bookId] = nextTotal;
+    const level = Math.floor(total / LESSONS_PER_LEVEL);
+    const lessonInLevel = total % LESSONS_PER_LEVEL;
+    const justLeveledUp = nextTotal % LESSONS_PER_LEVEL === 0;
+    const justMastered = nextTotal >= MAX_BOOK_LESSONS;
     state.energy -= 2;
     state.mood += 2;
     updateMeters();
-    const lesson = book.lessons[next - 1];
-    if (book.id === 'mechanics'){
+    const lesson = book.lessons[lessonInLevel];
+    const skillId = bookSkillMap[book.id];
+    if (skillId){
       state.character.skills = state.character.skills || defaultSkills();
-      state.character.skills.mechanics = Math.min(100, Number(state.character.skills.mechanics || 0) + 5);
+      const gain = 2 + level; // deeper levels teach more
+      state.character.skills[skillId] = Math.min(100, Number(state.character.skills[skillId] || 0) + gain);
     }
-    logEntry(`${book.icon} Read ${book.title} — lesson ${next} of 3 unlocked.`);
-    speak(`${book.title}, lesson ${next}. ${lesson} You have now unlocked ${next} of 3 lessons from this book.`);
+    logEntry(`${book.icon} Read ${book.title} — ${skillBookLevels[level]} lesson ${lessonInLevel + 1}/${LESSONS_PER_LEVEL}.`);
+    let announcement = `${skillBookLevels[level]} ${book.title}, lesson ${lessonInLevel + 1}. ${lesson}`;
+    if (justMastered){
+      announcement += ` You've now mastered ${book.title}!`;
+      logEntry(`🏅 Mastered ${book.title}.`);
+    } else if (justLeveledUp){
+      announcement += ` You've completed the ${skillBookLevels[level]} level and move on to ${skillBookLevels[level + 1]}.`;
+    }
+    speak(announcement);
     renderSkillBooks();
     persistReadingBooks();
   }
 
-  function advanceSkillBook(book){
-    if(!book) return;
-    const skill=book.skillId || book.skill || null;
-    if(!skill) return;
-    const levels=['Basic','Intermediate','Advanced','Expert','Master'];
-    const current=String(book.level||'Basic');
-    const idx=levels.indexOf(current);
-    if(idx<0 || idx>=levels.length-1) return;
-    const next=levels[idx+1];
-    book.level=next;
-    book.title=String(book.title||book.name||skill).replace(/Basic|Intermediate|Advanced|Expert|Master/i,next);
-  }
 
   function openSkillBooks(){
     document.getElementById('skillBooksPanel').classList.remove('hidden');
     renderSkillBooks();
-    speak("Skill book shelf. Choose a book to read and permanently unlock its next lesson.");
+    speak("Skill book shelf. Choose a book to read and progress through its levels, from Basic to Master.");
     const firstBtn = document.querySelector('#skillBooksList button:not(:disabled)');
     if (firstBtn) firstBtn.focus(); else document.getElementById('skillBooksCloseBtn').focus();
   }
@@ -5493,6 +5734,10 @@
     }
     if (h.opensCabinet){
       openCabinet();
+      return;
+    }
+    if (h.opensTable){
+      openTable();
       return;
     }
     if (h.opensCooking){
@@ -6160,6 +6405,7 @@
     state.closet = state.character.closet ? JSON.parse(JSON.stringify(state.character.closet)) : [];
     state.tableFood = state.character.tableFood ? JSON.parse(JSON.stringify(state.character.tableFood)) : [];
     state.homeDecor = Array.isArray(state.character.homeDecor) ? JSON.parse(JSON.stringify(state.character.homeDecor)) : [];
+    state.tableSettings = Array.isArray(state.character.tableSettings) ? JSON.parse(JSON.stringify(state.character.tableSettings)) : [];
     renderInventory();
     renderFridge();
     renderPantry();
