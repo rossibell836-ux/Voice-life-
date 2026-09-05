@@ -317,6 +317,7 @@
     <button id="babyBtn" class="hidden">👶 Nursery</button>
     <button id="skillsBtn" class="hidden">🎵 Skills</button>
     <button id="achievementsBtn" class="hidden">🏆 Achievements</button>
+    <button id="houseEditorBtn" class="hidden">🏠 House Editor</button>
   </div>
 </header>
 
@@ -875,6 +876,13 @@
       <button id="achievementsCloseBtn">Close</button>
     </div>
 
+    <div class="shop-panel hidden" id="houseEditorPanel" role="region" aria-label="House editor">
+      <h3>🏠 House Editor</h3>
+      <p class="fridge-hint">Choose which rooms are part of your house, and pick a wall color for each painted room. At least one room must stay visible.</p>
+      <ul id="houseEditorList" class="farm-list"></ul>
+      <button id="houseEditorCloseBtn">Close</button>
+    </div>
+
     <div class="shop-panel hidden" id="repairJobsPanel" role="region" aria-label="Mechanics repair jobs">
       <h3>🔧 Mechanics Repair Jobs</h3>
       <p class="fridge-hint">Use your Everyday Mechanics knowledge to complete small repair jobs around Sunny Town and earn cash.</p>
@@ -933,6 +941,7 @@
       </div>
       <div id="directoryVisitView" class="hidden">
         <h3 id="visitTitle"></h3>
+        <div class="scene-illustration hidden" id="visitCharacterIllustration" aria-hidden="true" style="max-width:220px;"></div>
         <p id="visitRelationshipLine" class="fridge-hint"></p>
         <ul id="visitActionsList" class="farm-list"></ul>
         <div id="visitHangoutChoices" class="hidden">
@@ -1750,7 +1759,9 @@
     casual:"a casual outfit", sporty:"sporty clothes", cozy:"a cozy sweater", fancy:"fancy clothes", floral:"a floral dress", ocean:"an ocean dress",
     formal:"a formal suit", traditional:"traditional dress", modest:"modest wear", adaptive:"adaptive clothing",
     swimwear:"swimwear", pajamas:"pajamas", wintercoat:"a winter coat", raincoat:"a raincoat",
-    uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing"
+    uniform:"a uniform", vintage:"vintage clothing", punk:"punk-style clothing",
+    pinksundress:"a pink sundress", midnight:"a midnight dress", butterfly:"a butterfly dress", spring:"a spring dress",
+    bowdress:"a bow dress", sparkle:"a sparkle dress", rosedress:"a rose dress", royal:"a royal dress"
   };
   const shoesLabels = {
     sneakers:"sneakers", boots:"boots", sandals:"sandals", flipflops:"flip-flops", flats:"flats",
@@ -1839,7 +1850,7 @@
       'benchPanel','sinkPanel','mailboxPanel','barnPanel','petsPanel','babyPanel',
       'skillsPanel','cookingPanel','directoryPanel',
       'skillBooksPanel','adoptionPanel','cookingChoicePanel','tablePanel','fridgePanel','pantryPanel','cabinetPanel','achievementsPanel',
-      'orchardPanel','toasterPanel','yardPlannerPanel','closetPanel','ovenPanel','repairJobsPanel','bouquetPanel','juicerPanel','workbenchPanel'
+      'orchardPanel','toasterPanel','yardPlannerPanel','closetPanel','ovenPanel','repairJobsPanel','bouquetPanel','juicerPanel','workbenchPanel','houseEditorPanel'
     ];
     panelIds.forEach(id => {
       const el = document.getElementById(id);
@@ -1855,10 +1866,18 @@
   }
 
   /* ---------- rendering ---------- */
+  function isRoomVisible(scene, room){
+    if (scene.id !== 'home') return true;
+    return (state.character.roomVisibility || {})[room.id] !== false;
+  }
   function currentLocation(){
     const scene = scenes[state.sceneIndex];
     if (!scene.rooms) return scene;
-    const idx = state.roomIndexByScene[state.sceneIndex] ?? 0;
+    let idx = state.roomIndexByScene[state.sceneIndex] ?? 0;
+    if (scene.id === 'home' && !isRoomVisible(scene, scene.rooms[idx] || scene.rooms[0])){
+      const firstVisible = scene.rooms.findIndex(r => isRoomVisible(scene, r));
+      if (firstVisible >= 0){ idx = firstVisible; state.roomIndexByScene[state.sceneIndex] = idx; }
+    }
     return scene.rooms[idx] || scene.rooms[0];
   }
 
@@ -1867,6 +1886,7 @@
     nav.innerHTML = "";
     const idx = state.roomIndexByScene[state.sceneIndex] ?? 0;
     scene.rooms.forEach((room, i) => {
+      if (!isRoomVisible(scene, room)) return;
       const btn = document.createElement('button');
       btn.textContent = `${room.icon} ${room.name}`;
       btn.setAttribute('aria-current', i === idx ? "true" : "false");
@@ -1907,7 +1927,7 @@
   const roomIllustrations = {
     kitchen: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
       <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
-      <rect x="0" y="0" width="700" height="210" fill="#efe0c4"/>
+      <rect id="wallRect" x="0" y="0" width="700" height="210" fill="#efe0c4"/>
       <rect x="0" y="205" width="700" height="8" fill="#2b2620"/>
       <rect x="0" y="213" width="700" height="107" fill="#d8c9a3"/>
       <rect x="0" y="213" width="700" height="6" fill="#c3b189"/>
@@ -1963,19 +1983,749 @@
         <ellipse cx="607" cy="238" rx="70" ry="14" fill="#c98a4b" stroke="#2b2620" stroke-width="4"/>
         <rect x="545" y="255" width="10" height="40" fill="#8a5a3a"/>
         <rect x="655" y="255" width="10" height="40" fill="#8a5a3a"/>
-        <circle cx="590" cy="232" r="9" fill="#e0762f"/>
-        <circle cx="622" cy="232" r="9" fill="#3a6b5c"/>
       </g>
       <!-- rug -->
       <ellipse cx="330" cy="290" rx="120" ry="16" fill="#c94f3d" opacity="0.55"/>
+    </svg>`,
+    livingroom: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
+      <rect id="wallRect" x="0" y="0" width="700" height="220" fill="#efe0c4"/>
+      <rect x="0" y="214" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="222" width="700" height="98" fill="#d8c9a3"/>
+      <!-- window with curtains -->
+      <rect x="500" y="30" width="140" height="110" rx="6" fill="#bfe3e0" stroke="#2b2620" stroke-width="4"/>
+      <line x1="570" y1="30" x2="570" y2="140" stroke="#2b2620" stroke-width="3"/>
+      <line x1="500" y1="85" x2="640" y2="85" stroke="#2b2620" stroke-width="3"/>
+      <path d="M492 26 Q470 90 492 146" fill="none" stroke="#c94f3d" stroke-width="10" stroke-linecap="round"/>
+      <path d="M648 26 Q670 90 648 146" fill="none" stroke="#c94f3d" stroke-width="10" stroke-linecap="round"/>
+      <!-- TV on stand -->
+      <g>
+        <rect x="200" y="46" width="130" height="82" rx="6" fill="#2b2620"/>
+        <rect x="210" y="56" width="110" height="62" rx="3" fill="#7fb3c9"/>
+        <path d="M255 128 h20 v10 h-20 z" fill="#2b2620"/>
+        <rect x="160" y="138" width="210" height="20" rx="3" fill="#8a5a3a" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- couch facing TV -->
+      <g>
+        <rect x="130" y="205" width="260" height="70" rx="14" fill="#3a6b5c" stroke="#2b2620" stroke-width="4"/>
+        <rect x="130" y="185" width="260" height="40" rx="14" fill="#3a6b5c" stroke="#2b2620" stroke-width="4"/>
+        <rect x="118" y="190" width="26" height="80" rx="10" fill="#325c50" stroke="#2b2620" stroke-width="4"/>
+        <rect x="376" y="190" width="26" height="80" rx="10" fill="#325c50" stroke="#2b2620" stroke-width="4"/>
+        <circle cx="200" cy="205" r="16" fill="#e0762f" opacity="0.9"/>
+        <circle cx="240" cy="205" r="16" fill="#efe6d4" opacity="0.9"/>
+      </g>
+      <!-- side table + lamp -->
+      <g>
+        <rect x="420" y="230" width="60" height="12" rx="3" fill="#8a5a3a" stroke="#2b2620" stroke-width="3"/>
+        <rect x="430" y="242" width="8" height="36" fill="#8a5a3a"/>
+        <rect x="462" y="242" width="8" height="36" fill="#8a5a3a"/>
+        <path d="M436 230 L444 195 h20 l8 35 z" fill="#e0c67a" stroke="#2b2620" stroke-width="3"/>
+        <rect x="450" y="180" width="8" height="16" fill="#2b2620"/>
+      </g>
+      <!-- pet corner: bed + bowl + toy -->
+      <g>
+        <ellipse cx="90" cy="270" rx="55" ry="20" fill="#e0c67a" stroke="#2b2620" stroke-width="4"/>
+        <ellipse cx="90" cy="264" rx="42" ry="13" fill="#f3dfa0"/>
+        <ellipse cx="150" cy="285" rx="14" ry="8" fill="#cfd8d8" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="45" cy="290" r="10" fill="#c94f3d" stroke="#2b2620" stroke-width="3"/>
+      </g>
+    </svg>`,
+    entryway: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
+      <rect id="wallRect" x="0" y="0" width="700" height="220" fill="#efe0c4"/>
+      <rect x="0" y="214" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="222" width="700" height="98" fill="#d8c9a3"/>
+      <!-- front door -->
+      <g>
+        <rect x="280" y="40" width="140" height="220" rx="6" fill="#2b6b8f" stroke="#2b2620" stroke-width="5"/>
+        <rect x="296" y="56" width="46" height="70" rx="4" fill="#bfe3e0" stroke="#2b2620" stroke-width="3"/>
+        <rect x="358" y="56" width="46" height="70" rx="4" fill="#bfe3e0" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="398" cy="160" r="6" fill="#e0c67a" stroke="#2b2620" stroke-width="2"/>
+      </g>
+      <!-- mailbox on the wall -->
+      <g>
+        <rect x="470" y="90" width="70" height="46" rx="6" fill="#c94f3d" stroke="#2b2620" stroke-width="4"/>
+        <rect x="470" y="90" width="70" height="14" rx="6" fill="#a4373a"/>
+        <rect x="500" y="136" width="10" height="18" fill="#8a5a3a"/>
+        <path d="M480 90 q25 -14 50 0" fill="none" stroke="#efe6d4" stroke-width="3"/>
+      </g>
+      <!-- coat hooks with jacket -->
+      <g>
+        <rect x="120" y="70" width="110" height="8" rx="3" fill="#8a5a3a" stroke="#2b2620" stroke-width="2"/>
+        <circle cx="145" cy="82" r="5" fill="#2b2620"/>
+        <circle cx="180" cy="82" r="5" fill="#2b2620"/>
+        <circle cx="215" cy="82" r="5" fill="#2b2620"/>
+        <path d="M145 86 q-4 40 6 66 q10 -6 20 0 q10 -30 4 -66 z" fill="#e0762f" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- entry mat -->
+      <ellipse cx="350" cy="290" rx="130" ry="16" fill="#3a6b5c" opacity="0.55"/>
+    </svg>`,
+    bedroom: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
+      <rect id="wallRect" x="0" y="0" width="700" height="220" fill="#efe0c4"/>
+      <rect x="0" y="214" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="222" width="700" height="98" fill="#d8c9a3"/>
+      <!-- window with soft curtains -->
+      <rect x="500" y="30" width="130" height="100" rx="6" fill="#bfe3e0" stroke="#2b2620" stroke-width="4"/>
+      <line x1="565" y1="30" x2="565" y2="130" stroke="#2b2620" stroke-width="3"/>
+      <path d="M494 26 Q474 80 494 134" fill="none" stroke="#efe6d4" stroke-width="10" stroke-linecap="round"/>
+      <path d="M636 26 Q656 80 636 134" fill="none" stroke="#efe6d4" stroke-width="10" stroke-linecap="round"/>
+      <!-- bed with striped blanket -->
+      <g>
+        <rect x="90" y="150" width="230" height="110" rx="10" fill="#8a5a3a" stroke="#2b2620" stroke-width="4"/>
+        <rect x="90" y="150" width="230" height="30" rx="8" fill="#efe6d4" stroke="#2b2620" stroke-width="3"/>
+        <rect x="100" y="182" width="210" height="70" rx="6" fill="#e0762f"/>
+        <rect x="100" y="182" width="210" height="14" fill="#c94f3d"/>
+        <rect x="100" y="210" width="210" height="14" fill="#c94f3d"/>
+        <rect x="100" y="238" width="210" height="14" fill="#c94f3d"/>
+        <rect x="105" y="150" width="55" height="34" rx="8" fill="#fbf6ee" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- closet -->
+      <g>
+        <rect x="380" y="140" width="90" height="120" rx="6" fill="#c98a4b" stroke="#2b2620" stroke-width="4"/>
+        <line x1="425" y1="140" x2="425" y2="260" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="412" cy="200" r="3" fill="#2b2620"/>
+        <circle cx="438" cy="200" r="3" fill="#2b2620"/>
+      </g>
+      <!-- nightstand with lamp and books -->
+      <g>
+        <rect x="500" y="200" width="70" height="60" rx="4" fill="#8a5a3a" stroke="#2b2620" stroke-width="3"/>
+        <rect x="580" y="240" width="34" height="10" fill="#3a6b5c" stroke="#2b2620" stroke-width="2"/>
+        <rect x="586" y="230" width="26" height="10" fill="#e0762f" stroke="#2b2620" stroke-width="2"/>
+        <path d="M515 200 L523 168 h20 l8 32 z" fill="#e0c67a" stroke="#2b2620" stroke-width="3"/>
+        <rect x="528" y="152" width="8" height="16" fill="#2b2620"/>
+      </g>
+    </svg>`,
+    childroom: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
+      <rect id="wallRect" x="0" y="0" width="700" height="220" fill="#efe0c4"/>
+      <rect x="0" y="214" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="222" width="700" height="98" fill="#d8c9a3"/>
+      <!-- child's bed -->
+      <g>
+        <rect x="80" y="160" width="200" height="100" rx="10" fill="#e0762f" stroke="#2b2620" stroke-width="4"/>
+        <rect x="80" y="160" width="200" height="26" rx="8" fill="#efe6d4" stroke="#2b2620" stroke-width="3"/>
+        <rect x="88" y="188" width="184" height="64" rx="6" fill="#bfe3e0"/>
+        <circle cx="130" cy="220" r="10" fill="#fbf6ee" opacity="0.7"/>
+        <circle cx="230" cy="220" r="10" fill="#fbf6ee" opacity="0.7"/>
+        <rect x="92" y="160" width="46" height="30" rx="8" fill="#fbf6ee" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- toy shelf -->
+      <g>
+        <rect x="330" y="150" width="110" height="110" rx="4" fill="#c98a4b" stroke="#2b2620" stroke-width="4"/>
+        <line x1="330" y1="185" x2="440" y2="185" stroke="#2b2620" stroke-width="3"/>
+        <line x1="330" y1="220" x2="440" y2="220" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="352" cy="200" r="10" fill="#c94f3d" stroke="#2b2620" stroke-width="2"/>
+        <rect x="375" y="192" width="18" height="18" fill="#3a6b5c" stroke="#2b2620" stroke-width="2"/>
+        <circle cx="352" cy="238" r="9" fill="#e0c67a" stroke="#2b2620" stroke-width="2"/>
+        <rect x="375" y="228" width="16" height="20" rx="8" fill="#efe6d4" stroke="#2b2620" stroke-width="2"/>
+      </g>
+      <!-- bookshelf -->
+      <g>
+        <rect x="480" y="130" width="90" height="130" rx="4" fill="#8a5a3a" stroke="#2b2620" stroke-width="4"/>
+        <line x1="480" y1="165" x2="570" y2="165" stroke="#2b2620" stroke-width="3"/>
+        <line x1="480" y1="200" x2="570" y2="200" stroke="#2b2620" stroke-width="3"/>
+        <line x1="480" y1="232" x2="570" y2="232" stroke="#2b2620" stroke-width="3"/>
+        <rect x="488" y="140" width="10" height="22" fill="#c94f3d"/>
+        <rect x="500" y="140" width="10" height="22" fill="#3a6b5c"/>
+        <rect x="512" y="140" width="10" height="22" fill="#e0c67a"/>
+        <rect x="488" y="174" width="10" height="22" fill="#3a6b5c"/>
+        <rect x="500" y="174" width="10" height="22" fill="#e0762f"/>
+      </g>
+    </svg>`,
+    bathroom: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#eaf3f2"/>
+      <rect x="0" y="0" width="700" height="220" fill="#dcebe9"/>
+      <line x1="0" y1="40" x2="700" y2="40" stroke="#c3d8d5" stroke-width="2"/>
+      <line x1="0" y1="80" x2="700" y2="80" stroke="#c3d8d5" stroke-width="2"/>
+      <line x1="0" y1="120" x2="700" y2="120" stroke="#c3d8d5" stroke-width="2"/>
+      <line x1="0" y1="160" x2="700" y2="160" stroke="#c3d8d5" stroke-width="2"/>
+      <rect x="0" y="214" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="222" width="700" height="98" fill="#cfd8d8"/>
+      <!-- mirror over sink -->
+      <g>
+        <rect x="230" y="40" width="100" height="80" rx="10" fill="#dff0f0" stroke="#2b2620" stroke-width="4"/>
+        <ellipse cx="270" cy="70" rx="20" ry="30" fill="#ffffff" opacity="0.5"/>
+      </g>
+      <!-- sink under mirror -->
+      <g>
+        <rect x="220" y="150" width="120" height="20" fill="#8a5a3a"/>
+        <ellipse cx="280" cy="158" rx="55" ry="14" fill="#eef3f4" stroke="#2b2620" stroke-width="3"/>
+        <path d="M280 150 v-14 h12" stroke="#2b2620" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="255" y="172" width="14" height="60" fill="#8a5a3a"/>
+        <circle cx="330" cy="145" r="6" fill="#e0c67a" stroke="#2b2620" stroke-width="2"/>
+      </g>
+      <!-- shower with towels -->
+      <g>
+        <rect x="440" y="50" width="150" height="180" rx="8" fill="#eaf3f2" stroke="#2b2620" stroke-width="4"/>
+        <path d="M440 60 q75 20 150 0" fill="none" stroke="#7fb3c9" stroke-width="3"/>
+        <path d="M440 90 q75 20 150 0" fill="none" stroke="#7fb3c9" stroke-width="3"/>
+        <circle cx="515" cy="70" r="8" fill="#cfd8d8" stroke="#2b2620" stroke-width="3"/>
+        <rect x="600" y="150" width="30" height="50" rx="4" fill="#e0762f" stroke="#2b2620" stroke-width="3"/>
+        <rect x="600" y="205" width="30" height="50" rx="4" fill="#3a6b5c" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- bath mat -->
+      <ellipse cx="150" cy="270" rx="70" ry="14" fill="#7fb3c9" opacity="0.6"/>
+    </svg>`,
+    backyard: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#cdeaf0"/>
+      <circle cx="600" cy="55" r="30" fill="#f3dfa0"/>
+      <rect x="0" y="180" width="700" height="140" fill="#8fbf6f"/>
+      <rect x="0" y="174" width="700" height="10" fill="#6f9e52"/>
+      <!-- shade tree -->
+      <g>
+        <rect x="80" y="130" width="26" height="90" fill="#8a5a3a"/>
+        <circle cx="93" cy="110" r="55" fill="#5c8f52" stroke="#2b2620" stroke-width="4"/>
+        <circle cx="55" cy="130" r="34" fill="#6f9e52" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="135" cy="130" r="34" fill="#6f9e52" stroke="#2b2620" stroke-width="3"/>
+      </g>
+      <!-- patio with chair -->
+      <g>
+        <rect x="220" y="200" width="180" height="90" fill="#d8c9a3" stroke="#2b2620" stroke-width="3"/>
+        <rect x="270" y="200" width="60" height="55" rx="8" fill="#e0762f" stroke="#2b2620" stroke-width="4"/>
+        <rect x="266" y="240" width="10" height="30" fill="#8a5a3a"/>
+        <rect x="316" y="240" width="10" height="30" fill="#8a5a3a"/>
+      </g>
+      <!-- BBQ grill -->
+      <g>
+        <ellipse cx="470" cy="235" rx="38" ry="14" fill="#2b2620"/>
+        <path d="M436 235 a34 26 0 0 1 68 0" fill="#463f36" stroke="#2b2620" stroke-width="4"/>
+        <rect x="460" y="255" width="8" height="30" fill="#2b2620"/>
+        <rect x="486" y="255" width="8" height="30" fill="#2b2620"/>
+        <circle cx="470" cy="222" r="5" fill="#e0762f"/>
+      </g>
+      <!-- workbench with tools -->
+      <g>
+        <rect x="560" y="225" width="110" height="16" fill="#8a5a3a" stroke="#2b2620" stroke-width="3"/>
+        <rect x="568" y="241" width="10" height="40" fill="#8a5a3a"/>
+        <rect x="652" y="241" width="10" height="40" fill="#8a5a3a"/>
+        <rect x="580" y="210" width="34" height="14" rx="3" fill="#3a6b5c" stroke="#2b2620" stroke-width="2"/>
+        <circle cx="630" cy="215" r="8" fill="#c94f3d" stroke="#2b2620" stroke-width="2"/>
+      </g>
+    </svg>`,
+    garden: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#cdeaf0"/>
+      <circle cx="90" cy="50" r="26" fill="#f3dfa0"/>
+      <rect x="0" y="185" width="700" height="135" fill="#8fbf6f"/>
+      <rect x="0" y="179" width="700" height="10" fill="#6f9e52"/>
+      <!-- vegetable garden plot: 4 beds -->
+      <g id="gardenVegFrame">
+        <rect x="30" y="205" width="270" height="95" rx="6" fill="#8a5a3a" stroke="#2b2620" stroke-width="4"/>
+      </g>
+      <!-- flower bed: 4 beds -->
+      <g id="gardenFlowerFrame">
+        <rect x="330" y="205" width="270" height="95" rx="6" fill="#a97b4f" stroke="#2b2620" stroke-width="4"/>
+      </g>
+      <!-- garden bench -->
+      <g>
+        <rect x="612" y="215" width="70" height="14" rx="3" fill="#c98a4b" stroke="#2b2620" stroke-width="3"/>
+        <rect x="612" y="185" width="10" height="34" fill="#c98a4b" stroke="#2b2620" stroke-width="2"/>
+        <rect x="674" y="185" width="10" height="34" fill="#c98a4b" stroke="#2b2620" stroke-width="2"/>
+        <rect x="618" y="229" width="8" height="26" fill="#8a5a3a"/>
+        <rect x="670" y="229" width="8" height="26" fill="#8a5a3a"/>
+      </g>
     </svg>`
   };
+  const wallColorPalette = [
+    { id:'cream', label:'Cream (default)', hex:'#efe0c4' },
+    { id:'blue', label:'Soft blue', hex:'#bfe3e0' },
+    { id:'green', label:'Soft green', hex:'#cde0c0' },
+    { id:'pink', label:'Soft pink', hex:'#f0d0d8' },
+    { id:'yellow', label:'Soft yellow', hex:'#f6e6b8' },
+    { id:'lavender', label:'Soft lavender', hex:'#ded0ec' },
+    { id:'gray', label:'Soft gray', hex:'#d9d9d3' }
+  ];
+  const wallColorRooms = ['kitchen','livingroom','entryway','bedroom','childroom'];
   function renderSceneIllustration(loc){
     const el = document.getElementById('sceneIllustration');
     if (!el) return;
     const art = roomIllustrations[loc.id];
-    if (art){ el.innerHTML = art; el.classList.remove('hidden'); }
-    else { el.innerHTML = ''; el.classList.add('hidden'); }
+    if (!art){ el.innerHTML = ''; el.classList.add('hidden'); return; }
+    el.innerHTML = art;
+    el.classList.remove('hidden');
+    if (wallColorRooms.includes(loc.id)){
+      const colorId = (state.character.roomColors || {})[loc.id];
+      const color = wallColorPalette.find(c => c.id === colorId);
+      if (color){
+        const wall = el.querySelector('#wallRect');
+        if (wall) wall.setAttribute('fill', color.hex);
+      }
+    }
+    if (loc.id === 'kitchen'){ renderTableIllustrationOverlay(); renderKitchenApplianceIllustrationOverlay(); }
+    if (loc.id === 'backyard') renderYardIllustrationOverlay();
+    if (loc.id === 'garden') renderGardenIllustrationOverlay();
+    renderCharacterFigureOverlay(loc);
+  }
+  const characterStandingSpots = {
+    kitchen: { x:420, footY:300 },
+    livingroom: { x:520, footY:305 },
+    entryway: { x:350, footY:305 },
+    bedroom: { x:350, footY:305 },
+    childroom: { x:305, footY:305 },
+    bathroom: { x:390, footY:305 },
+    backyard: { x:350, footY:312 },
+    garden: { x:460, footY:312 }
+  };
+  function renderCharacterFigureOverlay(loc){
+    const svg = document.querySelector('#sceneIllustration svg');
+    if (!svg) return;
+    const old = svg.querySelector('#characterFigureOverlay');
+    if (old) old.remove();
+    const spot = characterStandingSpots[loc.id];
+    if (!spot || !state.character || !state.hasCreatedCharacter) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', 'characterFigureOverlay');
+    drawCharacterFigure(g, spot.x, spot.footY, state.character);
+    svg.appendChild(g);
+  }
+  function renderVisitCharacterIllustration(other){
+    const el = document.getElementById('visitCharacterIllustration');
+    if (!el || !other) return;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox', '0 0 200 220');
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',200); bg.setAttribute('height',220);
+    bg.setAttribute('fill', '#efe0c4');
+    svg.appendChild(bg);
+    const floor = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    floor.setAttribute('x',0); floor.setAttribute('y',188); floor.setAttribute('width',200); floor.setAttribute('height',32);
+    floor.setAttribute('fill', '#d8c9a3');
+    svg.appendChild(floor);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    drawCharacterFigure(g, 100, 195, other);
+    svg.appendChild(g);
+    el.innerHTML = '';
+    el.appendChild(svg);
+    el.classList.remove('hidden');
+  }
+
+  /* ---------- house editor: room visibility + wall colors ---------- */
+  function renderHouseEditor(){
+    const list = document.getElementById('houseEditorList');
+    if (!list) return;
+    list.innerHTML = '';
+    const homeScene = scenes.find(s => s.id === 'home');
+    if (!state.character.roomVisibility) state.character.roomVisibility = {};
+    if (!state.character.roomColors) state.character.roomColors = {};
+    const visibleCount = homeScene.rooms.filter(r => isRoomVisible(homeScene, r)).length;
+    homeScene.rooms.forEach(room => {
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const visible = isRoomVisible(homeScene, room);
+      info.innerHTML = `<strong>${room.icon} ${room.name}</strong><span>${visible ? 'Visible' : 'Hidden'}</span>`;
+      li.appendChild(info);
+      const toggleBtn = document.createElement('button');
+      toggleBtn.textContent = visible ? 'Hide room' : 'Show room';
+      toggleBtn.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} ${room.name}`);
+      toggleBtn.disabled = visible && visibleCount <= 1;
+      toggleBtn.addEventListener('click', () => toggleRoomVisibility(room.id));
+      li.appendChild(toggleBtn);
+      if (wallColorRooms.includes(room.id)){
+        const colorSelect = document.createElement('select');
+        colorSelect.setAttribute('aria-label', `Wall color for ${room.name}`);
+        wallColorPalette.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id; opt.textContent = c.label;
+          if ((state.character.roomColors[room.id] || 'cream') === c.id) opt.selected = true;
+          colorSelect.appendChild(opt);
+        });
+        colorSelect.addEventListener('change', () => setRoomColor(room.id, colorSelect.value));
+        li.appendChild(colorSelect);
+      }
+      list.appendChild(li);
+    });
+  }
+  function toggleRoomVisibility(roomId){
+    const homeScene = scenes.find(s => s.id === 'home');
+    if (!state.character.roomVisibility) state.character.roomVisibility = {};
+    const room = homeScene.rooms.find(r => r.id === roomId);
+    if (!room) return;
+    const currentlyVisible = isRoomVisible(homeScene, room);
+    const visibleCount = homeScene.rooms.filter(r => isRoomVisible(homeScene, r)).length;
+    if (currentlyVisible && visibleCount <= 1){
+      speak('At least one room must stay visible in your house.');
+      return;
+    }
+    state.character.roomVisibility[roomId] = currentlyVisible ? false : true;
+    persistCharacterAppearance();
+    logEntry(`🏠 ${currentlyVisible ? 'Hid' : 'Showed'} the ${room.name} in the house editor.`);
+    speak(`${room.name} is now ${currentlyVisible ? 'hidden from' : 'part of'} your house.`);
+    renderHouseEditor();
+    if (scenes[state.sceneIndex].id === 'home') renderScene(false);
+  }
+  function setRoomColor(roomId, colorId){
+    if (!state.character.roomColors) state.character.roomColors = {};
+    state.character.roomColors[roomId] = colorId;
+    persistCharacterAppearance();
+    const room = scenes.find(s => s.id === 'home').rooms.find(r => r.id === roomId);
+    const color = wallColorPalette.find(c => c.id === colorId);
+    logEntry(`🎨 Painted the ${room.name} walls ${color.label}.`);
+    speak(`You paint the ${room.name} walls ${color.label}.`);
+    if (currentLocation().id === roomId) renderSceneIllustration(currentLocation());
+  }
+  function openHouseEditor(){
+    document.getElementById('houseEditorPanel').classList.remove('hidden');
+    renderHouseEditor();
+    speak('House editor. Choose which rooms are part of your house, and pick wall colors for painted rooms.');
+    document.getElementById('houseEditorCloseBtn').focus();
+  }
+  function closeHouseEditor(){
+    document.getElementById('houseEditorPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('houseEditorBtn').addEventListener('click', openHouseEditor);
+  document.getElementById('houseEditorCloseBtn').addEventListener('click', closeHouseEditor);
+
+  /* ---------- real flower shapes for the garden illustration ---------- */
+  function svgEl(tag, attrs){
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  /* ---------- character figure, drawn using real appearance customization ---------- */
+  const skinToneHex = {
+    veryfair:'#f6ddc7', fair:'#f0c9a0', lighttan:'#e0b088', tan:'#c68a5c', olive:'#b8875c',
+    medium:'#8a5a3a', deep:'#6b4226', verydeep:'#4a2c1a'
+  };
+  const hairColorHex = {
+    black:'#2b2620', brown:'#5a3a22', red:'#a4442c', blonde:'#e0c67a', gray:'#b8b0a0',
+    silver:'#d8d8d8', blue:'#4a7fb0', green:'#4a8a5c', pink:'#e08fb0', rainbow:'#c94fd1'
+  };
+  const outfitColorHex = {
+    casual:'#3a6b5c', sporty:'#e0762f', cozy:'#8a5a3a', fancy:'#6b4fa0', floral:'#e08fb0', ocean:'#4a8fb0',
+    formal:'#2b3a4a', traditional:'#a4373a', modest:'#6b7a5a', adaptive:'#7a8a94',
+    swimwear:'#3aa0b0', pajamas:'#b0a0d8', wintercoat:'#3a5c3a', raincoat:'#e0c53a',
+    uniform:'#2b3a5c', vintage:'#b08a3a', punk:'#2b2620',
+    pinksundress:'#f0a6c2', midnight:'#1f2a44', butterfly:'#7fb3d9', spring:'#b8e0a0',
+    bowdress:'#e0475c', sparkle:'#d8d8e8', rosedress:'#c94f6a', royal:'#5c3a8a'
+  };
+  function hairShapeCategory(style){
+    if (['short','buzzed','undercut','mohawk','fauxhawk','pixie'].includes(style)) return 'short';
+    if (['long','straight','wavy'].includes(style)) return 'long';
+    if (['curly','afro'].includes(style)) return 'afro';
+    if (['locs','braids','cornrows','ponytail','bun'].includes(style)) return 'updo';
+    if (style === 'pigtails') return 'pigtails';
+    if (style === 'bald') return 'bald';
+    if (['headscarf','turban'].includes(style)) return 'headwear';
+    return 'short';
+  }
+  function drawCharacterFigure(g, cx, footY, c){
+    const skin = skinToneHex[c.skin] || skinToneHex.medium;
+    const hair = hairColorHex[c.hairColor] || hairColorHex.black;
+    const outfit = outfitColorHex[c.outfit] || outfitColorHex.casual;
+    const widthScale = { slim:0.85, average:1, athletic:1.05, plussize:1.25 }[c.bodyType] || 1;
+    const bw = 13 * widthScale;
+    const headR = 8.5;
+    const headCy = footY - 40;
+    const bodyTop = headCy + headR - 1;
+    const bodyBottom = footY - 14;
+    const usesWheelchair = c.mobility === 'wheelchair';
+    // legs (skipped if using a wheelchair; drawn as a seated silhouette instead)
+    if (usesWheelchair){
+      g.appendChild(svgEl('rect', { x:cx-bw, y:bodyBottom-4, width:bw*2, height:10, rx:3, fill:outfit }));
+      g.appendChild(svgEl('circle', { cx:cx-bw-2, cy:footY, r:9, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
+      g.appendChild(svgEl('circle', { cx:cx+bw+2, cy:footY, r:9, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
+      g.appendChild(svgEl('line', { x1:cx-bw-2, y1:footY-9, x2:cx+bw+2, y2:footY-9, stroke:'#463f36', 'stroke-width':2 }));
+    } else {
+      g.appendChild(svgEl('rect', { x:cx-bw*0.7, y:bodyBottom, width:bw*0.55, height:footY-bodyBottom, rx:2, fill:'#463f36' }));
+      g.appendChild(svgEl('rect', { x:cx+bw*0.15, y:bodyBottom, width:bw*0.55, height:footY-bodyBottom, rx:2, fill:'#463f36' }));
+    }
+    // body / outfit
+    g.appendChild(svgEl('rect', { x:cx-bw, y:bodyTop, width:bw*2, height:bodyBottom-bodyTop, rx:6, fill:outfit }));
+    // arms
+    g.appendChild(svgEl('rect', { x:cx-bw-4, y:bodyTop+3, width:4, height:(bodyBottom-bodyTop)*0.7, rx:2, fill:outfit }));
+    g.appendChild(svgEl('rect', { x:cx+bw, y:bodyTop+3, width:4, height:(bodyBottom-bodyTop)*0.7, rx:2, fill:outfit }));
+    // head
+    g.appendChild(svgEl('circle', { cx, cy:headCy, r:headR, fill:skin }));
+    // facial hair
+    if (c.facialHair && c.facialHair !== 'none'){
+      const fhY = headCy + headR*0.45;
+      if (c.facialHair === 'mustache') g.appendChild(svgEl('rect', { x:cx-3, y:fhY, width:6, height:1.6, fill:hairColorHex[c.hairColor]||'#2b2620' }));
+      else g.appendChild(svgEl('path', { d:`M ${cx-7} ${fhY-1} Q ${cx} ${headCy+headR+3} ${cx+7} ${fhY-1}`, fill:hairColorHex[c.hairColor]||'#2b2620', opacity:0.9 }));
+    }
+    // glasses
+    if (c.glasses){
+      g.appendChild(svgEl('circle', { cx:cx-3.2, cy:headCy, r:2.6, fill:'none', stroke:'#2b2620', 'stroke-width':1.1 }));
+      g.appendChild(svgEl('circle', { cx:cx+3.2, cy:headCy, r:2.6, fill:'none', stroke:'#2b2620', 'stroke-width':1.1 }));
+      g.appendChild(svgEl('line', { x1:cx-0.6, y1:headCy, x2:0.6+cx, y2:headCy, stroke:'#2b2620', 'stroke-width':1.1 }));
+    }
+    // hearing aid
+    if (c.hearingAid){
+      g.appendChild(svgEl('circle', { cx:cx+headR-1, cy:headCy-2, r:1.6, fill:'#e0c67a' }));
+    }
+    // hair shape
+    const shape = hairShapeCategory(c.hair);
+    if (shape === 'short'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
+    } else if (shape === 'long'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy-1} a ${headR} ${headR} 0 0 1 ${headR*2} 0 L ${cx+headR+1} ${headCy+14} Q ${cx} ${headCy+18} ${cx-headR-1} ${headCy+14} Z`, fill:hair }));
+    } else if (shape === 'afro'){
+      g.appendChild(svgEl('circle', { cx, cy:headCy-1, r:headR+4, fill:hair }));
+      g.appendChild(svgEl('circle', { cx, cy:headCy+1, r:headR-0.5, fill:skin }));
+    } else if (shape === 'updo'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
+      g.appendChild(svgEl('circle', { cx, cy:headCy-headR-2, r:3, fill:hair }));
+      g.appendChild(svgEl('path', { d:`M ${cx+headR-2} ${headCy} q4 8 0 16`, stroke:hair, 'stroke-width':3, fill:'none' }));
+    } else if (shape === 'pigtails'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
+      g.appendChild(svgEl('circle', { cx:cx-headR-2, cy:headCy+3, r:3, fill:hair }));
+      g.appendChild(svgEl('circle', { cx:cx+headR+2, cy:headCy+3, r:3, fill:hair }));
+    } else if (shape === 'headwear'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR-1} ${headCy+2} a ${headR+1} ${headR+1} 0 0 1 ${headR*2+2} 0 L ${cx+headR-1} ${headCy-3} Q ${cx} ${headCy-headR-3} ${cx-headR+1} ${headCy-3} Z`, fill:hair }));
+    }
+    // mobility aids beside the figure
+    if (c.mobility === 'cane' || c.mobility === 'whitecane'){
+      g.appendChild(svgEl('line', { x1:cx+bw+6, y1:headCy+10, x2:cx+bw+6, y2:footY, stroke: c.mobility==='whitecane'?'#efe6d4':'#8a5a3a', 'stroke-width':2 }));
+    }
+    if (c.mobility === 'guidedog'){
+      const dy = footY-4;
+      g.appendChild(svgEl('ellipse', { cx:cx+bw+16, cy:dy, rx:9, ry:5, fill:'#e0c67a' }));
+      g.appendChild(svgEl('circle', { cx:cx+bw+24, cy:dy-3, r:4, fill:'#e0c67a' }));
+    }
+  }
+
+  function drawStem(g, cx, topY, bottomY){
+    g.appendChild(svgEl('line', { x1:cx, y1:topY, x2:cx, y2:bottomY, stroke:'#4f7a4a', 'stroke-width':2 }));
+  }
+  function drawSunflowerBloom(g, cx, cy){
+    drawStem(g, cx, cy+3, cy+11);
+    for (let i=0;i<10;i++){
+      const a = (i/10)*Math.PI*2;
+      const px = cx+Math.cos(a)*6, py = cy+Math.sin(a)*6;
+      g.appendChild(svgEl('ellipse', { cx:px, cy:py, rx:2.6, ry:4.2, fill:'#f6c545', transform:`rotate(${a*180/Math.PI+90} ${px} ${py})` }));
+    }
+    g.appendChild(svgEl('circle', { cx, cy, r:4.5, fill:'#7a5230' }));
+  }
+  function drawRoseBloom(g, cx, cy, color){
+    drawStem(g, cx, cy+4, cy+11);
+    [[0,0,5],[-3,-2,4],[3,-2,4],[0,3,4]].forEach(([dx,dy,r])=>{
+      g.appendChild(svgEl('circle', { cx:cx+dx, cy:cy+dy, r, fill:color, opacity:0.92 }));
+    });
+    g.appendChild(svgEl('circle', { cx, cy, r:2, fill:shadeHex(color,-25) }));
+    g.appendChild(svgEl('path', { d:`M ${cx-6} ${cy+9} q3 3 6 0`, stroke:'#4f7a4a', 'stroke-width':1.5, fill:'none' }));
+  }
+  function drawRadialPetals(g, cx, cy, count, petalColor, centerColor, petalLen){
+    drawStem(g, cx, cy+4, cy+11);
+    for (let i=0;i<count;i++){
+      const a = (i/count)*Math.PI*2;
+      const px = cx+Math.cos(a)*petalLen, py = cy+Math.sin(a)*petalLen;
+      g.appendChild(svgEl('ellipse', { cx:px, cy:py, rx:1.8, ry:petalLen*0.55, fill:petalColor, transform:`rotate(${a*180/Math.PI+90} ${px} ${py})` }));
+    }
+    g.appendChild(svgEl('circle', { cx, cy, r:3, fill:centerColor }));
+  }
+  function drawStarPetals(g, cx, cy, count, petalColor, centerColor){
+    drawStem(g, cx, cy+4, cy+11);
+    for (let i=0;i<count;i++){
+      const a = (i/count)*Math.PI*2 - Math.PI/2;
+      const px = cx+Math.cos(a)*5.5, py = cy+Math.sin(a)*5.5;
+      g.appendChild(svgEl('path', { d:`M ${cx} ${cy} L ${px-2} ${py-1} L ${px} ${py-4} L ${px+2} ${py-1} Z`, fill:petalColor, transform:`rotate(${a*180/Math.PI+90} ${px} ${py})` }));
+    }
+    g.appendChild(svgEl('circle', { cx, cy, r:2.4, fill:centerColor }));
+  }
+  function drawRuffledBloom(g, cx, cy, color){
+    drawStem(g, cx, cy+5, cy+11);
+    [[0,0],[-3,-2],[3,-2],[-3,2],[3,2],[0,-4],[0,4]].forEach(([dx,dy])=>{
+      g.appendChild(svgEl('circle', { cx:cx+dx, cy:cy+dy, r:3, fill:color, opacity:0.85 }));
+    });
+    g.appendChild(svgEl('circle', { cx, cy, r:2, fill:shadeHex(color,-25) }));
+  }
+  function drawCupFlower(g, cx, cy, color){
+    drawStem(g, cx, cy+7, cy+13);
+    g.appendChild(svgEl('path', { d:`M ${cx-5} ${cy+6} Q ${cx-6} ${cy-3} ${cx} ${cy-7} Q ${cx+6} ${cy-3} ${cx+5} ${cy+6} Q ${cx} ${cy+2} ${cx-5} ${cy+6} Z`, fill:color, stroke:'#2b2620', 'stroke-width':1 }));
+  }
+  function drawSpikeFlower(g, cx, cy, color, count){
+    drawStem(g, cx, cy+8, cy+14);
+    for (let i=0;i<count;i++){
+      const y = cy-8+i*4;
+      g.appendChild(svgEl('circle', { cx: cx+(i%2===0?-2.5:2.5), cy:y, r:2.6, fill:color }));
+    }
+  }
+  function drawTinyCluster(g, cx, cy, color, count){
+    drawStem(g, cx, cy+5, cy+12);
+    for (let i=0;i<count;i++){
+      const a = (i/count)*Math.PI*2;
+      g.appendChild(svgEl('circle', { cx: cx+Math.cos(a)*3.5, cy: cy+Math.sin(a)*3.5, r:1.8, fill:color }));
+    }
+    g.appendChild(svgEl('circle', { cx, cy, r:1.6, fill:shadeHex(color,-15) }));
+  }
+  function shadeHex(hex, percent){
+    const n = parseInt(hex.replace('#',''),16);
+    let r=(n>>16)+Math.round(2.55*percent), b=((n>>8)&0xff)+Math.round(2.55*percent), g=(n&0xff)+Math.round(2.55*percent);
+    r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+    return '#'+(0x1000000+r*0x10000+g*0x100+b).toString(16).slice(1);
+  }
+  const flowerVisualMap = {
+    sunflower: (g,cx,cy)=>drawSunflowerBloom(g,cx,cy),
+    hibiscus: (g,cx,cy)=>drawStarPetals(g,cx,cy,5,'#e0475c','#f6e07a'),
+    tulip: (g,cx,cy)=>drawCupFlower(g,cx,cy,'#e0475c'),
+    rose: (g,cx,cy)=>drawRoseBloom(g,cx,cy,'#c94f3d'),
+    daisy: (g,cx,cy)=>drawRadialPetals(g,cx,cy,10,'#ffffff','#f6e07a',5),
+    lavender: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#8a6bbf',6),
+    lily: (g,cx,cy)=>drawStarPetals(g,cx,cy,6,'#f6d488','#7a5230'),
+    marigold: (g,cx,cy)=>drawRadialPetals(g,cx,cy,12,'#e0762f','#a4373a',4),
+    peony: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#f0a6b8'),
+    daffodil: (g,cx,cy)=>drawStarPetals(g,cx,cy,6,'#f6e07a','#e0762f'),
+    orchid: (g,cx,cy)=>drawStarPetals(g,cx,cy,5,'#c98ad1','#7a5230'),
+    pansy: (g,cx,cy)=>drawStarPetals(g,cx,cy,5,'#6b4fa0','#f6e07a'),
+    carnation: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#e08fa8'),
+    chrysanthemum: (g,cx,cy)=>drawRadialPetals(g,cx,cy,14,'#f6e07a','#7a5230',4),
+    zinnia: (g,cx,cy)=>drawRadialPetals(g,cx,cy,10,'#e0475c','#f6e07a',4),
+    cosmos: (g,cx,cy)=>drawRadialPetals(g,cx,cy,8,'#f0a6b8','#f6e07a',5),
+    iris: (g,cx,cy)=>drawStarPetals(g,cx,cy,6,'#4a6fa5','#f6e07a'),
+    bluebell: (g,cx,cy)=>drawSpikeFlower(g,cx,cy,'#5c7fc7',4),
+    gerbera: (g,cx,cy)=>drawRadialPetals(g,cx,cy,12,'#e0762f','#7a5230',4),
+    hydrangea: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#8fb8d9'),
+    snapdragon: (g,cx,cy)=>drawSpikeFlower(g,cx,cy,'#e0475c',5),
+    petunia: (g,cx,cy)=>drawStarPetals(g,cx,cy,5,'#a0479a','#f6e07a'),
+    dahlia: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#c94f3d'),
+    foxglove: (g,cx,cy)=>drawSpikeFlower(g,cx,cy,'#c98ad1',5),
+    calendula: (g,cx,cy)=>drawRadialPetals(g,cx,cy,12,'#f6a63a','#7a5230',4),
+    sweetpea: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#f0a6b8',5),
+    morningglory: (g,cx,cy)=>drawCupFlower(g,cx,cy,'#5c9fd9'),
+    anemone: (g,cx,cy)=>drawStarPetals(g,cx,cy,6,'#ffffff','#2b2620'),
+    begonia: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#f0a6b8'),
+    aster: (g,cx,cy)=>drawRadialPetals(g,cx,cy,14,'#a97fd1','#f6e07a',3.5),
+    gardenia: (g,cx,cy)=>drawStarPetals(g,cx,cy,6,'#ffffff','#f6e07a'),
+    camellia: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#e0475c'),
+    violet: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#6b4fa0',5),
+    freesia: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#f3dfa0',5),
+    gladiolus: (g,cx,cy)=>drawSpikeFlower(g,cx,cy,'#e0475c',5),
+    reddahlia: (g,cx,cy)=>drawRuffledBloom(g,cx,cy,'#a4373a'),
+    jasmine: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#ffffff',6),
+    primrose: (g,cx,cy)=>drawRadialPetals(g,cx,cy,8,'#f6e07a','#e0762f',3.5),
+    yarrow: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#f3dfa0',7),
+    honeysuckle: (g,cx,cy)=>drawTinyCluster(g,cx,cy,'#f6e07a',6)
+  };
+  function drawFlowerBloom(g, cx, cy, flowerId){
+    const draw = flowerVisualMap[flowerId];
+    if (draw) draw(g, cx, cy);
+    else drawRadialPetals(g, cx, cy, 8, '#f0a6b8', '#f6e07a', 4);
+  }
+
+  function plotIllustrationIcon(plot, typeRegistry){
+    if (!plot || !plot.crop) return { icon:'·', dim:true };
+    const type = typeRegistry[plot.crop];
+    if (!type) return { icon:'·', dim:true };
+    const stage = plotStage(plot);
+    if (stage === 'empty') return { icon:'·', dim:true };
+    if (stage === 'ready') return { icon:type.icon, dim:false };
+    return { icon:'🌱', dim:false };
+  }
+  function renderGardenIllustrationOverlay(){
+    const svg = document.querySelector('#sceneIllustration svg');
+    if (!svg) return;
+    const old = svg.querySelector('#gardenIllustrationOverlay');
+    if (old) old.remove();
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', 'gardenIllustrationOverlay');
+    // vegetable plots, 2x2 inside the veg bed frame (x30-300, y205-300)
+    const vegPlots = (state.homeGarden && state.homeGarden.plots) || [];
+    const vegOriginX = 40, vegOriginY = 215, vegCellW = 125, vegCellH = 40;
+    vegPlots.slice(0,4).forEach((plot, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const cx = vegOriginX + col * vegCellW, cy = vegOriginY + row * vegCellH;
+      const cell = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      cell.setAttribute('x', cx); cell.setAttribute('y', cy);
+      cell.setAttribute('width', vegCellW - 10); cell.setAttribute('height', vegCellH - 8);
+      cell.setAttribute('rx', 4); cell.setAttribute('fill', '#6f4a30'); cell.setAttribute('stroke', '#2b2620'); cell.setAttribute('stroke-width', '2');
+      g.appendChild(cell);
+      const info = plotIllustrationIcon(plot, gardenCropTypes);
+      g.appendChild(svgIconGlyph(cx + (vegCellW - 10) / 2, cy + (vegCellH - 8) / 2 + 6, info.icon, 18));
+    });
+    // flower plots, 2x2 inside the flower bed frame (x330-600, y205-300)
+    const flowerPlots = (state.flowerBed && state.flowerBed.plots) || [];
+    const flOriginX = 340, flOriginY = 215, flCellW = 125, flCellH = 40;
+    flowerPlots.slice(0,4).forEach((plot, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const cx = flOriginX + col * flCellW, cy = flOriginY + row * flCellH;
+      const cellCx = cx + (flCellW - 10) / 2, cellCy = cy + (flCellH - 8) / 2;
+      const cell = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      cell.setAttribute('x', cx); cell.setAttribute('y', cy);
+      cell.setAttribute('width', flCellW - 10); cell.setAttribute('height', flCellH - 8);
+      cell.setAttribute('rx', 4); cell.setAttribute('fill', '#8a6339'); cell.setAttribute('stroke', '#2b2620'); cell.setAttribute('stroke-width', '2');
+      g.appendChild(cell);
+      const stage = plotStage(plot);
+      if (plot.crop && stage === 'ready'){
+        drawFlowerBloom(g, cellCx, cellCy - 4, plot.crop);
+      } else {
+        const info = plotIllustrationIcon(plot, flowerTypes);
+        g.appendChild(svgIconGlyph(cellCx, cellCy + 6, info.icon, 18));
+      }
+    });
+    // bouquets and other decorations placed in the home garden
+    const decor = (state.homeDecor || []).filter(d => d.decorPlace === 'home garden').slice(0, 4);
+    decor.forEach((item, i) => { g.appendChild(svgIconGlyph(645 + (i % 2) * 24, 175 + Math.floor(i / 2) * 22, item.icon || '💐', 18)); });
+    svg.appendChild(g);
+  }
+  function svgIconGlyph(x,y,icon,size){
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('font-size', size); t.setAttribute('text-anchor', 'middle');
+    t.textContent = icon;
+    return t;
+  }
+  function renderKitchenApplianceIllustrationOverlay(){
+    const svg = document.querySelector('#sceneIllustration svg');
+    if (!svg) return;
+    const old = svg.querySelector('#kitchenApplianceIllustrationOverlay');
+    if (old) old.remove();
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', 'kitchenApplianceIllustrationOverlay');
+    // fridge contents, small badges over the fridge door
+    (state.fridge || []).slice(0, 3).forEach((item, i) => {
+      g.appendChild(svgIconGlyph(645, 100 + i * 22, item.icon || '🥗', 16));
+    });
+    // cabinet contents, small badges over the cabinet doors
+    (state.cabinet || []).slice(0, 3).forEach((item, i) => {
+      g.appendChild(svgIconGlyph(500 + i * 24, 105, item.icon || '🍽️', 16));
+    });
+    svg.appendChild(g);
+  }
+
+  function renderTableIllustrationOverlay(){
+    const svg = document.querySelector('#sceneIllustration svg');
+    if (!svg) return;
+    const old = svg.querySelector('#tableIllustrationOverlay');
+    if (old) old.remove();
+    const decor = (state.homeDecor || []).filter(d => d.decorPlace === 'kitchen table');
+    const items = [...(state.tableFood || []), ...decor].slice(0, 6);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', 'tableIllustrationOverlay');
+    const startX = 607 - ((items.length - 1) * 18) / 2;
+    items.forEach((item, i) => { g.appendChild(svgIconGlyph(startX + i * 18, 233, item.icon || '🍽️', 16)); });
+    svg.appendChild(g);
+  }
+  function renderYardIllustrationOverlay(){
+    const svg = document.querySelector('#sceneIllustration svg');
+    if (!svg) return;
+    const old = svg.querySelector('#yardIllustrationOverlay');
+    if (old) old.remove();
+    const layout = (state.character && state.character.yardLayout) || defaultYardLayout();
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', 'yardIllustrationOverlay');
+    const originX = 270, originY = 15, cellW = 40, cellH = 35;
+    const frame = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    frame.setAttribute('x', originX); frame.setAttribute('y', originY);
+    frame.setAttribute('width', cellW * 4); frame.setAttribute('height', cellH * 4);
+    frame.setAttribute('fill', '#fbf6ee'); frame.setAttribute('stroke', '#2b2620'); frame.setAttribute('stroke-width', '3'); frame.setAttribute('rx', '6');
+    g.appendChild(frame);
+    layout.forEach((val, i) => {
+      const col = i % 4, row = Math.floor(i / 4);
+      const cx = originX + col * cellW, cy = originY + row * cellH;
+      const cell = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      cell.setAttribute('x', cx); cell.setAttribute('y', cy);
+      cell.setAttribute('width', cellW); cell.setAttribute('height', cellH);
+      cell.setAttribute('fill', 'none'); cell.setAttribute('stroke', '#c3b189'); cell.setAttribute('stroke-width', '1');
+      g.appendChild(cell);
+      const tool = yardTools.find(t => t.id === val);
+      if (tool) g.appendChild(svgIconGlyph(cx + cellW / 2, cy + cellH / 2 + 7, tool.icon, 18));
+    });
+    svg.appendChild(g);
   }
 
   function renderScene(announce){
@@ -1990,7 +2740,7 @@
       roomNavEl.classList.add('hidden');
       document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name}`;
     }
-    document.getElementById('sceneDesc').textContent = loc.desc;
+    document.getElementById('sceneDesc').textContent = loc.id === 'backyard' ? loc.desc + describeYardLayout() : loc.desc;
     renderSceneIllustration(loc);
     const grid = document.getElementById('hotspotGrid');
     grid.innerHTML = "";
@@ -2116,6 +2866,7 @@
   }
 
   function renderFridge(){
+    if (currentLocation().id === 'kitchen') renderKitchenApplianceIllustrationOverlay();
     const list = document.getElementById('fridgeList');
     list.innerHTML = "";
     if (!state.fridge.length){
@@ -2141,6 +2892,7 @@
 
   // Pantry stores shelf-stable foods and cooked dishes.
   function renderCabinet(){
+    if (currentLocation().id === 'kitchen') renderKitchenApplianceIllustrationOverlay();
     const list = document.getElementById('cabinetList');
     list.innerHTML = "";
     if (!state.cabinet.length){
@@ -2440,11 +3192,12 @@
       state.mood += item.mood;
       updateMeters();
       logEntry(`👕 ${item.useAct}`);
-      speak(`${item.useAct} You're now wearing ${outfitLabels[item.wearsOutfit]}.`);
+      speak(`${item.useAct} You're now wearing ${outfitLabels[item.wearsOutfit] || item.label}.`);
       state.inventory.splice(idx, 1);
       renderInventory();
       persistStorage();
       persistCharacterAppearance();
+      renderSceneIllustration(currentLocation());
       return;
     }
     if (item.wearsShoes){
@@ -2548,6 +3301,7 @@
     }
     state.closet=state.closet.filter(x=>x.uid!==uid);
     persistStorage(); persistCharacterAppearance(); renderClosetPanel();
+    renderSceneIllustration(currentLocation());
   }
 
   function openCloset(){
@@ -3127,6 +3881,7 @@
   }
 
   function renderHomeGarden(){
+    if (currentLocation().id === 'garden') renderGardenIllustrationOverlay();
     const list = document.getElementById('homeGardenPlotList');
     list.innerHTML = "";
     state.homeGarden.plots.forEach(plot => {
@@ -3373,6 +4128,8 @@
   function decorateBouquet(place){
     const idx=state.inventory.findIndex(x=>x.uid===pendingBouquetUid);if(idx<0)return;const item=state.inventory.splice(idx,1)[0];
     state.homeDecor.push({...item,decorPlace:place});persistStorage();renderInventory();closeBouquetPanel();logEntry(`💐 Placed ${item.label} as decoration on the ${place}.`);speak(`You place the ${item.label} on the ${place} as decoration.`);
+    if (place === 'home garden' && currentLocation().id === 'garden') renderGardenIllustrationOverlay();
+    if (place === 'kitchen table' && currentLocation().id === 'kitchen') renderTableIllustrationOverlay();
   }
   async function renderBouquetRecipients(){
     const list=document.getElementById('bouquetChoiceList');list.innerHTML='';const others=cachedRoster.filter(c=>c.id!==state.character.id);
@@ -3386,6 +4143,7 @@
   }
 
   function renderFlowerBed(){
+    if (currentLocation().id === 'garden') renderGardenIllustrationOverlay();
     const list = document.getElementById('flowerBedPlotList');
     list.innerHTML = "";
     state.flowerBed.plots.forEach(plot => {
@@ -4397,7 +5155,7 @@
   }
   function consumePlate(){const p=findPlate();if(!p)return false; if(state.inventory.includes(p))state.inventory.splice(state.inventory.indexOf(p),1);else state.cabinet.splice(state.cabinet.indexOf(p),1);p.dirty=true;state.cabinet.push(p);return true;}
   function removeDish(uid){for(const arr of [state.inventory,state.fridge,state.pantry,state.tableFood]){const i=arr.findIndex(x=>x.uid===uid);if(i>=0)return arr.splice(i,1)[0];}return null;}
-  function eatDish(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.mood=Math.min(100,state.mood+(dish.mood||4));state.energy=Math.min(100,state.energy+(dish.energy||5));logEntry(`😋 Ate ${dish.label}.`);speak(dish.useAct||`You eat ${dish.label}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');updateMeters();}
+  function eatDish(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.mood=Math.min(100,state.mood+(dish.mood||4));state.energy=Math.min(100,state.energy+(dish.energy||5));logEntry(`😋 Ate ${dish.label}.`);speak(dish.useAct||`You eat ${dish.label}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();renderTable();document.getElementById('cookingChoicePanel').classList.add('hidden');updateMeters();}
   function placeOnTable(uid){const dish=removeDish(uid);if(!dish)return;consumePlate();state.tableFood.push(dish);logEntry(`🍽️ Served ${dish.label} on the kitchen table.`);speak(`You serve ${dish.label} and place it on the kitchen table.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();renderTable();document.getElementById('cookingChoicePanel').classList.add('hidden');}
   function renderFoodRecipients(uid){const list=document.getElementById('cookingChoiceList');list.innerHTML='';const others=cachedRoster.filter(c=>c.id!==state.character.id);if(!others.length){const li=document.createElement('li');li.textContent='There is nobody else in your saved characters yet.';list.appendChild(li);return;}others.forEach(c=>{const b=document.createElement('button');b.textContent=`Give to ${c.name||'someone'}`;b.addEventListener('click',()=>{const dish=removeDish(uid);if(!dish)return;consumePlate();logEntry(`🍽️ Gave ${dish.label} to ${c.name||'someone'}.`);speak(`You serve ${dish.label} to ${c.name||'someone'}.`);persistStorage();renderInventory();renderFridge();renderPantry();renderCabinet();document.getElementById('cookingChoicePanel').classList.add('hidden');});const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});}
   function renderFridgePanel(){
@@ -4467,6 +5225,7 @@
 
   function renderPantry(){const list=document.getElementById('pantryList');if(!list)return;list.innerHTML='';if(!state.pantry.length){const li=document.createElement('li');li.className='empty-msg';li.textContent='The pantry is empty.';list.appendChild(li);return;}state.pantry.forEach(item=>{const li=document.createElement('li');li.textContent=`${item.icon} ${item.label}`;const b=document.createElement('button');b.textContent='Take out';b.addEventListener('click',()=>{state.pantry=state.pantry.filter(x=>x.uid!==item.uid);state.inventory.push(item);persistStorage();renderPantry();renderInventory();speak(`You take ${item.label} out of the pantry.`);});li.appendChild(b);list.appendChild(li);});}
   function renderTable(){
+    if (currentLocation().id === 'kitchen') renderTableIllustrationOverlay();
     const list=document.getElementById('tableFoodList'); if(!list)return; list.innerHTML='';
     const available=[...state.inventory,...state.fridge,...state.pantry].filter(x=>x.food);
     const decor=state.homeDecor.filter(x=>x.decorPlace==='kitchen table');
@@ -4876,6 +5635,7 @@
     const tier = relationshipTier(rel.score);
     const myFeelings = (rel.feelings && rel.feelings[state.character.id]) || 0;
     document.getElementById('visitTitle').textContent = `Visiting ${other.name}`;
+    renderVisitCharacterIllustration(other);
     document.getElementById('visitRelationshipLine').textContent =
       `${tier} — ${rel.score}/100 · ${romanceStatusLabel(rel.romanceStatus)} · Your feelings: ${feelingsTier(myFeelings)}`;
 
@@ -6310,6 +7070,20 @@
     {id:'eraser', icon:'⌫', label:'Eraser'}
   ];
   function defaultYardLayout(){ return Array(16).fill(''); }
+  function describeYardLayout(){
+    const layout = (state.character && state.character.yardLayout) || defaultYardLayout();
+    const counts = {};
+    layout.forEach(val => { if (val) counts[val] = (counts[val] || 0) + 1; });
+    const parts = Object.entries(counts).map(([id, count]) => {
+      const tool = yardTools.find(t => t.id === id);
+      const label = tool ? tool.label.toLowerCase() : id;
+      return count > 1 ? `${count} ${label}s` : `a ${label}`;
+    });
+    if (!parts.length) return '';
+    if (parts.length === 1) return ` You've added ${parts[0]} to the yard.`;
+    const last = parts.pop();
+    return ` You've added ${parts.join(', ')}, and ${last} to the yard.`;
+  }
   let selectedYardTool = 'path';
   function renderYardPlanner(){
     const tools = document.getElementById('yardToolList');
@@ -6330,6 +7104,7 @@
       b.addEventListener('click',()=>{
         layout[i]=selectedYardTool==='eraser'?'':selectedYardTool;
         persistCharacterAppearance(); renderYardPlanner();
+        if (currentLocation().id === 'backyard') renderYardIllustrationOverlay();
         const placed=yardTools.find(t=>t.id===layout[i]);
         logEntry(`🌳 Yard square ${i+1}: ${placed?`placed ${placed.label}`:'cleared'}.`);
         speak(placed?`Placed ${placed.label} in yard square ${i+1}.`:`Cleared yard square ${i+1}.`);
@@ -6361,7 +7136,7 @@
       posture: "standing", farm: defaultFarm(), pets: [], homeGarden: defaultHomeGarden(), babies: [],
       inventory: [], fridge: [], cabinet: [], closet: [], skills: defaultSkills(), readingBooks: {}, flowerBed: defaultFlowerBed(), yardLayout: defaultYardLayout(),
       activeShift: null, lastSimulatedAt: Date.now(), mail: [], mailFeatureLastDay: null,
-      achievements: [], workbenchCompletedToday: {}
+      achievements: [], workbenchCompletedToday: {}, roomVisibility: {}, roomColors: {}
     };
   }
 
@@ -6722,6 +7497,7 @@
       document.getElementById('babyBtn').classList.add('hidden');
       document.getElementById('skillsBtn').classList.add('hidden');
       document.getElementById('achievementsBtn').classList.add('hidden');
+      document.getElementById('houseEditorBtn').classList.add('hidden');
       playerTag.textContent = "";
     }
     renderCharacterList();
@@ -6757,6 +7533,7 @@
     directoryBtn.classList.remove('hidden');
     document.getElementById('skillsBtn').classList.remove('hidden');
     document.getElementById('achievementsBtn').classList.remove('hidden');
+    document.getElementById('houseEditorBtn').classList.remove('hidden');
     playerTag.textContent = `Playing as ${state.character.name} (${state.character.pronouns})`;
     setPosture(state.character.posture || 'standing', false);
     state.money = typeof state.character.money === 'number' ? state.character.money : 50;
@@ -6875,6 +7652,7 @@
     directoryBtn.classList.remove('hidden');
     document.getElementById('skillsBtn').classList.remove('hidden');
     document.getElementById('achievementsBtn').classList.remove('hidden');
+    document.getElementById('houseEditorBtn').classList.remove('hidden');
     creatorEl.classList.add('hidden');
     mainEl.classList.remove('hidden');
     sceneNavEl.classList.remove('hidden');
