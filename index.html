@@ -80,6 +80,9 @@
   }
   .scene-title{margin:0 0 .1em; font-size:1.6em;}
   .scene-desc{margin:0 0 1em; font-style:italic; color:#463f36;}
+  .scene-illustration{margin:0 0 1em; border:2px solid var(--line); border-radius:12px; background:var(--soft); overflow:hidden; line-height:0;}
+  .scene-illustration.hidden{display:none;}
+  .scene-illustration svg{display:block; width:100%; height:auto;}
 
   .hotspot-grid{
     display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.9em;
@@ -644,6 +647,7 @@
   <section class="stage" id="stage" aria-label="Current scene">
     <h2 class="scene-title" id="sceneTitle"></h2>
     <nav class="rooms hidden" aria-label="Choose a room in this house" id="roomNav"></nav>
+    <div class="scene-illustration hidden" id="sceneIllustration" aria-hidden="true"></div>
     <p class="scene-desc" id="sceneDesc"></p>
     <ul class="hotspot-grid" id="hotspotGrid" aria-label="Things to interact with in this scene"></ul>
 
@@ -878,6 +882,13 @@
       <button id="repairJobsCloseBtn">Close</button>
     </div>
 
+    <div class="shop-panel hidden" id="workbenchPanel" role="region" aria-label="Home workbench">
+      <h3>🛠️ Workbench</h3>
+      <p class="fridge-hint">Practice Mechanics for free at home. Each project can be done once per day and builds your Everyday Mechanics skill.</p>
+      <ul id="workbenchList" class="farm-list"></ul>
+      <button id="workbenchCloseBtn">Close</button>
+    </div>
+
     <div class="shop-panel hidden" id="skillBooksPanel" role="region" aria-label="Library skill books">
       <h3>📚 Skill Book Shelf</h3>
       <p class="fridge-hint">Read practical books to unlock tips, town lore, and skill progress. Each book progresses through five levels, from Basic to Master.</p>
@@ -890,6 +901,13 @@
       <p class="fridge-hint">Choose a slice of bread from your backpack to toast.</p>
       <ul id="toasterList" class="farm-list"></ul>
       <button id="toasterCloseBtn">Close</button>
+    </div>
+
+    <div class="shop-panel hidden" id="juicerPanel" role="region" aria-label="Juice maker">
+      <h3>🧃 Juice maker</h3>
+      <p class="fridge-hint">Make real juice from fruit in your backpack, fridge, or pantry. Recipes missing ingredients are disabled.</p>
+      <ul id="juicerRecipeList" class="farm-list"></ul>
+      <button id="juicerCloseBtn">Close</button>
     </div>
 
     <div class="shop-panel hidden" id="ovenPanel" role="region" aria-label="Oven">
@@ -1039,7 +1057,9 @@
             { icon:"🚰", label:"Kitchen sink", desc:"A sink with a bottle of dish soap beside it.",
               act:"You step up to the sink.", mood:0, energy:0, opensSink:true },
             { icon:"🍞", label:"Toaster", desc:"A small toaster on the kitchen counter. Buy bread at the grocery store, then bring it here to toast.",
-              act:"You check the toaster.", mood:1, energy:0, opensToaster:true }
+              act:"You check the toaster.", mood:1, energy:0, opensToaster:true },
+            { icon:"🧃", label:"Juice maker", desc:"A countertop juicer for turning fresh fruit from the orchard, garden, or grocery store into real juice.",
+              act:"You check the juice maker.", mood:1, energy:0, opensJuicer:true }
           ]
         },
         {
@@ -1098,7 +1118,9 @@
             { icon:"🔥", label:"BBQ grill", desc:"An outdoor grill, cover folded back.",
               act:"You fire up the grill and cook something simple outside.", mood:6, energy:-3 },
             { icon:"🧱", label:"Yard planner", desc:"A grid where you can place paths, fences, flowers, trees, lights, and patio furniture.",
-              act:"You open the yard landscaping planner.", mood:2, energy:0, opensYardPlanner:true }
+              act:"You open the yard landscaping planner.", mood:2, energy:0, opensYardPlanner:true },
+            { icon:"🛠️", label:"Workbench", desc:"A sturdy workbench with tools laid out, good for practicing repairs at home.",
+              act:"You step up to the workbench.", mood:1, energy:0, opensWorkbench:true }
           ]
         },
         {
@@ -1310,6 +1332,8 @@
             { icon:"🧈", label:"Butter", useAct:"You taste a tiny bit of butter and put it away for cooking.", mood:1, energy:1, storageType:"fridge" },
             { icon:"🍬", label:"Sugar", useAct:"You taste a pinch of sugar, then put it away for baking.", mood:1, energy:1, storageType:"pantry", price:3 },
             { icon:"🌾", label:"Flour", useAct:"You measure out some flour for a recipe and put the rest away.", mood:1, energy:1, storageType:"pantry", price:3 },
+            { icon:"🌾", label:"Wheat", useAct:"You set the raw wheat aside for milling into flour later.", mood:1, energy:1, storageType:"pantry", price:2 },
+            { icon:"🧂", label:"Salt", useAct:"You add a pinch of salt and put the rest away for cooking.", mood:1, energy:1, storageType:"pantry", price:1 },
             { icon:"🍫", label:"Chocolate chips", useAct:"You sample a chocolate chip, then save the bag for baking.", mood:2, energy:1, storageType:"pantry", price:4 },
             { icon:"🥐", label:"Croissant", useAct:"You eat a flaky, buttery croissant.", mood:5, energy:5 },
             { icon:"🥯", label:"Bagel", useAct:"You eat a chewy bagel. Filling and satisfying.", mood:3, energy:6 }
@@ -1815,7 +1839,7 @@
       'benchPanel','sinkPanel','mailboxPanel','barnPanel','petsPanel','babyPanel',
       'skillsPanel','cookingPanel','directoryPanel',
       'skillBooksPanel','adoptionPanel','cookingChoicePanel','tablePanel','fridgePanel','pantryPanel','cabinetPanel','achievementsPanel',
-      'orchardPanel','toasterPanel','yardPlannerPanel','closetPanel','ovenPanel','repairJobsPanel','bouquetPanel'
+      'orchardPanel','toasterPanel','yardPlannerPanel','closetPanel','ovenPanel','repairJobsPanel','bouquetPanel','juicerPanel','workbenchPanel'
     ];
     panelIds.forEach(id => {
       const el = document.getElementById(id);
@@ -1880,6 +1904,80 @@
     });
   }
 
+  const roomIllustrations = {
+    kitchen: `<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="700" height="320" fill="#f6ecd9"/>
+      <rect x="0" y="0" width="700" height="210" fill="#efe0c4"/>
+      <rect x="0" y="205" width="700" height="8" fill="#2b2620"/>
+      <rect x="0" y="213" width="700" height="107" fill="#d8c9a3"/>
+      <rect x="0" y="213" width="700" height="6" fill="#c3b189"/>
+      <!-- window -->
+      <rect x="40" y="30" width="140" height="100" rx="6" fill="#bfe3e0" stroke="#2b2620" stroke-width="4"/>
+      <line x1="110" y1="30" x2="110" y2="130" stroke="#2b2620" stroke-width="3"/>
+      <line x1="40" y1="80" x2="180" y2="80" stroke="#2b2620" stroke-width="3"/>
+      <rect x="30" y="20" width="160" height="14" fill="#8a5a3a"/>
+      <!-- fridge -->
+      <g>
+        <rect x="600" y="60" width="90" height="150" rx="8" fill="#eef3f4" stroke="#2b2620" stroke-width="4"/>
+        <line x1="600" y1="115" x2="690" y2="115" stroke="#2b2620" stroke-width="3"/>
+        <rect x="608" y="80" width="8" height="24" rx="3" fill="#2b2620"/>
+        <rect x="608" y="135" width="8" height="18" rx="3" fill="#2b2620"/>
+      </g>
+      <!-- cabinet with cabinet doors -->
+      <g>
+        <rect x="470" y="50" width="110" height="70" rx="4" fill="#c98a4b" stroke="#2b2620" stroke-width="4"/>
+        <line x1="525" y1="50" x2="525" y2="120" stroke="#2b2620" stroke-width="3"/>
+        <circle cx="512" cy="85" r="3" fill="#2b2620"/>
+        <circle cx="538" cy="85" r="3" fill="#2b2620"/>
+      </g>
+      <!-- counter with stove/oven -->
+      <g>
+        <rect x="220" y="150" width="140" height="60" fill="#8a5a3a"/>
+        <rect x="220" y="150" width="140" height="60" fill="#e0762f" opacity="0" />
+        <rect x="228" y="160" width="124" height="42" rx="4" fill="#3a6b5c" stroke="#2b2620" stroke-width="4"/>
+        <circle cx="252" cy="178" r="10" fill="#1c1a17"/>
+        <circle cx="288" cy="178" r="10" fill="#1c1a17"/>
+        <circle cx="324" cy="178" r="10" fill="#1c1a17"/>
+        <rect x="228" y="204" width="124" height="60" rx="4" fill="#2b2620"/>
+        <rect x="238" y="214" width="104" height="40" rx="3" fill="#463f36" stroke="#efe6d4" stroke-width="2"/>
+        <circle cx="330" cy="234" r="5" fill="#e0762f"/>
+      </g>
+      <!-- sink -->
+      <g>
+        <rect x="380" y="150" width="80" height="60" fill="#8a5a3a"/>
+        <rect x="388" y="158" width="64" height="30" rx="6" fill="#cfd8d8" stroke="#2b2620" stroke-width="3"/>
+        <path d="M420 150 v-14 h14" stroke="#2b2620" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- toaster + juicer on counter -->
+      <g>
+        <rect x="150" y="150" width="60" height="60" fill="#8a5a3a"/>
+        <rect x="158" y="164" width="26" height="26" rx="4" fill="#c94f3d" stroke="#2b2620" stroke-width="3"/>
+        <rect x="163" y="158" width="6" height="8" fill="#c94f3d"/>
+        <rect x="173" y="158" width="6" height="8" fill="#c94f3d"/>
+        <rect x="188" y="168" width="16" height="30" rx="3" fill="#3a6b5c" stroke="#2b2620" stroke-width="3"/>
+        <rect x="192" y="160" width="8" height="12" fill="#3a6b5c" stroke="#2b2620" stroke-width="2"/>
+      </g>
+      <!-- kitchen table with two chairs -->
+      <g>
+        <rect x="600" y="240" width="14" height="50" fill="#2b2620"/>
+        <ellipse cx="607" cy="238" rx="70" ry="14" fill="#c98a4b" stroke="#2b2620" stroke-width="4"/>
+        <rect x="545" y="255" width="10" height="40" fill="#8a5a3a"/>
+        <rect x="655" y="255" width="10" height="40" fill="#8a5a3a"/>
+        <circle cx="590" cy="232" r="9" fill="#e0762f"/>
+        <circle cx="622" cy="232" r="9" fill="#3a6b5c"/>
+      </g>
+      <!-- rug -->
+      <ellipse cx="330" cy="290" rx="120" ry="16" fill="#c94f3d" opacity="0.55"/>
+    </svg>`
+  };
+  function renderSceneIllustration(loc){
+    const el = document.getElementById('sceneIllustration');
+    if (!el) return;
+    const art = roomIllustrations[loc.id];
+    if (art){ el.innerHTML = art; el.classList.remove('hidden'); }
+    else { el.innerHTML = ''; el.classList.add('hidden'); }
+  }
+
   function renderScene(announce){
     const scene = scenes[state.sceneIndex];
     const roomNavEl = document.getElementById('roomNav');
@@ -1893,6 +1991,7 @@
       document.getElementById('sceneTitle').textContent = `${scene.icon} ${scene.name}`;
     }
     document.getElementById('sceneDesc').textContent = loc.desc;
+    renderSceneIllustration(loc);
     const grid = document.getElementById('hotspotGrid');
     grid.innerHTML = "";
     loc.hotspots.forEach((h, i) => {
@@ -2456,7 +2555,13 @@
     const panel=document.getElementById('closetPanel'); panel.classList.remove('hidden'); renderClosetPanel(); speak('Your clothing closet. You can store clothes and shoes here and wear them again whenever you want.');
     const first=panel.querySelector('button'); if(first) first.focus(); else document.getElementById('closetCloseBtn').focus();
   }
-  function closeCloset(){ document.getElementById('closetPanel').classList.add('hidden'); }
+  function closeCloset(){
+    document.getElementById('closetPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
   document.getElementById('closetCloseBtn').addEventListener('click',closeCloset);
 
   /* ---------- posture ---------- */
@@ -2922,7 +3027,13 @@
   function openOrchard(){
     renderOrchard(); document.getElementById('orchardPanel').classList.remove('hidden'); document.getElementById('orchardCloseBtn').focus(); speak('Orchard.');
   }
-  function closeOrchard(){ document.getElementById('orchardPanel').classList.add('hidden'); }
+  function closeOrchard(){
+    document.getElementById('orchardPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
   document.getElementById('orchardCloseBtn').addEventListener('click',closeOrchard);
   setInterval(()=>{ if(!document.getElementById('orchardPanel').classList.contains('hidden')) renderOrchard(); },3000);
 
@@ -3134,7 +3245,17 @@
     morningglory: { label:"Morning Glory", icon:"💠", seedCost:2, growMs:52000, useAct:"You admire the morning glory vines.", mood:5, energy:0 },
     anemone: { label:"Anemone", icon:"🌺", seedCost:3, growMs:59000, useAct:"You admire the bright anemone petals.", mood:6, energy:0 },
     begonia: { label:"Begonia", icon:"🌸", seedCost:2, growMs:51000, useAct:"You admire the soft begonia blooms.", mood:5, energy:0 },
-    aster: { label:"Aster", icon:"🌼", seedCost:3, growMs:57000, useAct:"You admire the star-shaped aster flowers.", mood:6, energy:0 }
+    aster: { label:"Aster", icon:"🌼", seedCost:3, growMs:57000, useAct:"You admire the star-shaped aster flowers.", mood:6, energy:0 },
+    gardenia: { label:"Gardenia", icon:"🤍", seedCost:4, growMs:66000, useAct:"You breathe in the rich, sweet scent of the gardenia blooms.", mood:7, energy:0 },
+    camellia: { label:"Camellia", icon:"🌺", seedCost:4, growMs:63000, useAct:"You admire the glossy leaves and full camellia blossoms.", mood:6, energy:0 },
+    violet: { label:"Violet", icon:"🟣", seedCost:2, growMs:44000, useAct:"You admire the small, deep-purple violets tucked in the bed.", mood:5, energy:0 },
+    freesia: { label:"Freesia", icon:"🌸", seedCost:3, growMs:53000, useAct:"You enjoy the sweet, citrusy scent of the freesia blooms.", mood:6, energy:0 },
+    gladiolus: { label:"Gladiolus", icon:"🌷", seedCost:4, growMs:71000, useAct:"You admire the tall, dramatic gladiolus spikes.", mood:7, energy:0 },
+    reddahlia: { label:"Red Dahlia", icon:"❤️", seedCost:5, growMs:65000, useAct:"You admire the deep red, dramatic dahlia blooms.", mood:7, energy:0 },
+    jasmine: { label:"Jasmine", icon:"🤍", seedCost:3, growMs:58000, useAct:"You breathe in the warm, sweet scent of jasmine.", mood:7, energy:0 },
+    primrose: { label:"Primrose", icon:"🌼", seedCost:2, growMs:42000, useAct:"You admire the soft, early-blooming primroses.", mood:5, energy:0 },
+    yarrow: { label:"Yarrow", icon:"🌸", seedCost:2, growMs:46000, useAct:"You admire the flat, delicate clusters of yarrow blossoms.", mood:5, energy:0 },
+    honeysuckle: { label:"Honeysuckle", icon:"🍯", seedCost:3, growMs:60000, useAct:"You breathe in the sweet, honeyed scent of the honeysuckle.", mood:6, energy:0 }
   };
 
   function defaultFlowerBed(){
@@ -3229,7 +3350,14 @@
     add('🌷 Place in home garden as decoration',()=>decorateBouquet('home garden'));
     panel.classList.remove('hidden'); document.getElementById('bouquetCloseBtn').focus(); speak(`${item.label}. Choose what you want to do with the bouquet.`);
   }
-  function closeBouquetPanel(){pendingBouquetUid=null;document.getElementById('bouquetPanel').classList.add('hidden');}
+  function closeBouquetPanel(){
+    pendingBouquetUid=null;
+    document.getElementById('bouquetPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
   document.getElementById('bouquetCloseBtn').addEventListener('click',closeBouquetPanel);
   function customizeBouquet(kind){
     const item=state.inventory.find(x=>x.uid===pendingBouquetUid);if(!item)return;
@@ -4087,14 +4215,14 @@
   /* ---------- oven baking ---------- */
   const ovenRecipes = {
     bakedpotato:{label:"Baked potato",icon:"🥔",ingredients:[{label:"Potato",qty:1}],useAct:"You eat a fluffy baked potato with a buttery center.",mood:5,energy:8,storage:"pantry",serve:"plate"},
-    cookies:{label:"Chocolate chip cookies",icon:"🍪",ingredients:[{label:"Fresh bread",qty:1},{label:"Butter",qty:1}],useAct:"You eat a warm chocolate chip cookie fresh from the oven.",mood:9,energy:6,storage:"pantry",serve:"plate"},
-    applepie:{label:"Apple pie",icon:"🥧",ingredients:[{label:"Apples",qty:2},{label:"Fresh bread",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm slice of homemade apple pie.",mood:10,energy:8,storage:"fridge",serve:"plate"},
+    cookies:{label:"Chocolate chip cookies",icon:"🍪",ingredients:[{label:"Flour",qty:1},{label:"Sugar",qty:1},{label:"Butter",qty:1},{label:"Chocolate chips",qty:1}],useAct:"You eat a warm chocolate chip cookie fresh from the oven.",mood:9,energy:6,storage:"pantry",serve:"plate"},
+    applepie:{label:"Apple pie",icon:"🥧",ingredients:[{label:"Apples",qty:2},{label:"Flour",qty:1},{label:"Butter",qty:1},{label:"Sugar",qty:1},{label:"Salt",qty:1}],useAct:"You enjoy a warm slice of homemade apple pie.",mood:10,energy:8,storage:"fridge",serve:"plate"},
     roastedveg:{label:"Roasted vegetables",icon:"🥕",ingredients:[{label:"Carrot",qty:1},{label:"Potato",qty:1},{label:"Butter",qty:1}],useAct:"You eat a warm plate of roasted vegetables.",mood:6,energy:8,storage:"fridge",serve:"plate"},
-    fruitcrumble:{label:"Apple berry crumble",icon:"🍓",ingredients:[{label:"Apples",qty:1},{label:"Strawberries",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm fruit crumble with a buttery topping.",mood:9,energy:7,storage:"fridge",serve:"bowl"},
+    fruitcrumble:{label:"Apple berry crumble",icon:"🍓",ingredients:[{label:"Apples",qty:1},{label:"Strawberries",qty:1},{label:"Flour",qty:1},{label:"Sugar",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm fruit crumble with a buttery topping.",mood:9,energy:7,storage:"fridge",serve:"bowl"},
     garlicbread:{label:"Buttery baked bread",icon:"🥖",ingredients:[{label:"Fresh bread",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy warm, buttery baked bread.",mood:7,energy:7,storage:"pantry",serve:"plate"},
     cheesypotato:{label:"Cheesy baked potato",icon:"🥔",ingredients:[{label:"Potato",qty:1},{label:"Cheese",qty:1}],useAct:"You enjoy a baked potato covered in melted cheese.",mood:8,energy:9,storage:"fridge",serve:"plate"},
-    berrymuffins:{label:"Strawberry muffins",icon:"🧁",ingredients:[{label:"Strawberries",qty:1},{label:"Fresh bread",qty:1},{label:"Milk",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm strawberry muffin.",mood:9,energy:7,storage:"pantry",serve:"plate"},
-    peachcrumble:{label:"Peach crumble",icon:"🍑",ingredients:[{label:"Peaches",qty:1},{label:"Fresh bread",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm peach crumble.",mood:9,energy:7,storage:"fridge",serve:"bowl"},
+    berrymuffins:{label:"Strawberry muffins",icon:"🧁",ingredients:[{label:"Strawberries",qty:1},{label:"Flour",qty:1},{label:"Sugar",qty:1},{label:"Milk",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm strawberry muffin.",mood:9,energy:7,storage:"pantry",serve:"plate"},
+    peachcrumble:{label:"Peach crumble",icon:"🍑",ingredients:[{label:"Peaches",qty:1},{label:"Flour",qty:1},{label:"Sugar",qty:1},{label:"Butter",qty:1}],useAct:"You enjoy a warm peach crumble.",mood:9,energy:7,storage:"fridge",serve:"bowl"},
     corncasserole:{label:"Cheesy corn casserole",icon:"🌽",ingredients:[{label:"Corn",qty:1},{label:"Milk",qty:1},{label:"Cheese",qty:1}],useAct:"You enjoy a warm, cheesy corn casserole.",mood:8,energy:8,storage:"fridge",serve:"bowl"}
   };
   function renderOven(){
@@ -4108,30 +4236,94 @@
   document.getElementById('ovenCloseBtn').addEventListener('click',closeOven);
   function bakeRecipe(id){ const r=ovenRecipes[id]; if(!r||!hasIngredients(r))return; consumeIngredients(r); const dish=grantItem({icon:r.icon,label:r.label,useAct:r.useAct,mood:r.mood,energy:r.energy,food:true,recipeId:'oven_'+id,serveType:r.serve,storageType:'none'}); logEntry(`🔥 Baked ${dish.label}.`); speak(`You bake ${dish.label}. It is ready. Choose whether to put it away or serve it.`); unlockAchievement('first_meal'); renderOven(); renderInventory(); openCookingChoice(dish.uid,{storage:r.storage,serve:r.serve}); }
 
+  /* ---------- juice maker ---------- */
+  const juiceRecipes = {
+    applejuice:{label:"Apple juice",icon:"🧃",ingredients:[{label:"Apples",qty:2}],useAct:"You drink a cold glass of fresh apple juice.",mood:5,energy:6,storage:"fridge",serve:"cup"},
+    orangejuice:{label:"Orange juice",icon:"🧃",ingredients:[{label:"Oranges",qty:2}],useAct:"You drink a glass of bright, tangy orange juice.",mood:5,energy:6,storage:"fridge",serve:"cup"},
+    grapejuice:{label:"Grape juice",icon:"🍇",ingredients:[{label:"Grapes",qty:2}],useAct:"You drink a glass of sweet, cool grape juice.",mood:5,energy:5,storage:"fridge",serve:"cup"},
+    peachjuice:{label:"Peach juice",icon:"🍑",ingredients:[{label:"Peaches",qty:2}],useAct:"You drink a glass of fragrant peach juice.",mood:6,energy:6,storage:"fridge",serve:"cup"},
+    lemonade:{label:"Lemonade",icon:"🍋",ingredients:[{label:"Lemons",qty:2},{label:"Sugar",qty:1}],useAct:"You drink a refreshing glass of homemade lemonade.",mood:6,energy:5,storage:"fridge",serve:"cup"},
+    strawberrysmoothie:{label:"Strawberry smoothie",icon:"🍓",ingredients:[{label:"Strawberries",qty:2},{label:"Milk",qty:1}],useAct:"You drink a thick, creamy strawberry smoothie.",mood:7,energy:7,storage:"fridge",serve:"cup"},
+    fruitpunch:{label:"Fruit punch",icon:"🧉",ingredients:[{label:"Apples",qty:1},{label:"Oranges",qty:1},{label:"Bananas",qty:1}],useAct:"You drink a glass of colorful mixed fruit punch.",mood:7,energy:7,storage:"fridge",serve:"cup"}
+  };
+  function renderJuicer(){
+    const list=document.getElementById('juicerRecipeList'); if(!list) return; list.innerHTML='';
+    Object.entries(juiceRecipes).forEach(([id,r])=>{
+      const li=document.createElement('li'); const info=document.createElement('div'); const ok=hasIngredients(r);
+      const ingredientText=r.ingredients.map(i=>`${i.qty} ${i.label} (have ${countIngredient(i.label)})`).join(', ');
+      info.innerHTML=`<strong>${r.icon} ${r.label}</strong><span>Needs: ${ingredientText}</span>`;
+      const actions=document.createElement('div'); actions.className='farm-item-actions';
+      const btn=document.createElement('button'); btn.textContent='Make juice'; btn.disabled=!ok;
+      btn.setAttribute('aria-label',`Make ${r.label}`); btn.addEventListener('click',()=>makeJuice(id));
+      actions.appendChild(btn); li.appendChild(info); li.appendChild(actions); list.appendChild(li);
+    });
+  }
+  function makeJuice(id){
+    const r=juiceRecipes[id]; if(!r||!hasIngredients(r)) return;
+    consumeIngredients(r);
+    const drink=grantItem({icon:r.icon,label:r.label,useAct:r.useAct,mood:r.mood,energy:r.energy,food:true,recipeId:'juice_'+id,serveType:r.serve,storageType:'none'});
+    const ingredientList=r.ingredients.map(i=>`${i.qty} ${i.label}`).join(', ');
+    logEntry(`🧃 Made ${drink.label} using ${ingredientList}.`);
+    speak(`You make ${drink.label}. Choose what to do with it: put it in the fridge, or serve it.`);
+    unlockAchievement('first_meal');
+    renderJuicer(); renderInventory(); openCookingChoice(drink.uid,{storage:r.storage,serve:r.serve});
+  }
+  function openJuicer(){
+    if(!isHomeScene()){speak('You need to be in the Kitchen at Home to use the juice maker.');return;}
+    document.getElementById('juicerPanel').classList.remove('hidden'); renderJuicer();
+    speak('Juice maker. Choose a juice to make. Recipes missing fruit are disabled.');
+    const first=document.querySelector('#juicerRecipeList button:not([disabled])');
+    (first||document.getElementById('juicerCloseBtn')).focus();
+  }
+  function closeJuicer(){
+    document.getElementById('juicerPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('juicerCloseBtn').addEventListener('click', closeJuicer);
+
   /* ---------- cooking ---------- */
   const recipes = {
-    cookedcorn:{label:"Cooked corn",icon:"🌽",ingredients:[{label:"Corn",qty:1}],useAct:"You eat a warm, buttered ear of cooked corn.",mood:5,energy:6,storage:"pantry",serve:"plate"},
+    cookedcorn:{label:"Cooked corn",icon:"🌽",ingredients:[{label:"Corn",qty:1},{label:"Butter",qty:1},{label:"Salt",qty:1}],useAct:"You eat a warm, buttered ear of cooked corn.",mood:5,energy:6,storage:"pantry",serve:"plate"},
     popcorn:{label:"Popcorn",icon:"🍿",ingredients:[{label:"Corn",qty:1}],useAct:"You munch on fresh homemade popcorn.",mood:6,energy:5,storage:"pantry",serve:"bowl"},
     cornsoup:{label:"Corn soup",icon:"🥣",ingredients:[{label:"Corn",qty:1},{label:"Milk",qty:1}],useAct:"You eat a warm bowl of corn soup.",mood:5,energy:7,storage:"fridge",serve:"bowl"},
     roastedveg:{label:"Roasted vegetables",icon:"🥕",ingredients:[{label:"Carrot",qty:1},{label:"Potato",qty:1}],useAct:"You eat a plate of roasted vegetables.",mood:5,energy:7,storage:"fridge",serve:"plate"},
-    bakedpotato:{label:"Baked potato",icon:"🥔",ingredients:[{label:"Potato",qty:1}],useAct:"You eat a fluffy baked potato.",mood:4,energy:7,storage:"pantry",serve:"plate"},
-    pizza:{label:"Homemade pizza",icon:"🍕",ingredients:[{label:"Cheese",qty:1},{label:"Fresh bread",qty:1}],useAct:"You eat a slice of homemade pizza.",mood:7,energy:8,storage:"fridge",serve:"plate"},
-    scrambledeggs:{label:"Scrambled eggs",icon:"🍳",ingredients:[{label:"Fresh eggs",qty:1}],useAct:"You eat a plate of scrambled eggs.",mood:4,energy:6,storage:"fridge",serve:"plate"},
-    pancakes:{label:"Pancakes",icon:"🥞",ingredients:[{label:"Milk",qty:1},{label:"Fresh eggs",qty:1}],useAct:"You eat a stack of warm pancakes.",mood:6,energy:7,storage:"fridge",serve:"plate"},
+    pizza:{label:"Homemade pizza",icon:"🍕",ingredients:[{label:"Flour",qty:1},{label:"Cheese",qty:1},{label:"Tomato",qty:1},{label:"Salt",qty:1}],useAct:"You eat a slice of homemade pizza.",mood:7,energy:8,storage:"fridge",serve:"plate"},
+    scrambledeggs:{label:"Scrambled eggs",icon:"🍳",ingredients:[{label:"Fresh eggs",qty:1},{label:"Butter",qty:1},{label:"Salt",qty:1}],useAct:"You eat a plate of scrambled eggs.",mood:4,energy:6,storage:"fridge",serve:"plate"},
+    pancakes:{label:"Pancakes",icon:"🥞",ingredients:[{label:"Flour",qty:1},{label:"Milk",qty:1},{label:"Fresh eggs",qty:1},{label:"Sugar",qty:1},{label:"Butter",qty:1},{label:"Salt",qty:1}],useAct:"You eat a stack of warm pancakes.",mood:6,energy:7,storage:"fridge",serve:"plate"},
     fruitsalad:{label:"Fruit salad",icon:"🍓",ingredients:[{label:"Apples",qty:1},{label:"Oranges",qty:1},{label:"Bananas",qty:1}],useAct:"You eat a refreshing bowl of fruit salad.",mood:5,energy:5,storage:"fridge",serve:"bowl"},
-    grilledcheese:{label:"Grilled cheese",icon:"🥪",ingredients:[{label:"Fresh bread",qty:2},{label:"Cheese",qty:1}],useAct:"You eat a warm grilled cheese sandwich.",mood:6,energy:8,storage:"fridge",serve:"plate"},
-    applepie:{label:"Apple pie",icon:"🥧",ingredients:[{label:"Apples",qty:2},{label:"Fresh bread",qty:1}],useAct:"You eat a sweet slice of apple pie.",mood:8,energy:7,storage:"fridge",serve:"plate"},
-    veggiewrap:{label:"Veggie wrap",icon:"🌯",ingredients:[{label:"Fresh bread",qty:1},{label:"Carrot",qty:1},{label:"Lettuce",qty:1}],useAct:"You eat a crisp veggie wrap.",mood:6,energy:7,storage:"fridge",serve:"plate"},
+    grilledcheese:{label:"Grilled cheese",icon:"🥪",ingredients:[{label:"Fresh bread",qty:2},{label:"Cheese",qty:1},{label:"Butter",qty:1}],useAct:"You eat a warm grilled cheese sandwich.",mood:6,energy:8,storage:"fridge",serve:"plate"},
+    veggiewrap:{label:"Veggie wrap",icon:"🌯",ingredients:[{label:"Fresh bread",qty:1},{label:"Carrot",qty:1},{label:"Lettuce",qty:1},{label:"Salt",qty:1}],useAct:"You eat a crisp veggie wrap.",mood:6,energy:7,storage:"fridge",serve:"plate"},
     berryparfait:{label:"Berry parfait",icon:"🍓",ingredients:[{label:"Strawberries",qty:1},{label:"Milk",qty:1}],useAct:"You enjoy a creamy berry parfait.",mood:7,energy:6,storage:"fridge",serve:"bowl"},
-    omelet:{label:"Cheese omelet",icon:"🍳",ingredients:[{label:"Fresh eggs",qty:2},{label:"Cheese",qty:1}],useAct:"You eat a fluffy cheese omelet.",mood:7,energy:8,storage:"fridge",serve:"plate"},
+    omelet:{label:"Cheese omelet",icon:"🍳",ingredients:[{label:"Fresh eggs",qty:2},{label:"Cheese",qty:1},{label:"Butter",qty:1},{label:"Salt",qty:1}],useAct:"You eat a fluffy cheese omelet.",mood:7,energy:8,storage:"fridge",serve:"plate"},
     tomatosoup:{label:"Tomato soup",icon:"🍅",ingredients:[{label:"Tomato",qty:2},{label:"Milk",qty:1}],useAct:"You enjoy a warm bowl of tomato soup.",mood:7,energy:7,storage:"fridge",serve:"bowl"},
     butterycorn:{label:"Buttery corn",icon:"🌽",ingredients:[{label:"Corn",qty:1},{label:"Butter",qty:1}],useAct:"You eat sweet corn with melted butter.",mood:7,energy:7,storage:"pantry",serve:"plate"},
     cheesypotatopan:{label:"Cheesy skillet potatoes",icon:"🥔",ingredients:[{label:"Potato",qty:1},{label:"Cheese",qty:1},{label:"Butter",qty:1}],useAct:"You eat crispy skillet potatoes with melted cheese.",mood:8,energy:9,storage:"fridge",serve:"plate"},
     fruitcompote:{label:"Warm fruit compote",icon:"🍓",ingredients:[{label:"Apples",qty:1},{label:"Strawberries",qty:1}],useAct:"You enjoy warm, softly cooked fruit compote.",mood:8,energy:6,storage:"fridge",serve:"bowl"}
   };
 
+  // Some ingredient sources use plural labels (grocery store: "Apples") while
+  // others use singular labels (orchard/garden grown produce: "Apple"). Keep the
+  // matching logic centralized so recipes recognize equivalent ingredient names
+  // regardless of where they came from, instead of requiring an exact label match.
+  const ingredientAliases = {
+    "Apples": "Apple", "Oranges": "Orange", "Bananas": "Banana", "Strawberries": "Strawberry",
+    "Peaches": "Peach", "Pears": "Pear", "Cherries": "Cherry", "Lemons": "Lemon",
+    "Limes": "Lime", "Plums": "Plum", "Apricots": "Apricot", "Nectarines": "Nectarine",
+    "Figs": "Fig", "Pomegranates": "Pomegranate", "Mangoes": "Mango", "Mangos": "Mango",
+    "Potatoes": "Potato", "Carrots": "Carrot", "Tomatoes": "Tomato"
+  };
+  function canonicalIngredientLabel(label){
+    return ingredientAliases[label] || label;
+  }
+  function ingredientMatches(itemLabel, requiredLabel){
+    return canonicalIngredientLabel(itemLabel) === canonicalIngredientLabel(requiredLabel);
+  }
+
   function countIngredient(label){
-    return [state.inventory,state.fridge,state.pantry].reduce((total,arr)=>total+(arr||[]).filter(item=>item.label===label).length,0);
+    return [state.inventory,state.fridge,state.pantry].reduce((total,arr)=>total+(arr||[]).filter(item=>ingredientMatches(item.label,label)).length,0);
   }
 
   function hasIngredients(recipe){
@@ -4143,7 +4335,7 @@
       let remaining=ing.qty;
       for(const arr of [state.inventory,state.fridge,state.pantry]){
         for(let i=arr.length-1;i>=0 && remaining>0;i--){
-          if(arr[i].label===ing.label){ arr.splice(i,1); remaining--; }
+          if(ingredientMatches(arr[i].label,ing.label)){ arr.splice(i,1); remaining--; }
         }
         if(remaining<=0) break;
       }
@@ -4162,9 +4354,9 @@
     renderCooking(); renderInventory(); openCookingChoice(dish.uid, recipeId);
   }
 
-  function openCookingChoice(uid,recipeId){
+  function openCookingChoice(uid,recipeIdOrInfo){
     const dish=state.inventory.find(x=>x.uid===uid); if(!dish)return;
-    const recipe=recipes[recipeId];
+    const recipe = typeof recipeIdOrInfo === 'string' ? recipes[recipeIdOrInfo] : recipeIdOrInfo;
     const panel=document.getElementById('cookingChoicePanel'); panel.classList.remove('hidden');
     document.getElementById('cookingChoiceTitle').textContent=`🍳 ${dish.label} is ready`;
     document.getElementById('cookingChoiceHint').textContent='What would you like to do? You can put it away in the fridge or pantry, or serve it.';
@@ -4174,7 +4366,7 @@
       const fridge=document.createElement('button'); fridge.textContent='Put in fridge'; fridge.addEventListener('click',()=>{moveCookedFood(uid,'fridge');panel.classList.add('hidden');});
       const pantry=document.createElement('button'); pantry.textContent='Put in pantry'; pantry.addEventListener('click',()=>{moveCookedFood(uid,'pantry');panel.classList.add('hidden');});
       [fridge,pantry].forEach(b=>{const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});
-      (recipe.storage==='pantry'?pantry:fridge).focus();
+      (recipe && recipe.storage==='pantry'?pantry:fridge).focus();
     });
     const serve=document.createElement('button'); serve.textContent='Serve'; serve.addEventListener('click',()=>{panel.classList.add('hidden');serveFood(uid);});
     [store,serve].forEach(b=>{const li=document.createElement('li');li.appendChild(b);list.appendChild(li);});
@@ -5338,6 +5530,79 @@
   }
   document.getElementById('repairJobsCloseBtn').addEventListener('click', closeRepairJobs);
 
+  /* ---------- home workbench (free Mechanics practice) ---------- */
+  const workbenchProjects = [
+    { id:"bolt", icon:"🔩", label:"Tighten a loose bicycle bolt", requires:0, skillGain:3, energy:-5, mood:2, flavor:"You find the loose bolt on the bike frame and tighten it down snugly." },
+    { id:"chain", icon:"⛓️", label:"Oil a squeaky chain", requires:10, skillGain:4, energy:-6, mood:3, flavor:"You wipe down the chain and work fresh oil into every link until the squeak is gone." },
+    { id:"tire", icon:"🛞", label:"Practice patching a tire", requires:20, skillGain:5, energy:-8, mood:3, flavor:"You find the leak, rough up the rubber, and press a patch into place." },
+    { id:"toolbox", icon:"🧰", label:"Organize and test the toolbox", requires:30, skillGain:6, energy:-7, mood:4, flavor:"You sort every tool back into place and test each one so it's ready to go next time." }
+  ];
+  function workbenchToday(){ return new Date().toISOString().slice(0,10); }
+  function renderWorkbench(){
+    const list = document.getElementById('workbenchList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!state.character.skills) state.character.skills = defaultSkills();
+    if (!state.character.workbenchCompletedToday) state.character.workbenchCompletedToday = {};
+    const skill = Number(state.character.skills.mechanics || 0);
+    const today = workbenchToday();
+    workbenchProjects.forEach(project => {
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      info.className = 'farm-item-info';
+      const doneToday = state.character.workbenchCompletedToday[project.id] === today;
+      const reqText = project.requires > 0 ? `Requires Mechanics ${project.requires}+ · ` : '';
+      info.innerHTML = `<strong>${project.icon} ${project.label}</strong><span>${reqText}+${project.skillGain} Mechanics · ${project.energy} Energy · +${project.mood} Mood</span>`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      if (skill < project.requires) btn.textContent = `Need Mechanics ${project.requires}`;
+      else if (doneToday) btn.textContent = 'Done for today';
+      else btn.textContent = 'Practice this project';
+      btn.disabled = skill < project.requires || doneToday || (state.energy + project.energy < 0);
+      btn.setAttribute('aria-label', `${btn.textContent}: ${project.label}`);
+      btn.addEventListener('click', () => completeWorkbenchProject(project.id));
+      li.appendChild(info);
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+  function completeWorkbenchProject(projectId){
+    const project = workbenchProjects.find(p => p.id === projectId);
+    if (!project) return;
+    if (!state.character.skills) state.character.skills = defaultSkills();
+    if (!state.character.workbenchCompletedToday) state.character.workbenchCompletedToday = {};
+    const skill = Number(state.character.skills.mechanics || 0);
+    const today = workbenchToday();
+    if (skill < project.requires){ speak(`You need Mechanics ${project.requires} before trying this project.`); return; }
+    if (state.character.workbenchCompletedToday[projectId] === today){ speak("You've already practiced this project today. Come back tomorrow."); return; }
+    if (state.energy + project.energy < 0){ speak('You are too tired to work on this right now.'); return; }
+    state.energy += project.energy;
+    state.mood += project.mood;
+    state.character.skills.mechanics = Math.min(100, skill + project.skillGain);
+    state.character.workbenchCompletedToday[projectId] = today;
+    updateMeters();
+    logEntry(`${project.icon} ${project.label}: +${project.skillGain} Everyday Mechanics (now ${state.character.skills.mechanics}/100).`);
+    speak(`${project.flavor} Everyday Mechanics is now ${state.character.skills.mechanics} out of 100. Come back tomorrow to practice this project again.`);
+    persistMechanicsSkill();
+    renderWorkbench();
+  }
+  function openWorkbench(){
+    document.getElementById('workbenchPanel').classList.remove('hidden');
+    renderWorkbench();
+    speak('Home workbench. Practice Mechanics projects for free, once per day each, to build your Everyday Mechanics skill.');
+    const firstBtn = document.querySelector('#workbenchList button:not(:disabled)');
+    (firstBtn || document.getElementById('workbenchCloseBtn')).focus();
+  }
+  function closeWorkbench(){
+    document.getElementById('workbenchPanel').classList.add('hidden');
+    requestAnimationFrame(() => {
+      const active = document.querySelector('.hotspot[tabindex="0"]') || document.querySelector('.hotspot');
+      if (active) active.focus();
+    });
+  }
+  document.getElementById('workbenchCloseBtn').addEventListener('click', closeWorkbench);
+
+
   const jobRegistry = {
     barista: { label:"Barista", icon:"☕", pay:12, flavor:"You steam milk and pull espresso shots through the morning rush." },
     cashier: { label:"Cashier", icon:"🛒", pay:10, flavor:"You scan groceries and chat with regulars in line." },
@@ -5593,6 +5858,7 @@
     for (const c of toSave){
       await saveCharacterToStorage(c);
     }
+    await runAutonomousCharacterActivity();
     await runRelationshipDrift();
   }
 
@@ -5605,6 +5871,13 @@
         parts.push(`${c.name} earned $${totalEarned} from work while you were away.`);
       }
       delete c._pendingRecap;
+    }
+
+    if (c._pendingNpcActivityRecap && c._pendingNpcActivityRecap.length){
+      const uniqueActivities = [...new Set(c._pendingNpcActivityRecap)];
+      const shown = uniqueActivities.slice(-3);
+      parts.push(`${c.name} was social while you were away: ${shown.join(" ")}`);
+      delete c._pendingNpcActivityRecap;
     }
 
     let readyCount = 0;
@@ -5632,6 +5905,96 @@
 
     if (!parts.length) return "";
     return "While you were away: " + parts.join(" ");
+  }
+
+  /* ---------- autonomous character activity / idle progression ---------- */
+  const NPC_ACTIVITY_MAX_HOURS = 24;
+  const NPC_ACTIVITY_MIN_HOURS = 0.05; // ~3 minutes
+  const NPC_ACTIVITY_CHANCE_PER_HOUR = 0.45;
+  const NPC_ACTIVITY_MAX_EVENTS = 8;
+  const NPC_ACTIVITY_SCORE_GAIN_MIN = 3;
+  const NPC_ACTIVITY_SCORE_GAIN_MAX = 6;
+  const NPC_ACTIVITY_LOCATIONS = ["the Park", "the Beach", "the Café", "the Movie Theater", "the Bowling Alley"];
+  const NPC_ACTIVITY_VERBS = [
+    "talked for a while",
+    "spent some time together",
+    "caught up with each other",
+    "went out together",
+    "hung out together"
+  ];
+
+  function randomNpcActivityLocation(){
+    return NPC_ACTIVITY_LOCATIONS[Math.floor(Math.random() * NPC_ACTIVITY_LOCATIONS.length)];
+  }
+
+  function randomNpcActivityVerb(){
+    return NPC_ACTIVITY_VERBS[Math.floor(Math.random() * NPC_ACTIVITY_VERBS.length)];
+  }
+
+  function randomNpcActivityGain(){
+    return NPC_ACTIVITY_SCORE_GAIN_MIN + Math.floor(Math.random() * (NPC_ACTIVITY_SCORE_GAIN_MAX - NPC_ACTIVITY_SCORE_GAIN_MIN + 1));
+  }
+
+  function addNpcActivityRecap(c, text){
+    c._pendingNpcActivityRecap = c._pendingNpcActivityRecap || [];
+    c._pendingNpcActivityRecap.push(text);
+    // Keep the recap small so a long absence never creates an enormous save record.
+    c._pendingNpcActivityRecap = c._pendingNpcActivityRecap.slice(-8);
+  }
+
+  async function runAutonomousCharacterActivity(){
+    const now = Date.now();
+    const unplayed = cachedRoster.filter(c => c.id !== state.character.id && c.name);
+    if (unplayed.length < 2) return;
+
+    let lastActivityAt = now;
+    try {
+      const stored = await storageGetKey('world:lastNpcActivityAt');
+      if (stored) lastActivityAt = parseInt(stored, 10);
+    } catch (e){ /* non-critical */ }
+
+    const elapsedHours = Math.max(0, (now - lastActivityAt) / 3600000);
+    if (elapsedHours < NPC_ACTIVITY_MIN_HOURS) return;
+
+    // Each elapsed hour gives the town a chance to create one independent social event.
+    // Cap both elapsed time and event count so returning after a very long absence stays lightweight.
+    const hours = Math.min(NPC_ACTIVITY_MAX_HOURS, elapsedHours);
+    const eventCount = Math.min(NPC_ACTIVITY_MAX_EVENTS, Math.floor(hours));
+    const fractionalChance = hours - Math.floor(hours);
+    let events = eventCount;
+    if (Math.random() < fractionalChance * NPC_ACTIVITY_CHANCE_PER_HOUR && events < NPC_ACTIVITY_MAX_EVENTS) events++;
+
+    const touched = new Set();
+    for (let i = 0; i < events; i++){
+      if (Math.random() > NPC_ACTIVITY_CHANCE_PER_HOUR) continue;
+
+      const shuffled = [...unplayed].sort(() => Math.random() - 0.5);
+      const a = shuffled[0];
+      const b = shuffled[1];
+      if (!a || !b || a.id === b.id) continue;
+
+      const rel = await loadRelationship(a.id, b.id);
+      const gain = randomNpcActivityGain();
+      rel.score = Math.min(100, rel.score + gain);
+      const location = randomNpcActivityLocation();
+      const verb = randomNpcActivityVerb();
+      const text = `${a.name} and ${b.name} ${verb} at ${location}.`;
+      addRelationshipHistory(rel, text);
+      await saveRelationship(rel);
+
+      addNpcActivityRecap(a, text);
+      addNpcActivityRecap(b, text);
+      touched.add(a);
+      touched.add(b);
+    }
+
+    // Persist the changed NPC records so their activity is still there after a reload or character switch.
+    for (const c of touched){
+      c.lastSimulatedAt = now;
+      await saveCharacterToStorage(c);
+    }
+
+    try { await storageSetKey('world:lastNpcActivityAt', String(now)); } catch (e){ /* non-critical */ }
   }
 
   /* ---------- background relationship drift between unplayed characters ---------- */
@@ -5716,6 +6079,10 @@
       openRepairJobs();
       return;
     }
+    if (h.opensWorkbench){
+      openWorkbench();
+      return;
+    }
     if (h.opensPets){
       openPets();
       return;
@@ -5754,6 +6121,10 @@
     }
     if (h.opensToaster){
       openToasterPanel();
+      return;
+    }
+    if (h.opensJuicer){
+      openJuicer();
       return;
     }
     if (h.opensCloset){
@@ -5990,7 +6361,7 @@
       posture: "standing", farm: defaultFarm(), pets: [], homeGarden: defaultHomeGarden(), babies: [],
       inventory: [], fridge: [], cabinet: [], closet: [], skills: defaultSkills(), readingBooks: {}, flowerBed: defaultFlowerBed(), yardLayout: defaultYardLayout(),
       activeShift: null, lastSimulatedAt: Date.now(), mail: [], mailFeatureLastDay: null,
-      achievements: []
+      achievements: [], workbenchCompletedToday: {}
     };
   }
 
