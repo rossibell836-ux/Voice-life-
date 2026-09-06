@@ -2257,14 +2257,14 @@
     renderCharacterFigureOverlay(loc);
   }
   const characterStandingSpots = {
-    kitchen: { x:420, footY:300 },
-    livingroom: { x:520, footY:305 },
-    entryway: { x:350, footY:305 },
-    bedroom: { x:350, footY:305 },
-    childroom: { x:305, footY:305 },
-    bathroom: { x:390, footY:305 },
-    backyard: { x:350, footY:312 },
-    garden: { x:460, footY:312 }
+    kitchen: { x:495, footY:316 },
+    livingroom: { x:560, footY:316 },
+    entryway: { x:615, footY:316 },
+    bedroom: { x:655, footY:316 },
+    childroom: { x:630, footY:316 },
+    bathroom: { x:390, footY:316 },
+    backyard: { x:350, footY:318 },
+    garden: { x:315, footY:318 }
   };
   function renderCharacterFigureOverlay(loc){
     const svg = document.querySelector('#sceneIllustration svg');
@@ -2282,17 +2282,17 @@
     const el = document.getElementById('visitCharacterIllustration');
     if (!el || !other) return;
     const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox', '0 0 200 220');
+    svg.setAttribute('viewBox', '0 0 200 230');
     const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',200); bg.setAttribute('height',220);
+    bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',200); bg.setAttribute('height',230);
     bg.setAttribute('fill', '#efe0c4');
     svg.appendChild(bg);
     const floor = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    floor.setAttribute('x',0); floor.setAttribute('y',188); floor.setAttribute('width',200); floor.setAttribute('height',32);
+    floor.setAttribute('x',0); floor.setAttribute('y',198); floor.setAttribute('width',200); floor.setAttribute('height',32);
     floor.setAttribute('fill', '#d8c9a3');
     svg.appendChild(floor);
     const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    drawCharacterFigure(g, 100, 195, other);
+    drawCharacterFigure(g, 100, 215, other);
     svg.appendChild(g);
     el.innerHTML = '';
     el.appendChild(svg);
@@ -2414,73 +2414,89 @@
     if (['headscarf','turban'].includes(style)) return 'headwear';
     return 'short';
   }
+  // Proportions are defined per age group so every character - the player, visited
+  // characters, children, babies, and any future NPC - is sized appropriately and
+  // consistently relative to the rooms and furniture, which are drawn at roughly
+  // life-size scale (e.g. a door is ~220px tall in the 700x320 room viewBox).
+  const AGE_FIGURE_PROPORTIONS = {
+    baby:    { headR:10, torsoH:10, legH:10 },
+    toddler: { headR:11, torsoH:20, legH:22 },
+    kid:     { headR:12, torsoH:34, legH:38 },
+    teen:    { headR:14, torsoH:52, legH:57 },
+    adult:   { headR:16, torsoH:62, legH:68 },
+    elder:   { headR:16, torsoH:60, legH:64 }
+  };
   function drawCharacterFigure(g, cx, footY, c){
     const skin = skinToneHex[c.skin] || skinToneHex.medium;
     const hair = hairColorHex[c.hairColor] || hairColorHex.black;
     const outfit = outfitColorHex[c.outfit] || outfitColorHex.casual;
     const widthScale = { slim:0.85, average:1, athletic:1.05, plussize:1.25 }[c.bodyType] || 1;
-    const bw = 13 * widthScale;
-    const headR = 8.5;
-    const headCy = footY - 40;
-    const bodyTop = headCy + headR - 1;
-    const bodyBottom = footY - 14;
+    const prop = AGE_FIGURE_PROPORTIONS[c.age] || AGE_FIGURE_PROPORTIONS.adult;
+    const headR = prop.headR, torsoH = prop.torsoH, legH = prop.legH;
+    const bw = headR * 0.85 * widthScale;
+    const headCy = footY - legH - torsoH - headR;
+    const bodyTop = headCy + headR - Math.max(1, headR*0.1);
+    const bodyBottom = footY - legH;
     const usesWheelchair = c.mobility === 'wheelchair';
+    const armW = Math.max(3, headR*0.28);
     // legs (skipped if using a wheelchair; drawn as a seated silhouette instead)
     if (usesWheelchair){
-      g.appendChild(svgEl('rect', { x:cx-bw, y:bodyBottom-4, width:bw*2, height:10, rx:3, fill:outfit }));
-      g.appendChild(svgEl('circle', { cx:cx-bw-2, cy:footY, r:9, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
-      g.appendChild(svgEl('circle', { cx:cx+bw+2, cy:footY, r:9, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
-      g.appendChild(svgEl('line', { x1:cx-bw-2, y1:footY-9, x2:cx+bw+2, y2:footY-9, stroke:'#463f36', 'stroke-width':2 }));
+      g.appendChild(svgEl('rect', { x:cx-bw, y:bodyBottom-4, width:bw*2, height:legH*0.5, rx:3, fill:outfit }));
+      g.appendChild(svgEl('circle', { cx:cx-bw-3, cy:footY-legH*0.35, r:legH*0.55, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
+      g.appendChild(svgEl('circle', { cx:cx+bw+3, cy:footY-legH*0.35, r:legH*0.55, fill:'none', stroke:'#463f36', 'stroke-width':2.5 }));
+      g.appendChild(svgEl('line', { x1:cx-bw-3, y1:footY-legH*0.65, x2:cx+bw+3, y2:footY-legH*0.65, stroke:'#463f36', 'stroke-width':2 }));
     } else {
-      g.appendChild(svgEl('rect', { x:cx-bw*0.7, y:bodyBottom, width:bw*0.55, height:footY-bodyBottom, rx:2, fill:'#463f36' }));
-      g.appendChild(svgEl('rect', { x:cx+bw*0.15, y:bodyBottom, width:bw*0.55, height:footY-bodyBottom, rx:2, fill:'#463f36' }));
+      g.appendChild(svgEl('rect', { x:cx-bw*0.7, y:bodyBottom, width:bw*0.55, height:legH, rx:Math.min(4,bw*0.25), fill:'#463f36' }));
+      g.appendChild(svgEl('rect', { x:cx+bw*0.15, y:bodyBottom, width:bw*0.55, height:legH, rx:Math.min(4,bw*0.25), fill:'#463f36' }));
     }
     // body / outfit
-    g.appendChild(svgEl('rect', { x:cx-bw, y:bodyTop, width:bw*2, height:bodyBottom-bodyTop, rx:6, fill:outfit }));
+    g.appendChild(svgEl('rect', { x:cx-bw, y:bodyTop, width:bw*2, height:bodyBottom-bodyTop, rx:Math.min(9,bw*0.5), fill:outfit }));
     // arms
-    g.appendChild(svgEl('rect', { x:cx-bw-4, y:bodyTop+3, width:4, height:(bodyBottom-bodyTop)*0.7, rx:2, fill:outfit }));
-    g.appendChild(svgEl('rect', { x:cx+bw, y:bodyTop+3, width:4, height:(bodyBottom-bodyTop)*0.7, rx:2, fill:outfit }));
+    g.appendChild(svgEl('rect', { x:cx-bw-armW, y:bodyTop+bodyBottom*0, width:armW, height:(bodyBottom-bodyTop)*0.75, rx:armW*0.4, fill:outfit }));
+    g.appendChild(svgEl('rect', { x:cx+bw, y:bodyTop, width:armW, height:(bodyBottom-bodyTop)*0.75, rx:armW*0.4, fill:outfit }));
     // head
     g.appendChild(svgEl('circle', { cx, cy:headCy, r:headR, fill:skin }));
     // facial hair
     if (c.facialHair && c.facialHair !== 'none'){
       const fhY = headCy + headR*0.45;
-      if (c.facialHair === 'mustache') g.appendChild(svgEl('rect', { x:cx-3, y:fhY, width:6, height:1.6, fill:hairColorHex[c.hairColor]||'#2b2620' }));
-      else g.appendChild(svgEl('path', { d:`M ${cx-7} ${fhY-1} Q ${cx} ${headCy+headR+3} ${cx+7} ${fhY-1}`, fill:hairColorHex[c.hairColor]||'#2b2620', opacity:0.9 }));
+      const fhColor = hairColorHex[c.hairColor]||'#2b2620';
+      if (c.facialHair === 'mustache') g.appendChild(svgEl('rect', { x:cx-headR*0.35, y:fhY, width:headR*0.7, height:Math.max(1.4,headR*0.18), fill:fhColor }));
+      else g.appendChild(svgEl('path', { d:`M ${cx-headR*0.8} ${fhY-1} Q ${cx} ${headCy+headR+headR*0.35} ${cx+headR*0.8} ${fhY-1}`, fill:fhColor, opacity:0.9 }));
     }
     // glasses
     if (c.glasses){
-      g.appendChild(svgEl('circle', { cx:cx-3.2, cy:headCy, r:2.6, fill:'none', stroke:'#2b2620', 'stroke-width':1.1 }));
-      g.appendChild(svgEl('circle', { cx:cx+3.2, cy:headCy, r:2.6, fill:'none', stroke:'#2b2620', 'stroke-width':1.1 }));
-      g.appendChild(svgEl('line', { x1:cx-0.6, y1:headCy, x2:0.6+cx, y2:headCy, stroke:'#2b2620', 'stroke-width':1.1 }));
+      const gr = headR*0.32, gx = headR*0.38;
+      g.appendChild(svgEl('circle', { cx:cx-gx, cy:headCy, r:gr, fill:'none', stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.09) }));
+      g.appendChild(svgEl('circle', { cx:cx+gx, cy:headCy, r:gr, fill:'none', stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.09) }));
+      g.appendChild(svgEl('line', { x1:cx-gx+gr, y1:headCy, x2:cx+gx-gr, y2:headCy, stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.09) }));
     }
     // hearing aid
     if (c.hearingAid){
-      g.appendChild(svgEl('circle', { cx:cx+headR-1, cy:headCy-2, r:1.6, fill:'#e0c67a' }));
+      g.appendChild(svgEl('circle', { cx:cx+headR-headR*0.15, cy:headCy-headR*0.25, r:Math.max(1.2,headR*0.18), fill:'#e0c67a' }));
     }
     // hair shape
     const shape = hairShapeCategory(c.hair);
     if (shape === 'short'){
       g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
     } else if (shape === 'long'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy-1} a ${headR} ${headR} 0 0 1 ${headR*2} 0 L ${cx+headR+1} ${headCy+14} Q ${cx} ${headCy+18} ${cx-headR-1} ${headCy+14} Z`, fill:hair }));
+      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy-1} a ${headR} ${headR} 0 0 1 ${headR*2} 0 L ${cx+headR+1} ${headCy+headR*1.7} Q ${cx} ${headCy+headR*2.1} ${cx-headR-1} ${headCy+headR*1.7} Z`, fill:hair }));
     } else if (shape === 'afro'){
-      g.appendChild(svgEl('circle', { cx, cy:headCy-1, r:headR+4, fill:hair }));
+      g.appendChild(svgEl('circle', { cx, cy:headCy-1, r:headR+headR*0.5, fill:hair }));
       g.appendChild(svgEl('circle', { cx, cy:headCy+1, r:headR-0.5, fill:skin }));
     } else if (shape === 'updo'){
       g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
-      g.appendChild(svgEl('circle', { cx, cy:headCy-headR-2, r:3, fill:hair }));
-      g.appendChild(svgEl('path', { d:`M ${cx+headR-2} ${headCy} q4 8 0 16`, stroke:hair, 'stroke-width':3, fill:'none' }));
+      g.appendChild(svgEl('circle', { cx, cy:headCy-headR-headR*0.25, r:headR*0.35, fill:hair }));
+      g.appendChild(svgEl('path', { d:`M ${cx+headR-2} ${headCy} q${headR*0.5} ${headR} 0 ${headR*2}`, stroke:hair, 'stroke-width':headR*0.35, fill:'none' }));
     } else if (shape === 'pigtails'){
       g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
-      g.appendChild(svgEl('circle', { cx:cx-headR-2, cy:headCy+3, r:3, fill:hair }));
-      g.appendChild(svgEl('circle', { cx:cx+headR+2, cy:headCy+3, r:3, fill:hair }));
+      g.appendChild(svgEl('circle', { cx:cx-headR-headR*0.25, cy:headCy+headR*0.35, r:headR*0.35, fill:hair }));
+      g.appendChild(svgEl('circle', { cx:cx+headR+headR*0.25, cy:headCy+headR*0.35, r:headR*0.35, fill:hair }));
     } else if (shape === 'headwear'){
       g.appendChild(svgEl('path', { d:`M ${cx-headR-1} ${headCy+2} a ${headR+1} ${headR+1} 0 0 1 ${headR*2+2} 0 L ${cx+headR-1} ${headCy-3} Q ${cx} ${headCy-headR-3} ${cx-headR+1} ${headCy-3} Z`, fill:hair }));
     }
     // mobility aids beside the figure
     if (c.mobility === 'cane' || c.mobility === 'whitecane'){
-      g.appendChild(svgEl('line', { x1:cx+bw+6, y1:headCy+10, x2:cx+bw+6, y2:footY, stroke: c.mobility==='whitecane'?'#efe6d4':'#8a5a3a', 'stroke-width':2 }));
+      g.appendChild(svgEl('line', { x1:cx+bw+6, y1:headCy+torsoH*0.3, x2:cx+bw+6, y2:footY, stroke: c.mobility==='whitecane'?'#efe6d4':'#8a5a3a', 'stroke-width':2 }));
     }
     if (c.mobility === 'guidedog'){
       const dy = footY-4;
