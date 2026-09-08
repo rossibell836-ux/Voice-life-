@@ -308,7 +308,7 @@
   <div>
     <h1>Sunny Town<span class="dot">.</span></h1>
     <p class="tag">A voice-guided life game — every scene, spoken aloud</p>
-    <p style="font-size:.8em; color:#8a8073;">Build: 2026-char-scale-v3</p>
+    <p style="font-size:.8em; color:#8a8073;">Build: 2026-hair-fix-v4</p>
     <p id="playerTag"></p>
   </div>
   <div class="header-actions">
@@ -2455,8 +2455,27 @@
     // arms
     g.appendChild(svgEl('rect', { x:cx-bw-armW, y:bodyTop+bodyBottom*0, width:armW, height:(bodyBottom-bodyTop)*0.75, rx:armW*0.4, fill:outfit }));
     g.appendChild(svgEl('rect', { x:cx+bw, y:bodyTop, width:armW, height:(bodyBottom-bodyTop)*0.75, rx:armW*0.4, fill:outfit }));
-    // head
-    g.appendChild(svgEl('circle', { cx, cy:headCy, r:headR, fill:skin }));
+    // Hair is drawn first as a backdrop circle, then the face circle on top of it
+    // reveals a natural hair ring/frame around the face wherever the backdrop peeks
+    // out - concentrated at the top and sides, tapering to nothing at the chin. This
+    // stays clearly readable as hair regardless of which hair color is chosen, unlike
+    // a thin cap outline, which can visually blend with this game's standard dark
+    // furniture-outline color (also #2b2620, the default "black" hair color).
+    const shape = hairShapeCategory(c.hair);
+    function hairBackdrop(hairRFactor, liftFactor){
+      g.appendChild(svgEl('circle', { cx, cy:headCy-headR*liftFactor, r:headR*hairRFactor, fill:hair, stroke:'#2b2620', 'stroke-width':Math.max(0.8,headR*0.05) }));
+    }
+    if (shape === 'short') hairBackdrop(1.18, 0.32);
+    else if (shape === 'long') hairBackdrop(1.18, 0.28);
+    else if (shape === 'afro') hairBackdrop(1.55, 0.05);
+    else if (shape === 'updo') hairBackdrop(1.18, 0.32);
+    else if (shape === 'pigtails') hairBackdrop(1.18, 0.32);
+    else if (shape === 'headwear') hairBackdrop(1.2, 0.4);
+    // bald: intentionally no hair backdrop, just the outlined face below
+
+    // face — drawn after the hair backdrop so it reveals the hair ring around it
+    g.appendChild(svgEl('circle', { cx, cy:headCy, r:headR, fill:skin, stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.06) }));
+
     // facial hair
     if (c.facialHair && c.facialHair !== 'none'){
       const fhY = headCy + headR*0.45;
@@ -2475,26 +2494,21 @@
     if (c.hearingAid){
       g.appendChild(svgEl('circle', { cx:cx+headR-headR*0.15, cy:headCy-headR*0.25, r:Math.max(1.2,headR*0.18), fill:'#e0c67a' }));
     }
-    // hair shape
-    const shape = hairShapeCategory(c.hair);
-    if (shape === 'short'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
-    } else if (shape === 'long'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy-1} a ${headR} ${headR} 0 0 1 ${headR*2} 0 L ${cx+headR+1} ${headCy+headR*1.7} Q ${cx} ${headCy+headR*2.1} ${cx-headR-1} ${headCy+headR*1.7} Z`, fill:hair }));
-    } else if (shape === 'afro'){
-      g.appendChild(svgEl('circle', { cx, cy:headCy-1, r:headR+headR*0.5, fill:hair }));
-      g.appendChild(svgEl('circle', { cx, cy:headCy+1, r:headR-0.5, fill:skin }));
+    // hair accents that sit in front of/beside the face (buns, pigtail sides, long
+    // strands, headwear band) - drawn last so they aren't hidden behind the face
+    if (shape === 'long'){
+      g.appendChild(svgEl('path', { d:`M ${cx-headR*1.05} ${headCy} Q ${cx-headR*1.15} ${headCy+headR*1.6} ${cx-headR*0.55} ${headCy+headR*2} L ${cx-headR*0.3} ${headCy+headR*1.5} Z`, fill:hair }));
+      g.appendChild(svgEl('path', { d:`M ${cx+headR*1.05} ${headCy} Q ${cx+headR*1.15} ${headCy+headR*1.6} ${cx+headR*0.55} ${headCy+headR*2} L ${cx+headR*0.3} ${headCy+headR*1.5} Z`, fill:hair }));
     } else if (shape === 'updo'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
-      g.appendChild(svgEl('circle', { cx, cy:headCy-headR-headR*0.25, r:headR*0.35, fill:hair }));
-      g.appendChild(svgEl('path', { d:`M ${cx+headR-2} ${headCy} q${headR*0.5} ${headR} 0 ${headR*2}`, stroke:hair, 'stroke-width':headR*0.35, fill:'none' }));
+      g.appendChild(svgEl('circle', { cx, cy:headCy-headR-headR*0.35, r:headR*0.4, fill:hair, stroke:'#2b2620', 'stroke-width':Math.max(0.8,headR*0.05) }));
+      g.appendChild(svgEl('path', { d:`M ${cx+headR*0.9} ${headCy+headR*0.2} Q ${cx+headR*1.4} ${headCy+headR*1.1} ${cx+headR*0.7} ${headCy+headR*2} L ${cx+headR*0.4} ${headCy+headR*1.7} Z`, fill:hair }));
     } else if (shape === 'pigtails'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR} ${headCy} a ${headR} ${headR} 0 0 1 ${headR*2} 0 Z`, fill:hair }));
-      g.appendChild(svgEl('circle', { cx:cx-headR-headR*0.25, cy:headCy+headR*0.35, r:headR*0.35, fill:hair }));
-      g.appendChild(svgEl('circle', { cx:cx+headR+headR*0.25, cy:headCy+headR*0.35, r:headR*0.35, fill:hair }));
+      g.appendChild(svgEl('circle', { cx:cx-headR-headR*0.3, cy:headCy+headR*0.3, r:headR*0.4, fill:hair, stroke:'#2b2620', 'stroke-width':Math.max(0.8,headR*0.05) }));
+      g.appendChild(svgEl('circle', { cx:cx+headR+headR*0.3, cy:headCy+headR*0.3, r:headR*0.4, fill:hair, stroke:'#2b2620', 'stroke-width':Math.max(0.8,headR*0.05) }));
     } else if (shape === 'headwear'){
-      g.appendChild(svgEl('path', { d:`M ${cx-headR-1} ${headCy+2} a ${headR+1} ${headR+1} 0 0 1 ${headR*2+2} 0 L ${cx+headR-1} ${headCy-3} Q ${cx} ${headCy-headR-3} ${cx-headR+1} ${headCy-3} Z`, fill:hair }));
+      g.appendChild(svgEl('rect', { x:cx-headR*1.2, y:headCy-headR*0.1, width:headR*2.4, height:headR*0.5, fill:hair }));
     }
+
     // mobility aids beside the figure
     if (c.mobility === 'cane' || c.mobility === 'whitecane'){
       g.appendChild(svgEl('line', { x1:cx+bw+6, y1:headCy+torsoH*0.3, x2:cx+bw+6, y2:footY, stroke: c.mobility==='whitecane'?'#efe6d4':'#8a5a3a', 'stroke-width':2 }));
