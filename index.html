@@ -308,7 +308,7 @@
   <div>
     <h1>Sunny Town<span class="dot">.</span></h1>
     <p class="tag">A voice-guided life game — every scene, spoken aloud</p>
-    <p style="font-size:.8em; color:#8a8073;">Build: 2026-hair-fix-v4</p>
+    <p style="font-size:.8em; color:#8a8073;">Build: 2026-hair-fix-v5-face</p>
     <p id="playerTag"></p>
   </div>
   <div class="header-actions">
@@ -2465,16 +2465,42 @@
     function hairBackdrop(hairRFactor, liftFactor){
       g.appendChild(svgEl('circle', { cx, cy:headCy-headR*liftFactor, r:headR*hairRFactor, fill:hair, stroke:'#2b2620', 'stroke-width':Math.max(0.8,headR*0.05) }));
     }
-    if (shape === 'short') hairBackdrop(1.18, 0.32);
-    else if (shape === 'long') hairBackdrop(1.18, 0.28);
-    else if (shape === 'afro') hairBackdrop(1.55, 0.05);
-    else if (shape === 'updo') hairBackdrop(1.18, 0.32);
-    else if (shape === 'pigtails') hairBackdrop(1.18, 0.32);
-    else if (shape === 'headwear') hairBackdrop(1.2, 0.4);
+    if (shape === 'short') hairBackdrop(1.34, 0.4);
+    else if (shape === 'long') hairBackdrop(1.32, 0.36);
+    else if (shape === 'afro') hairBackdrop(1.6, 0.08);
+    else if (shape === 'updo') hairBackdrop(1.34, 0.4);
+    else if (shape === 'pigtails') hairBackdrop(1.34, 0.4);
+    else if (shape === 'headwear') hairBackdrop(1.32, 0.46);
     // bald: intentionally no hair backdrop, just the outlined face below
 
-    // face — drawn after the hair backdrop so it reveals the hair ring around it
+    // face — drawn after the hair backdrop so it reveals the hair ring around it.
+    // The backdrop is now noticeably larger/higher than the face circle (above),
+    // so a clear, unmistakable band of hair frames the top and sides no matter
+    // which hair color is chosen, instead of the thin sliver this used to leave.
     g.appendChild(svgEl('circle', { cx, cy:headCy, r:headR, fill:skin, stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.06) }));
+
+    // simple facial features — small dot eyes and a light smile, drawn on every
+    // character regardless of hair/age/outfit so heads read as a face rather than
+    // a blank circle. Kept intentionally minimal to match the flat, iconographic
+    // style used everywhere else in this figure.
+    {
+      const eyeY = headCy - headR*0.05;
+      const eyeDX = headR*0.34;
+      const eyeR = Math.max(1, headR*0.09);
+      g.appendChild(svgEl('circle', { cx:cx-eyeDX, cy:eyeY, r:eyeR, fill:'#2b2620' }));
+      g.appendChild(svgEl('circle', { cx:cx+eyeDX, cy:eyeY, r:eyeR, fill:'#2b2620' }));
+      // small light cheek/blush accents give the face gentle shape without
+      // implying a specific gender — they're subtle and low-opacity
+      const blushR = headR*0.16;
+      g.appendChild(svgEl('ellipse', { cx:cx-headR*0.55, cy:headCy+headR*0.18, rx:blushR, ry:blushR*0.65, fill:'#e8a0a0', opacity:0.28 }));
+      g.appendChild(svgEl('ellipse', { cx:cx+headR*0.55, cy:headCy+headR*0.18, rx:blushR, ry:blushR*0.65, fill:'#e8a0a0', opacity:0.28 }));
+      // simple smile
+      const mouthY = headCy + headR*0.4;
+      g.appendChild(svgEl('path', {
+        d:`M ${cx-headR*0.28} ${mouthY} Q ${cx} ${mouthY+headR*0.22} ${cx+headR*0.28} ${mouthY}`,
+        fill:'none', stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.08), 'stroke-linecap':'round'
+      }));
+    }
 
     // facial hair
     if (c.facialHair && c.facialHair !== 'none'){
