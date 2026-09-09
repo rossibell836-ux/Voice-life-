@@ -308,7 +308,7 @@
   <div>
     <h1>Sunny Town<span class="dot">.</span></h1>
     <p class="tag">A voice-guided life game — every scene, spoken aloud</p>
-    <p style="font-size:.8em; color:#8a8073;">Build: 2026-hair-fix-v5-face</p>
+    <p style="font-size:.8em; color:#8a8073;">Build: 2026-hair-fix-v6-mouth</p>
     <p id="playerTag"></p>
   </div>
   <div class="header-actions">
@@ -2494,11 +2494,12 @@
       const blushR = headR*0.16;
       g.appendChild(svgEl('ellipse', { cx:cx-headR*0.55, cy:headCy+headR*0.18, rx:blushR, ry:blushR*0.65, fill:'#e8a0a0', opacity:0.28 }));
       g.appendChild(svgEl('ellipse', { cx:cx+headR*0.55, cy:headCy+headR*0.18, rx:blushR, ry:blushR*0.65, fill:'#e8a0a0', opacity:0.28 }));
-      // simple smile
-      const mouthY = headCy + headR*0.4;
+      // simple smile — made wider/deeper and drawn with a bolder stroke so it
+      // still reads clearly at small on-screen sizes, not just at full zoom
+      const mouthY = headCy + headR*0.42;
       g.appendChild(svgEl('path', {
-        d:`M ${cx-headR*0.28} ${mouthY} Q ${cx} ${mouthY+headR*0.22} ${cx+headR*0.28} ${mouthY}`,
-        fill:'none', stroke:'#2b2620', 'stroke-width':Math.max(1,headR*0.08), 'stroke-linecap':'round'
+        d:`M ${cx-headR*0.4} ${mouthY} Q ${cx} ${mouthY+headR*0.38} ${cx+headR*0.4} ${mouthY}`,
+        fill:'none', stroke:'#2b2620', 'stroke-width':Math.max(1.6,headR*0.13), 'stroke-linecap':'round'
       }));
     }
 
